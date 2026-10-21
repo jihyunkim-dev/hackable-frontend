@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@import "../styles/theme.css";
+
+body {
+  background: var(--color-background-normal);
+  color: var(--color-gray-900);
+  /* 한글이 단어 중간에서 줄바꿈되지 않도록 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+@utility scrollbar-hidden {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
