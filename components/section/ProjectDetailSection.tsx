@@ -10,14 +10,24 @@ export interface ProjectDetail {
   dDay: string;
   views: number;
   thumbnail: string;
-  body: string;
-  applyUrl: string;
+  bodyHtml: string; // 서버에서 sanitize한 HTML
+  applyUrl: string | null; // 없으면 참여하기 버튼을 숨긴다.
+  href: string; // 정식 상세 경로
 }
+
+// 수집한 본문 HTML에 기본 문단·목록·링크·이미지 스타일을 입힌다.
+const BODY_STYLE =
+  "text-body-l text-gray-800 [&_a]:text-primary-500 [&_a]:underline [&_img]:my-3 [&_img]:h-auto [&_img]:max-w-full [&_li]:mb-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-3 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pl-5";
 
 // 해커톤·공모전·창업경진대회 상세 공통 영역
 // lg 미만: 포스터 → 요약 → 본문 / lg 이상: 본문 + 오른쪽 고정 요약 카드
-export default function ProjectDetailSection({ detail }: { detail: ProjectDetail }) {
-  const { periodLabel, viewsLabel, dDayLabel, applyLabel } = projectDetailContent;
+export default function ProjectDetailSection({
+  detail,
+}: {
+  detail: ProjectDetail;
+}) {
+  const { periodLabel, viewsLabel, dDayLabel, applyLabel } =
+    projectDetailContent;
 
   return (
     <section className="mx-auto w-full max-w-[1440px] lg:flex lg:items-start lg:px-15">
@@ -53,9 +63,10 @@ export default function ProjectDetailSection({ detail }: { detail: ProjectDetail
           <p className="text-label-l text-gray-800 lg:hidden">
             {periodLabel}: {detail.period}
           </p>
-          <div className="text-body-l whitespace-pre-line text-gray-800">
-            {detail.body}
-          </div>
+          <div
+            className={BODY_STYLE}
+            dangerouslySetInnerHTML={{ __html: detail.bodyHtml }}
+          />
         </div>
       </article>
 
@@ -78,14 +89,20 @@ export default function ProjectDetailSection({ detail }: { detail: ProjectDetail
             <Stat label={viewsLabel} value={detail.views.toLocaleString()} />
             <Stat label={dDayLabel} value={detail.dDay} />
           </dl>
-          <Button
-            asChild
-            className="h-10 bg-primary-600 text-heading-xs hover:bg-primary-700"
-          >
-            <a href={detail.applyUrl} target="_blank" rel="noopener noreferrer">
-              {applyLabel}
-            </a>
-          </Button>
+          {detail.applyUrl && (
+            <Button
+              asChild
+              className="h-10 bg-primary-600 text-heading-xs hover:bg-primary-700"
+            >
+              <a
+                href={detail.applyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {applyLabel}
+              </a>
+            </Button>
+          )}
         </div>
       </aside>
     </section>
@@ -95,8 +112,8 @@ export default function ProjectDetailSection({ detail }: { detail: ProjectDetail
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-sm bg-primary-50 p-3">
-      <dt className="text-label-m text-gray-700">{label}</dt>
-      <dd className="text-heading-xs text-primary-700">{value}</dd>
+      <dt className="text-label-m text-center text-gray-700">{label}</dt>
+      <dd className="text-heading-xs text-center text-primary-700">{value}</dd>
     </div>
   );
 }

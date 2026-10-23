@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import HackathonDetailServerContainer from "@/container/project/ai-hackathon/detail/HackathonDetailServerContainer";
+import { getProjectDetail, toSummary } from "@/utils/project";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/project/ai-hackathon/[id]">): Promise<Metadata> {
   const { id } = await params;
+  const detail = await getProjectDetail(id);
 
   return {
     title: {
-      absolute: "해커톤 상세 | hackable",
+      absolute: `${detail?.title ?? "해커톤 상세"} | hackable`,
     },
-    description: "",
+    description: detail ? toSummary(detail.bodyHtml) : "",
     alternates: {
-      canonical: `/project/ai-hackathon/${id}`,
+      canonical: detail?.href ?? `/project/ai-hackathon/${id}`,
     },
   };
 }

@@ -4,6 +4,7 @@ import { suit } from "./font";
 import { cn } from "@/lib/utils";
 import Header from "@/components/layout/header/Header";
 import Footer from "@/components/layout/footer/Footer";
+import FloatingButton from "@/components/layout/FloatingButton";
 
 export const metadata: Metadata = {
   title: "hackable",
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <Footer />
+        <FloatingButton />
       </body>
     </html>
   );

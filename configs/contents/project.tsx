@@ -1,4 +1,5 @@
 import type { FilterGroup } from "@/configs/contents/filter";
+import type { ProjectCategoryValue } from "@/utils/requestToSrv";
 
 export type ProjectCategory = "all" | "hackathon" | "contest" | "startup";
 
@@ -66,4 +67,21 @@ export const projectContent = {
 
   // TODO: 정렬 옵션 확정 필요 (피그마에는 최신순만 있음)
   sortOptions: ["최신순", "마감임박순"],
+};
+
+// API 카테고리 → 상세 페이지 경로
+// TODO: 카테고리 묶음 확정 필요 (API 9종 → 화면 3종)
+const HACKATHON_PATH = "/project/ai-hackathon";
+const CONTEST_PATH = "/project/ai-contest";
+
+export const projectDetailPath: Record<ProjectCategoryValue, string> = {
+  hackathon: HACKATHON_PATH,
+  ai_challenge: HACKATHON_PATH,
+  ai_competition: HACKATHON_PATH,
+  competition: HACKATHON_PATH,
+  ai_contest: CONTEST_PATH,
+  ai_image: CONTEST_PATH,
+  ai_video: CONTEST_PATH,
+  idea_competition: CONTEST_PATH,
+  startup_competition: "/project/startup-competition",
 };

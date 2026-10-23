@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import DefaultLayout from "@/components/layout/DefaultLayout";
 import HeaderSpacer from "@/components/layout/HeaderSpacer";
 import CategoryNav from "@/components/section/CategoryNav";
@@ -7,9 +9,11 @@ import SearchSection from "@/components/section/SearchSection";
 import TeamBuildingCard, {
   type TeamBuildingItem,
 } from "@/components/section/TeamBuildingCard";
+import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import { bannerContent } from "@/configs/contents/banners";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
+import { commonIconUrl } from "@/configs/urls";
 
 interface TeamBuildingServerBlockProps {
   items: TeamBuildingItem[];
@@ -52,12 +56,30 @@ function TeamBuildingListSection({
   return (
     <section className="py-3">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-2.5 px-3 sm:px-8 xl:px-4">
-        <CategoryNav
-          label="팀빌딩 카테고리"
-          items={teamBuildingContent.categories}
-          activeHref={activeHref}
-          className="px-3"
-        />
+        {/* md 이상: 카테고리 오른쪽에 작성 버튼. 모바일은 플로팅 + 버튼으로 대신한다. */}
+        <div className="flex items-center justify-between gap-3 px-3">
+          <CategoryNav
+            label="팀빌딩 카테고리"
+            items={teamBuildingContent.categories}
+            activeHref={activeHref}
+          />
+          <Button
+            asChild
+            variant="gradient"
+            className="hidden gap-1.5 md:inline-flex"
+          >
+            <Link href={teamBuildingContent.create.href}>
+              <Image
+                src={commonIconUrl.plus}
+                alt=""
+                width={24}
+                height={24}
+                className="size-5"
+              />
+              {teamBuildingContent.create.label}
+            </Link>
+          </Button>
+        </div>
         <FilterBar
           groups={teamBuildingContent.filterGroups}
           sortOptions={teamBuildingContent.sortOptions}

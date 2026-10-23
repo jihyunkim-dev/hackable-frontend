@@ -42,6 +42,11 @@ export const commonIconUrl = {
   mail: "/icons/mail-icon.png",
   google: "/icons/google-icon.svg",
   kakao: "/icons/kakao-icon.svg",
+  hackableWhite: "/icons/hackable-white-icon.svg",
+  plus: "/icons/plus-icon.svg",
+  // 클립 상세 lg 이상 80px 버튼용 (선 두께 2px 원본 크기)
+  bookmarkOutlineLarge: "/icons/bookmark-outline-lg-icon.svg",
+  shareLarge: "/icons/share-lg-icon.svg",
 };
 
 export const logoPrimaryUrl = "/images/logo-primary.svg";
@@ -71,6 +76,18 @@ export const bannerImageUrl: Record<
   startupSupport: banner("support"),
   teamBuilding: banner("teambuilding"),
   subscribe: banner("subscribe"),
+};
+
+// 클립 페이지 lg 이상: 캐러셀 아래 좁은 칸에 들어가는 구독 배너
+export const subscribeClipBannerUrl: BannerImage = {
+  src: "/images/banners/subscribe-clip-lg.jpg",
+  width: 1860,
+  height: 636,
+};
+
+// 썸네일이 없을 때 보여주는 "이미지 준비중" 이미지
+export const placeholderImageUrl = {
+  thumbnail: "/images/thumbnail-placeholder.png",
 };
 
 export const mainImageUrl = {

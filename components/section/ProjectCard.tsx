@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { commonIconUrl } from "@/configs/urls";
+import { commonIconUrl, placeholderImageUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
 
 export interface ProjectItem {
   id: string;
   title: string;
-  thumbnail: string;
+  thumbnail: string | null; // 없으면 "이미지 준비중" 이미지
   dDay: string;
   prizeLabel: string;
   prize: string;
@@ -39,7 +39,7 @@ export default function ProjectCard({
     >
       <div className="relative h-[150px] overflow-hidden rounded-sm shadow-xs sm:h-[284px] sm:rounded-lg sm:shadow-none">
         <Image
-          src={item.thumbnail}
+          src={item.thumbnail ?? placeholderImageUrl.thumbnail}
           alt=""
           fill
           sizes="(min-width: 768px) 268px, 156px"

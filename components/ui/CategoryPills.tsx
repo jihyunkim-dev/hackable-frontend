@@ -26,7 +26,7 @@ export default function CategoryPills({
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "block rounded-lg p-2 text-label-l font-bold whitespace-nowrap transition-colors",
+                  "block rounded-lg py-1 text-label-l px-4 font-bold whitespace-nowrap transition-colors",
                   isActive
                     ? "bg-primary-500 text-gray-50"
                     : "text-gray-500 hover:text-gray-700",

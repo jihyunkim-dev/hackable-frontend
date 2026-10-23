@@ -10,12 +10,15 @@ interface BannerImage {
 }
 
 interface PromoBannerProps {
-  images: Record<"xs" | "sm" | "xl", BannerImage>;
+  // lg는 선택: 2단 레이아웃처럼 lg 이상에서 배너 폭이 좁아지는 자리에 쓰는 이미지
+  images: Record<"xs" | "sm" | "xl", BannerImage> & { lg?: BannerImage };
   alt: string;
   href?: string;
   priority?: boolean;
   className?: string;
 }
+
+const BANNER_QUALITY = 90;
 
 // 화면 크기마다 구도가 다른 배너 이미지를 <picture>로 전환한다. (아트 디렉션)
 export default function PromoBanner({
@@ -25,7 +28,11 @@ export default function PromoBanner({
   priority = false,
   className,
 }: PromoBannerProps) {
-  const common = { alt, sizes: "100vw", priority };
+  // 글자가 많은 배너라 기본(75)보다 높은 품질로 압축한다. (next.config qualities에 등록)
+  const common = { alt, sizes: "100vw", priority, quality: BANNER_QUALITY };
+  const lg = images.lg
+    ? getImageProps({ ...common, ...images.lg }).props.srcSet
+    : undefined;
   const {
     props: { srcSet: xl },
   } = getImageProps({ ...common, ...images.xl });
@@ -39,14 +46,19 @@ export default function PromoBanner({
     "--ratio-xs": `${images.xs.width} / ${images.xs.height}`,
     "--ratio-sm": `${images.sm.width} / ${images.sm.height}`,
     "--ratio-xl": `${images.xl.width} / ${images.xl.height}`,
+    ...(images.lg && {
+      "--ratio-lg": `${images.lg.width} / ${images.lg.height}`,
+    }),
   } as CSSProperties;
   const boxClassName = cn(
     "block aspect-(--ratio-xs) sm:aspect-(--ratio-sm) md:aspect-(--ratio-xl)",
+    images.lg && "lg:aspect-(--ratio-lg)",
     className,
   );
 
   const picture = (
     <picture>
+      {lg && <source media="(min-width: 75rem)" srcSet={lg} />}
       <source media="(min-width: 61.9375rem)" srcSet={xl} />
       <source media="(min-width: 48rem)" srcSet={sm} />
       {/* eslint-disable-next-line jsx-a11y/alt-text -- alt는 getImageProps가 넘겨준다 */}

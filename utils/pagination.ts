@@ -33,6 +33,20 @@ export function paginate<T>(items: T[], page: number, pageSize: number) {
   };
 }
 
+// API가 내려준 전체 개수(total_count)로 페이지 상태를 계산한다.
+export function getPagination(
+  totalCount: number,
+  page: number,
+  pageSize: number,
+): PaginationState {
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  return { currentPage: Math.min(page, totalPages), totalPages };
+}
+
+// 페이지 번호를 API의 skip 값으로 바꾼다.
+export const toSkip = (page: number, pageSize: number) =>
+  (page - 1) * pageSize;
+
 // 처음·끝 페이지와 현재 페이지 주변만 보여주고 나머지는 말줄임으로 줄인다.
 export function getPageItems(current: number, total: number): PageItem[] {
   if (total <= 6) return Array.from({ length: total }, (_, i) => i + 1);

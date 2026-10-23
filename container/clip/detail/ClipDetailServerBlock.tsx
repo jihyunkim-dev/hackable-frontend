@@ -1,7 +1,9 @@
 import DefaultLayout from "@/components/layout/DefaultLayout";
 import HeaderSpacer from "@/components/layout/HeaderSpacer";
 import ClipCard from "@/components/section/ClipCard";
-import ClipDetailSection, { type ClipDetail } from "@/components/section/ClipDetailSection";
+import ClipDetailSection, {
+  type ClipDetail,
+} from "@/components/section/ClipDetailSection";
 import PromoBanner from "@/components/section/PromoBanner";
 import RecommendClipCard, {
   type RecommendClipItem,
@@ -21,7 +23,10 @@ export default function ClipDetailServerBlock({
       <HeaderSpacer />
       <ClipDetailSection detail={detail} />
       <div className="mx-auto w-full max-w-[992px]">
-        <PromoBanner {...bannerContent.subscribe} className="lg:overflow-hidden lg:rounded-2xl" />
+        <PromoBanner
+          {...bannerContent.subscribe}
+          className="lg:overflow-hidden lg:rounded-2xl"
+        />
       </div>
       <RecommendSection recommends={recommends} />
     </DefaultLayout>
@@ -31,9 +36,9 @@ export default function ClipDetailServerBlock({
 // 추천 클립: md 미만은 가로형 클립 카드, md 이상은 세로형 카드 3열
 function RecommendSection({ recommends }: { recommends: RecommendClipItem[] }) {
   return (
-    <section className="mx-auto w-full max-w-[992px] pb-6 lg:py-3">
+    <section className="mx-auto w-full max-w-[992px] pb-6 lg:py-6 lg:pb-20">
       <div className="mx-2 my-4 border-t border-gray-300 lg:mx-0 lg:mt-11 lg:mb-0" />
-      <h2 className="px-2.5 py-2.5 text-body-l text-black lg:text-heading-s lg:text-gray-700">
+      <h2 className="px-2.5 py-2.5 pt-8 pb-8 text-body-l text-black lg:text-heading-s lg:text-gray-700">
         {clipContent.detail.recommendTitle}
       </h2>
 

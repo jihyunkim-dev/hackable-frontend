@@ -63,7 +63,12 @@ export default function TeamBuildingForm({
       <aside className="flex flex-col gap-2.5 rounded-lg bg-primary-50 p-3 sm:px-5">
         <p className="flex items-center gap-2 py-1 text-label-l text-primary-600 sm:text-heading-xs">
           <span className="flex size-7 items-center justify-center rounded-lg bg-white/70">
-            <Image src={commonIconUrl.brandMark} alt="" width={13} height={20} />
+            <Image
+              src={commonIconUrl.brandMark}
+              alt=""
+              width={13}
+              height={20}
+            />
           </span>
           {content.notice.title}
         </p>
@@ -92,7 +97,7 @@ export default function TeamBuildingForm({
         placeholder={content.bodyPlaceholder}
         aria-label="모집 내용"
         rows={7}
-        className="w-full resize-y text-body-l text-gray-800 outline-none placeholder:text-gray-600"
+        className="w-full resize-y text-body-l text-gray-800 outline-none placeholder:text-gray-400"
       />
 
       <label
@@ -100,7 +105,13 @@ export default function TeamBuildingForm({
         className="relative flex h-56 cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden rounded-lg border border-gray-200 py-2 sm:h-[430px]"
       >
         {preview ? (
-          <Image src={preview} alt="" fill unoptimized className="object-contain" />
+          <Image
+            src={preview}
+            alt=""
+            fill
+            unoptimized
+            className="object-contain"
+          />
         ) : (
           <>
             <Image src={commonIconUrl.imageAdd} alt="" width={64} height={64} />
@@ -132,7 +143,9 @@ export default function TeamBuildingForm({
       )}
 
       <div className="mt-16 flex items-center justify-between py-2 sm:mt-20">
-        <span className="text-heading-s text-rose-500">{content.statusLabel}</span>
+        <span className="text-heading-s text-rose-500">
+          {content.statusLabel}
+        </span>
         <Switch
           checked={isOpen}
           onCheckedChange={setIsOpen}
@@ -199,7 +212,7 @@ function Field({
         defaultValue={defaultValue}
         placeholder={placeholder}
         rows={3}
-        className="w-full resize-none text-body-l text-gray-800 outline-none placeholder:text-gray-600"
+        className="w-full resize-none text-body-l border border-gray-200 rounded-[8px] p-4 text-gray-800 outline-none placeholder:text-gray-600"
       />
     </div>
   );

@@ -9,6 +9,40 @@ body {
   overflow-wrap: break-word;
 }
 
+/* Tailwind v4는 버튼 기본 커서가 default라 클릭 요소에 pointer를 되돌린다. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="menuitem"],
+  [role="menuitemradio"],
+  [role="menuitemcheckbox"],
+  [role="option"],
+  [role="checkbox"],
+  [role="switch"],
+  select,
+  summary,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
+/* 플로팅 버튼 배경 (Figma: Floating Button – 보라 베이스 + 위 핑크 + 아래 블루 번짐) */
+@utility floating-gradient {
+  background:
+    radial-gradient(180% 105% at 70% -10%, #e0558f 0%, rgb(224 85 143 / 0.75) 40%, transparent 78%),
+    radial-gradient(150% 95% at 72% 108%, #b7c3ff 0%, rgb(150 165 245 / 0.85) 40%, transparent 75%),
+    linear-gradient(200deg, #a14dbf, #72309f);
+}
+
 @utility scrollbar-hidden {
   scrollbar-width: none;
 

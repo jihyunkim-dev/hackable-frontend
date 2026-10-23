@@ -11,6 +11,8 @@ interface ShareButtonProps {
   title: string;
   // true면 아이콘만 보여주고 문구는 스크린리더용으로 둔다.
   iconOnly?: boolean;
+  // 아이콘 이미지 교체용 (기본: 작은 공유 아이콘)
+  icon?: { src: string; width: number; height: number };
   iconClassName?: string;
   className?: string;
 }
@@ -21,6 +23,7 @@ export default function ShareButton({
   copiedLabel,
   title,
   iconOnly = false,
+  icon = { src: commonIconUrl.share, width: 16, height: 15 },
   iconClassName,
   className,
 }: ShareButtonProps) {
@@ -51,10 +54,10 @@ export default function ShareButton({
       )}
     >
       <Image
-        src={commonIconUrl.share}
+        src={icon.src}
         alt=""
-        width={16}
-        height={15}
+        width={icon.width}
+        height={icon.height}
         className={iconClassName}
       />
       <span aria-live="polite" className={cn(iconOnly && "sr-only")}>

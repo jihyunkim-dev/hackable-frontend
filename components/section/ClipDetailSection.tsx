@@ -39,17 +39,22 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
     <section className="mx-auto flex w-full max-w-[1440px] justify-center">
       <aside className="hidden w-60 shrink-0 lg:block">
         <div className="sticky top-[calc(var(--header-height-desktop)+24px)] flex flex-col items-center gap-9 px-10 py-17">
+          {/* 80px 버튼에는 원본 크기 아이콘을 써서 선 두께(2px)를 유지한다. */}
           <BookmarkButton
             label={content.bookmarkLabel}
+            icon={{
+              src: commonIconUrl.bookmarkOutlineLarge,
+              width: 25,
+              height: 30,
+            }}
             className="size-20 rounded-[18px]"
-            iconClassName="h-[26px] w-[21px]"
           />
           <ShareButton
             label={content.shareLabel}
             copiedLabel={content.copiedLabel}
             title={detail.title}
             iconOnly
-            iconClassName="h-[29px] w-8"
+            icon={{ src: commonIconUrl.shareLarge, width: 36, height: 31 }}
             className="size-20 rounded-[18px] border-gray-200 shadow-none"
           />
         </div>
@@ -58,7 +63,7 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
       <article className="w-full min-w-0 lg:max-w-[978px] lg:px-5 lg:py-17">
         <header className="flex flex-col gap-2.5 px-4 py-2.5 lg:gap-0 lg:p-0">
           <div className="flex items-center justify-between">
-            <p className="text-body-m text-gray-700 lg:text-heading-s lg:text-gray-500">
+            <p className="text-body-m text-gray-700 lg:text-heading-xs lg:text-gray-500">
               {detail.category}
             </p>
             <div className="flex gap-2.5 lg:hidden">
@@ -77,20 +82,34 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
               />
             </div>
           </div>
-          <h1 className="text-heading-s text-gray-700 lg:py-1 lg:font-bold lg:text-gray-800">
+          <h1 className="text-heading-m text-gray-700 lg:py-1 lg:font-bold lg:text-gray-800">
             {detail.title}
           </h1>
         </header>
 
-        <p className="flex items-center gap-2 px-4 py-2 text-label-s text-gray-700 lg:px-0 lg:text-heading-xs">
+        <p className="flex items-center gap-2 px-4 py-2 text-label-s text-gray-700 lg:px-0 lg:text-label-m">
           <span className="flex items-center gap-2">
-            <Image src={commonIconUrl.clockPurple} alt="" width={16} height={16} className="lg:size-5" />
+            <Image
+              src={commonIconUrl.clockPurple}
+              alt=""
+              width={16}
+              height={16}
+              className="lg:size-5"
+            />
             {detail.readTime}
           </span>
-          <span aria-hidden className="text-gray-500">∙</span>
+          <span aria-hidden className="text-gray-500">
+            ∙
+          </span>
           <time>{detail.createdAt}</time>
           <span className="ml-auto flex items-center gap-1 lg:gap-2.5">
-            <Image src={commonIconUrl.eye} alt="조회수" width={19} height={19} className="size-4 lg:size-[19px]" />
+            <Image
+              src={commonIconUrl.eye}
+              alt="조회수"
+              width={19}
+              height={19}
+              className="size-4 lg:size-[19px]"
+            />
             {detail.views}
           </span>
         </p>
@@ -137,22 +156,31 @@ function ClipBlockView({ block }: { block: ClipBlock }) {
           className="h-auto w-full rounded-sm lg:rounded-lg"
         />
         {block.caption && (
-          <figcaption className="text-body-s text-gray-500">{block.caption}</figcaption>
+          <figcaption className="text-body-s text-gray-500">
+            {block.caption}
+          </figcaption>
         )}
       </figure>
     );
   }
 
-  return <p className="text-body-m whitespace-pre-line lg:text-body-l">{block.text}</p>;
+  return (
+    <p className="text-body-m whitespace-pre-line lg:text-body-l">
+      {block.text}
+    </p>
+  );
 }
 
 // TODO: 북마크 API 연동
 function BookmarkButton({
   label,
+  icon = { src: commonIconUrl.bookmarkOutline, width: 12, height: 15 },
   className,
   iconClassName,
 }: {
   label: string;
+  // 아이콘 이미지 교체용 (기본: 작은 북마크 아이콘)
+  icon?: { src: string; width: number; height: number };
   className?: string;
   iconClassName?: string;
 }) {
@@ -166,10 +194,10 @@ function BookmarkButton({
       )}
     >
       <Image
-        src={commonIconUrl.bookmarkOutline}
+        src={icon.src}
         alt=""
-        width={12}
-        height={15}
+        width={icon.width}
+        height={icon.height}
         className={iconClassName}
       />
     </button>

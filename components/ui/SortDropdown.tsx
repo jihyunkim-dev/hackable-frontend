@@ -44,7 +44,7 @@ export default function SortDropdown({
               <DropdownMenu.RadioItem
                 key={option}
                 value={option}
-                className="cursor-pointer rounded-sm px-3 py-2 text-label-m text-gray-700 outline-none data-[highlighted]:bg-gray-50 data-[state=checked]:text-primary-500"
+                className="rounded-sm px-3 py-2 text-label-m text-gray-700 outline-none data-[highlighted]:bg-gray-50 data-[state=checked]:text-primary-500"
               >
                 {option}
               </DropdownMenu.RadioItem>

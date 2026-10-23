@@ -143,9 +143,14 @@ export const createDummyProjectDetail = (
     period: "2026.06.22 ~ 2026.07.12",
     dDay: sample.dDay,
     views: 127,
-    thumbnail: sample.thumbnail,
-    body: dummyDetailBody,
+    thumbnail: sample.thumbnail ?? dummyImageUrl.projectPoster,
+    // 줄 단위 텍스트를 문단 HTML로 바꾼다.
+    bodyHtml: dummyDetailBody
+      .split("\n")
+      .map((line) => `<p>${line || "<br>"}</p>`)
+      .join(""),
     applyUrl: "#",
+    href: `${listDetailPath[type]}/${id}`,
   };
 };
 
@@ -277,6 +282,10 @@ export const dummyMypage = {
     category: "해커톤",
     title: "서울 거주하시는 프론트 한 분, 백엔드 두 분 팀원 구합니다🙌🏻",
     isOpen: index === 0,
+    dDay: "D-21",
+    author: "작성자1",
+    views: 146,
+    bookmarks: 6,
     href: `/teambuilding/my-team-${index + 1}`,
   })),
   bookmarkedClips: dummyClips.slice(0, 3),

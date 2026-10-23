@@ -21,12 +21,24 @@ export default function SignInModal({ trigger }: { trigger: ReactNode }) {
         <Dialog.Content className="fixed top-1/2 left-1/2 z-[60] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-gray-50 outline-none sm:w-[467px]">
           <div className="flex justify-end p-1">
             <Dialog.Close aria-label={signInContent.close}>
-              <Image src={commonIconUrl.close} alt="" width={40} height={40} className="size-7 sm:size-10" />
+              <Image
+                src={commonIconUrl.close}
+                alt=""
+                width={40}
+                height={40}
+                className="size-7 sm:size-10"
+              />
             </Dialog.Close>
           </div>
 
           <div className="flex flex-col items-center gap-2 py-3 text-center sm:gap-3">
-            <Image src={signInLogoUrl} alt="hackable" width={191} height={62} className="h-[38px] w-auto sm:h-[62px]" />
+            <Image
+              src={signInLogoUrl}
+              alt="hackable"
+              width={191}
+              height={62}
+              className="h-[38px] w-auto sm:h-[62px]"
+            />
             <Dialog.Title className="text-label-l font-bold text-gray-700 sm:text-heading-xs sm:font-semibold">
               <MultiLine lines={signInContent.title} />
             </Dialog.Title>
@@ -41,9 +53,17 @@ export default function SignInModal({ trigger }: { trigger: ReactNode }) {
               {signInContent.divider}
               <span aria-hidden className="h-px flex-1 bg-gray-300" />
             </p>
-            <div className="flex flex-col gap-2 px-2">
-              <SocialButton icon={commonIconUrl.google} label={signInContent.google} className="bg-white" />
-              <SocialButton icon={commonIconUrl.kakao} label={signInContent.kakao} className={KAKAO_YELLOW} />
+            <div className="flex flex-col gap-3 px-2 py-4">
+              <SocialButton
+                icon={commonIconUrl.google}
+                label={signInContent.google}
+                className="bg-white"
+              />
+              <SocialButton
+                icon={commonIconUrl.kakao}
+                label={signInContent.kakao}
+                className={KAKAO_YELLOW}
+              />
             </div>
           </div>
         </Dialog.Content>
@@ -66,7 +86,13 @@ function SocialButton({
       type="button"
       className={`flex h-8 items-center rounded-lg px-4 text-body-s text-gray-800 shadow-xs transition-opacity hover:opacity-90 sm:h-10 sm:px-6 sm:text-body-m sm:font-medium ${className}`}
     >
-      <Image src={icon} alt="" width={20} height={20} className="size-4 sm:size-5" />
+      <Image
+        src={icon}
+        alt=""
+        width={20}
+        height={20}
+        className="size-4 sm:size-5"
+      />
       <span className="flex-1 text-center">{label}</span>
     </button>
   );

@@ -1,5 +1,6 @@
 export const mypageContent = {
   profileEdit: "프로필 수정",
+  logout: "로그아웃",
   activityTitle: "내 활동",
   settingsTitle: "계정 설정",
   settingsLabel: "계정 설정 열기",

@@ -2,7 +2,9 @@ import Image from "next/image";
 import DefaultLayout from "@/components/layout/DefaultLayout";
 import HeaderSpacer from "@/components/layout/HeaderSpacer";
 import ClipCard, { type ClipItem } from "@/components/section/ClipCard";
-import ProjectCard, { type ProjectItem } from "@/components/section/ProjectCard";
+import ProjectCard, {
+  type ProjectItem,
+} from "@/components/section/ProjectCard";
 import TeamBuildingCard, {
   type TeamBuildingItem,
 } from "@/components/section/TeamBuildingCard";
@@ -19,7 +21,10 @@ import {
 
 interface MypageData {
   profile: { name: string; role: string; image: string };
-  bookmarkedProjects: Record<"hackathon" | "contest" | "support", ProjectItem[]>;
+  bookmarkedProjects: Record<
+    "hackathon" | "contest" | "support",
+    ProjectItem[]
+  >;
   bookmarkedTeamBuildings: TeamBuildingItem[];
   writtenTeamBuildings: MyTeamBuildingPost[];
   bookmarkedClips: ClipItem[];
@@ -47,7 +52,13 @@ function ProfileSection({ profile }: { profile: MypageData["profile"] }) {
     <section className="flex flex-col gap-6 px-4 py-7 lg:flex-row lg:items-start lg:px-0">
       <div className="flex flex-1 items-start gap-4">
         <div className="relative size-30 shrink-0 overflow-hidden rounded-full bg-gray-100 lg:size-40">
-          <Image src={profile.image} alt="" fill sizes="160px" className="object-cover" />
+          <Image
+            src={profile.image}
+            alt=""
+            fill
+            sizes="160px"
+            className="object-cover"
+          />
         </div>
         <div className="flex flex-col gap-2 py-1">
           <h1 className="text-heading-m font-bold text-gray-800 lg:font-semibold">
@@ -58,13 +69,23 @@ function ProfileSection({ profile }: { profile: MypageData["profile"] }) {
           </p>
         </div>
       </div>
-      {/* TODO: 프로필 수정 화면 연결 (시안 없음) */}
-      <Button
-        variant="outline"
-        className="h-8 w-full border-gray-300 text-label-l font-bold text-gray-700 hover:bg-gray-50 lg:h-10 lg:w-31 lg:font-semibold"
-      >
-        {mypageContent.profileEdit}
-      </Button>
+      {/* 프로필 수정 아래에 같은 폭으로 로그아웃을 둔다. (모바일: 전체 폭, lg: 오른쪽 124px) */}
+      <div className="flex w-full flex-col gap-2 lg:w-31">
+        {/* TODO: 프로필 수정 화면 연결 (시안 없음) */}
+        <Button
+          variant="outline"
+          className="h-8 w-full border-gray-300 text-label-l font-bold text-gray-700 hover:bg-gray-50 lg:h-10 lg:font-semibold"
+        >
+          {mypageContent.profileEdit}
+        </Button>
+        {/* TODO: 로그아웃 기능 연결 (로그인 연동 후) */}
+        <Button
+          type="button"
+          className="h-8 w-full bg-gray-400 text-label-l font-bold text-white hover:bg-gray-600 lg:h-10 lg:font-semibold"
+        >
+          {mypageContent.logout}
+        </Button>
+      </div>
     </section>
   );
 }
@@ -120,7 +141,11 @@ function PanelTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ProjectPanel({ projects }: { projects: MypageData["bookmarkedProjects"] }) {
+function ProjectPanel({
+  projects,
+}: {
+  projects: MypageData["bookmarkedProjects"];
+}) {
   const { bookmarkedTitle, filters } = mypageContent.project;
 
   return (
@@ -180,7 +205,8 @@ function TeamBuildingPanel({
       <div className="pt-4">
         <PanelTitle>{writtenTitle}</PanelTitle>
       </div>
-      <ul className="grid gap-2.5 px-4 py-2 sm:grid-cols-2 sm:gap-5">
+      {/* md 미만: 구분선 목록 (sm은 2열) / md 이상: 276px 카드를 가로로 나열 */}
+      <ul className="grid px-4 py-2 sm:grid-cols-2 sm:gap-x-5 sm:px-6 sm:py-4 md:flex md:flex-wrap md:gap-5 md:py-2.5 lg:gap-7">
         {written.map((post) => (
           <li key={post.id}>
             <MyTeamBuildingCard post={post} />
@@ -198,18 +224,20 @@ function WithdrawSection() {
 
   return (
     <section className="flex flex-col gap-2.5 px-4 py-3 lg:px-0">
-      <h3 className="px-3 py-3 text-label-l text-gray-800">{withdraw.title}</h3>
+      <h3 className="px-3 py-3 text-heading-xs text-gray-800">
+        {withdraw.title}
+      </h3>
       <div className="flex flex-col gap-2.5 p-2.5 text-gray-700">
-        <p className="text-body-l">
+        <p className="text-heading-xs ">
           <MultiLine lines={withdraw.description} />
         </p>
-        <ul className="text-body-m">
+        <ul className="text-body-m pt-8">
           {withdraw.items.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
       </div>
-      <div className="p-2 sm:max-w-[360px]">
+      <div className="p-2 sm:max-w-[991px] pt-8">
         <WithdrawButton />
       </div>
     </section>

@@ -8,6 +8,7 @@ export const teamBuildingContent = {
     { value: "study", label: "스터디", href: "/teambuilding?type=study" },
   ],
   searchPlaceholder: "어떤 팀원을 찾고 있나요?",
+  create: { label: "모집글 작성", href: "/teambuilding/create" },
 
   filterGroups: [
     {
