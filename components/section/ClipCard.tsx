@@ -29,9 +29,11 @@ export default function ClipCard({ item, className }: ClipCardProps) {
       )}
     >
       <div className="flex min-w-0 flex-1 flex-col sm:gap-2">
-        <p className="py-1 text-label-s text-gray-600 sm:py-0 sm:text-label-l">
-          {item.category}
-        </p>
+        {item.category && (
+          <p className="py-1 text-label-s text-gray-600 sm:py-0 sm:text-label-l">
+            {item.category}
+          </p>
+        )}
         <h3 className="line-clamp-2 text-label-m font-bold text-gray-800 sm:text-heading-s sm:font-bold">
           {item.title}
         </h3>
@@ -39,30 +41,36 @@ export default function ClipCard({ item, className }: ClipCardProps) {
           {item.description}
         </p>
         <p className="mt-auto flex items-center gap-1 pt-2 text-label-s text-gray-600 sm:gap-2 sm:text-label-m sm:font-bold">
-          <span className="flex items-center gap-1">
-            <Image
-              src={commonIconUrl.clock}
-              alt=""
-              width={20}
-              height={20}
-              className="size-3.5 sm:size-5"
-            />
-            {item.readTime}
-          </span>
-          <span aria-hidden className="px-0.5 text-gray-400">
-            |
-          </span>
+          {/* 읽는 시간이 없으면 시계 아이콘과 구분선을 함께 숨긴다. */}
+          {item.readTime && (
+            <>
+              <span className="flex items-center gap-1">
+                <Image
+                  src={commonIconUrl.clock}
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="size-3.5 sm:size-5"
+                />
+                {item.readTime}
+              </span>
+              <span aria-hidden className="px-0.5 text-gray-400">
+                |
+              </span>
+            </>
+          )}
           <time>{item.createdAt}</time>
         </p>
       </div>
 
-      <div className="relative size-28 shrink-0 overflow-hidden rounded-lg bg-black sm:h-60 sm:w-70 sm:rounded-[20px]">
+      {/* 배경은 "이미지 준비중" 이미지와 같은 색(primary-50). 썸네일은 잘리더라도 칸을 꽉 채운다. */}
+      <div className="relative size-28 shrink-0 overflow-hidden rounded-lg bg-primary-50 sm:h-60 sm:w-70 sm:rounded-[20px]">
         <Image
           src={item.thumbnail}
           alt=""
           fill
           sizes="(min-width: 768px) 280px, 112px"
-          className="object-contain"
+          className="object-cover"
         />
         {/* TODO: 북마크 기능은 API 연동 시 버튼으로 전환 */}
         <Image

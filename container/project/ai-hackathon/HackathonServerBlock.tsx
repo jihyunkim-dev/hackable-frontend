@@ -6,15 +6,20 @@ import PromoBanner from "@/components/section/PromoBanner";
 import SearchSection from "@/components/section/SearchSection";
 import { bannerContent } from "@/configs/contents/banners";
 import { projectContent } from "@/configs/contents/project";
+import type { ListSort } from "@/utils/requestToSrv";
 
 interface HackathonServerBlockProps {
   items: ProjectItem[];
   pagination: { currentPage: number; totalPages: number };
+  sort: ListSort;
+  q: string;
 }
 
 export default function HackathonServerBlock({
   items,
   pagination,
+  sort,
+  q,
 }: HackathonServerBlockProps) {
   return (
     <DefaultLayout>
@@ -23,8 +28,15 @@ export default function HackathonServerBlock({
       <SearchSection
         action="/project/ai-hackathon"
         placeholder={projectContent.searchPlaceholder}
+
+        query={q}      />
+      <ProjectListSection
+        category="hackathon"
+        items={items}
+        sort={sort}
+        q={q}
+        {...pagination}
       />
-      <ProjectListSection category="hackathon" items={items} {...pagination} />
     </DefaultLayout>
   );
 }

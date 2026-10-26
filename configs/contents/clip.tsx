@@ -4,12 +4,12 @@ export const clipContent = {
     title: "클립",
     description: "많은 독자들의 관심을 이끌은 클립들을 모았어요",
   },
-  // value는 URL 파라미터(?category=)와 맞춘다. 전체는 파라미터 없음
+  // value는 URL 파라미터(?category=)이자 API의 category 값이다. 전체는 파라미터 없음
   categories: [
     { value: "all", label: "전체", href: "/clip" },
-    { value: "ai", label: "AI개발", href: "/clip?category=ai" },
-    { value: "vibe-coding", label: "바이브코딩", href: "/clip?category=vibe-coding" },
-    { value: "planning", label: "기획∙마케팅∙디자인", href: "/clip?category=planning" },
+    { value: "tech", label: "AI・개발", href: "/clip?category=tech" },
+    { value: "vibeCoding", label: "바이브코딩", href: "/clip?category=vibeCoding" },
+    { value: "pmd", label: "기획・마케팅・디자인", href: "/clip?category=pmd" },
     { value: "trend", label: "트렌드", href: "/clip?category=trend" },
   ],
   featuredLabel: "추천 클립",

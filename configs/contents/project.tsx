@@ -1,4 +1,7 @@
-import type { FilterGroup } from "@/configs/contents/filter";
+import {
+  defaultFilterGroups,
+  defaultSortOptions,
+} from "@/configs/contents/filter";
 import type { ProjectCategoryValue } from "@/utils/requestToSrv";
 
 export type ProjectCategory = "all" | "hackathon" | "contest" | "startup";
@@ -46,42 +49,35 @@ export const projectContent = {
     searchPlaceholder: "어떤 지원사업을 찾고 있나요?",
   },
 
-  filterGroups: [
-    {
-      id: "position",
-      label: "포지션",
-      options: [
-        "기획",
-        "마케팅",
-        "디자이너",
-        "백엔드 개발자",
-        "프론트엔드 개발자",
-        "AI 엔지니어",
-      ],
-    },
-    { id: "period", label: "기간", options: ["단기(1~3달)", "중장기(3~6달)"] },
-    { id: "mode", label: "진행 방식", options: ["온라인", "오프라인"] },
-    // TODO: 피그마에 모집 상태 옵션이 온라인/오프라인으로 들어가 있어 임시 값 사용
-    { id: "status", label: "모집 상태", options: ["모집중", "모집마감"] },
-  ] satisfies FilterGroup[],
+  filterGroups: defaultFilterGroups,
 
-  // TODO: 정렬 옵션 확정 필요 (피그마에는 최신순만 있음)
-  sortOptions: ["최신순", "마감임박순"],
+  sortOptions: defaultSortOptions,
 };
 
-// API 카테고리 → 상세 페이지 경로
-// TODO: 카테고리 묶음 확정 필요 (API 9종 → 화면 3종)
-const HACKATHON_PATH = "/project/ai-hackathon";
-const CONTEST_PATH = "/project/ai-contest";
-
-export const projectDetailPath: Record<ProjectCategoryValue, string> = {
-  hackathon: HACKATHON_PATH,
-  ai_challenge: HACKATHON_PATH,
-  ai_competition: HACKATHON_PATH,
-  competition: HACKATHON_PATH,
-  ai_contest: CONTEST_PATH,
-  ai_image: CONTEST_PATH,
-  ai_video: CONTEST_PATH,
-  idea_competition: CONTEST_PATH,
-  startup_competition: "/project/startup-competition",
+// 화면 카테고리별로 API에 보낼 세분류 묶음 (백엔드 /project category 설명 기준)
+export const projectApiCategories: Record<
+  Exclude<ProjectCategory, "all">,
+  ProjectCategoryValue[]
+> = {
+  hackathon: ["hackathon", "ai_competition", "ai_challenge"],
+  contest: ["ai_video", "ai_image", "ai_contest"],
+  startup: [
+    "startup_competition",
+    "idea_competition",
+    "space_competition",
+    "competition",
+  ],
 };
+
+// API 세분류 → 상세 페이지 경로. 위 묶음에서 만든다. (묶음에 없는 값은 해커톤 경로로 보낸다)
+export const projectDetailPath: Partial<Record<ProjectCategoryValue, string>> =
+  Object.fromEntries(
+    projectContent.categories.flatMap((category) =>
+      category.value === "all"
+        ? []
+        : projectApiCategories[category.value].map((value) => [
+            value,
+            category.href,
+          ]),
+    ),
+  );

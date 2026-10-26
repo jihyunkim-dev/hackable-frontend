@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { cn } from "@/lib/utils";
 
 export interface WeeklyClipItem {
@@ -44,12 +45,20 @@ export default function WeeklyClipList({
                 <h3 className="line-clamp-2 text-label-l font-bold text-gray-800">
                   {item.title}
                 </h3>
+                {/* 카테고리·읽는 시간·날짜 중 값이 있는 것만 구분선으로 잇는다. */}
                 <p className="flex items-center gap-1 text-label-m font-bold text-gray-600">
-                  <span>{item.category}</span>
-                  <span aria-hidden className="text-gray-300">|</span>
-                  <span>{item.readTime}</span>
-                  <span aria-hidden className="text-gray-300">|</span>
-                  <time>{item.createdAt}</time>
+                  {[item.category, item.readTime, item.createdAt]
+                    .filter(Boolean)
+                    .map((value, index) => (
+                      <Fragment key={value}>
+                        {index > 0 && (
+                          <span aria-hidden className="text-gray-300">
+                            |
+                          </span>
+                        )}
+                        <span>{value}</span>
+                      </Fragment>
+                    ))}
                 </p>
               </div>
             </Link>

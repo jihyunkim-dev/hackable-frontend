@@ -37,9 +37,13 @@ export default function RecommendClipCard({ item }: { item: RecommendClipItem })
         {item.title}
       </h3>
       <p className="flex items-center justify-end gap-1 text-label-s text-gray-500">
-        <Image src={commonIconUrl.clockPurple} alt="" width={16} height={16} />
-        {item.readTime}
-        <span aria-hidden>∙</span>
+        {item.readTime && (
+          <>
+            <Image src={commonIconUrl.clockPurple} alt="" width={16} height={16} />
+            {item.readTime}
+            <span aria-hidden>∙</span>
+          </>
+        )}
         <time>{item.createdAt}</time>
       </p>
     </Link>

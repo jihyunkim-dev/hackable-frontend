@@ -14,11 +14,13 @@ import Pagination from "@/components/ui/Pagination";
 import { bannerContent } from "@/configs/contents/banners";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
 import { commonIconUrl } from "@/configs/urls";
+import type { ListSort } from "@/utils/requestToSrv";
 
 interface TeamBuildingServerBlockProps {
   items: TeamBuildingItem[];
   pagination: { currentPage: number; totalPages: number };
   activeHref: string;
+  sort: ListSort;
   // 페이지 이동 시 유지할 검색 조건
   query: Record<string, string | undefined>;
 }
@@ -27,6 +29,7 @@ export default function TeamBuildingServerBlock({
   items,
   pagination,
   activeHref,
+  sort,
   query,
 }: TeamBuildingServerBlockProps) {
   return (
@@ -41,6 +44,7 @@ export default function TeamBuildingServerBlock({
         items={items}
         pagination={pagination}
         activeHref={activeHref}
+        sort={sort}
         query={query}
       />
     </DefaultLayout>
@@ -51,6 +55,7 @@ function TeamBuildingListSection({
   items,
   pagination,
   activeHref,
+  sort,
   query,
 }: TeamBuildingServerBlockProps) {
   return (
@@ -83,6 +88,7 @@ function TeamBuildingListSection({
         <FilterBar
           groups={teamBuildingContent.filterGroups}
           sortOptions={teamBuildingContent.sortOptions}
+          sort={sort}
           className="px-3"
         />
         <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">

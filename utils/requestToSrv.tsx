@@ -44,6 +44,7 @@ const authHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
 
 // ===== Project (해커톤·공모전·창업경진대회) =====
 
+// 세분류. tech_competition·idea_contest는 category를 생략한 기본 목록에서 빠진다.
 export type ProjectCategoryValue =
   | "hackathon"
   | "ai_challenge"
@@ -53,9 +54,15 @@ export type ProjectCategoryValue =
   | "ai_video"
   | "competition"
   | "idea_competition"
-  | "startup_competition";
+  | "space_competition"
+  | "startup_competition"
+  | "tech_competition"
+  | "idea_contest";
 
 export type RecruitStatus = "upcoming" | "open" | "closed";
+
+// 목록 정렬: latest(최신순) | deadline(마감 임박순). 프로젝트·지원사업·팀빌딩 공통
+export type ListSort = "latest" | "deadline";
 
 export interface ProjectListItemResponse {
   project_id: number;
@@ -86,15 +93,20 @@ export interface ProjectListResponse {
 }
 
 export interface ProjectListQuery extends PagingQuery {
-  category?: ProjectCategoryValue | null;
-  status?: RecruitStatus | null;
+  // 여러 개면 쉼표로 이어 보낸다. 생략하면 기본 목록 전부
+  category?: ProjectCategoryValue[];
+  // 생략하면 마감 전 항목만. all은 마감 포함 전체
+  status?: RecruitStatus | "all";
+  sort?: ListSort;
 }
 
 export const RequestProjectList = async (
   query: ProjectListQuery = {},
 ): Promise<ProjectListResponse | null> => {
   try {
-    const res = await fetch(`${url}/project${toQuery({ ...query })}`);
+    const res = await fetch(
+      `${url}/project${toQuery({ ...query, category: query.category?.join(",") })}`,
+    );
 
     if (!res.ok) {
       const errorData: ApiError = await res.json();
@@ -192,6 +204,7 @@ export interface GrantListQuery extends PagingQuery {
   category?: GrantCategoryValue | null;
   region?: string | null;
   status?: RecruitStatus | null;
+  sort?: ListSort;
 }
 
 export const RequestGrantList = async (
@@ -256,10 +269,105 @@ export const RequestGrantBookmark = async (
   }
 };
 
-// ===== Teambuilding (팀빌딩) =====
+// ===== Search (검색, Typesense) =====
+// 마감된 항목은 나오지 않고, 검색 관련도 순으로 온다. (정렬 파라미터 없음)
 
-// TODO: 서버가 latest 외 값도 에러 없이 받는다. 인기순 값 확정 필요
-export type ListSort = "latest" | "popular";
+export interface SearchResponse<TDocument> {
+  found: number; // 전체 결과 수
+  page: number;
+  out_of: number;
+  hits: { document: TDocument }[];
+}
+
+export interface ProjectSearchDocument {
+  id: string; // project_id (문자열로 옴)
+  title: string;
+  category: ProjectCategoryValue | null;
+  hosted: string | null;
+  status: RecruitStatus | null;
+  start_date: string | null;
+  end_date: string | null;
+  thumbnail_img: string | null;
+  seo_url: string | null;
+  description: string | null;
+  // TODO: 백엔드에 추가 요청함. 현재 검색 결과에는 오지 않는다.
+  prize?: string | null;
+}
+
+export interface GrantSearchDocument {
+  id: string; // grant_id (문자열로 옴)
+  title: string;
+  category: GrantCategoryValue | null;
+  hosted: string | null;
+  status: RecruitStatus | null;
+  start_date: string | null;
+  end_date: string | null;
+  thumbnail_img: string | null;
+  seo_url: string | null;
+  description: string | null;
+  region: string | null;
+  tags: string[];
+  prize?: string | null;
+}
+
+interface SearchQuery {
+  q: string;
+  page?: number;
+  per_page?: number;
+}
+
+export interface ProjectSearchQuery extends SearchQuery {
+  // 여러 개면 쉼표로 이어 보낸다. 생략하면 /project 기본 목록 전부
+  category?: ProjectCategoryValue[];
+}
+
+export interface GrantSearchQuery extends SearchQuery {
+  category?: GrantCategoryValue[];
+}
+
+export const RequestSearchProjects = async (
+  query: ProjectSearchQuery,
+): Promise<SearchResponse<ProjectSearchDocument> | null> => {
+  try {
+    const res = await fetch(
+      `${url}/search/projects${toQuery({ ...query, category: query.category?.join(",") })}`,
+    );
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("SearchProjects Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("SearchProjects Fetch Error", error);
+    return null;
+  }
+};
+
+export const RequestSearchGrants = async (
+  query: GrantSearchQuery,
+): Promise<SearchResponse<GrantSearchDocument> | null> => {
+  try {
+    const res = await fetch(
+      `${url}/search/startup-support${toQuery({ ...query, category: query.category?.join(",") })}`,
+    );
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("SearchGrants Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("SearchGrants Fetch Error", error);
+    return null;
+  }
+};
+
+// ===== Teambuilding (팀빌딩) =====
 
 export interface TeambuildingRequest {
   title: string;
@@ -293,7 +401,7 @@ export interface TeambuildingResponse {
 }
 
 export interface TeambuildingListQuery extends PagingQuery {
-  sort_by?: ListSort;
+  sort?: ListSort;
 }
 
 export const RequestTeambuildingList = async (
@@ -311,6 +419,25 @@ export const RequestTeambuildingList = async (
     return await res.json();
   } catch (error) {
     console.error("TeambuildingList Fetch Error", error);
+    return null;
+  }
+};
+
+export const RequestTeambuildingDetail = async (
+  teambuildingId: number,
+): Promise<TeambuildingResponse | null> => {
+  try {
+    const res = await fetch(`${url}/teambuildings/${teambuildingId}`);
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("TeambuildingDetail Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("TeambuildingDetail Fetch Error", error);
     return null;
   }
 };
@@ -453,7 +580,8 @@ export interface ClipResponse {
 }
 
 export interface ClipListQuery extends PagingQuery {
-  sort_by?: ListSort;
+  // 클립은 latest(최신순)만 지원한다.
+  sort?: "latest";
   category?: string | null;
 }
 
@@ -595,7 +723,9 @@ export const RequestNewsletterSubscribe = async (
       return null;
     }
 
-    return await res.json();
+    // 응답 스키마가 정해지지 않아 본문이 비어 있어도 성공으로 본다.
+    const text = await res.text();
+    return text ? JSON.parse(text) : {};
   } catch (error) {
     console.error("NewsletterSubscribe Fetch Error", error);
     return null;

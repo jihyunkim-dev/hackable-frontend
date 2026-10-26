@@ -76,12 +76,15 @@ function HighlightSection({
         "grid gap-y-2 lg:grid-cols-[1fr_380px] lg:gap-5 lg:py-5 xl:grid-cols-[1fr_399px]",
       )}
     >
-      <div className="px-3 py-4 lg:p-0">
-        <ClipFeaturedCarousel
-          label={clipContent.featuredLabel}
-          items={featured}
-        />
-      </div>
+      {/* 추천 클립이 없으면 캐러셀 자리를 비우지 않고 뺀다. */}
+      {featured.length > 0 && (
+        <div className="px-3 py-4 lg:p-0">
+          <ClipFeaturedCarousel
+            label={clipContent.featuredLabel}
+            items={featured}
+          />
+        </div>
+      )}
       <WeeklyClipList
         title={weekly.title}
         items={weekly.items}

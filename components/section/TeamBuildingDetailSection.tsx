@@ -49,9 +49,11 @@ export default function TeamBuildingDetailSection({
           <header className="flex flex-col py-2.5 lg:py-0">
             <h1 className="text-heading-m text-black lg:py-4">{detail.title}</h1>
             <p className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
-              <span className="text-body-l text-gray-800 lg:py-2.5">
-                {detail.author}
-              </span>
+              {detail.author && (
+                <span className="text-body-l text-gray-800 lg:py-2.5">
+                  {detail.author}
+                </span>
+              )}
               <span className="flex w-full items-center gap-1 text-body-m text-gray-500 lg:w-auto lg:gap-2.5 lg:px-2.5">
                 <time>{detail.createdAt}</time>
                 <Image src={commonIconUrl.eye} alt="조회수" width={19} height={19} className="size-3 lg:size-[19px]" />
@@ -64,7 +66,10 @@ export default function TeamBuildingDetailSection({
             <div className="text-body-l whitespace-pre-line text-gray-800">
               {detail.body}
             </div>
-            <InfoBlock label={content.positionLabel} value={detail.position} />
+            {/* 모집 포지션이 비어 있으면 항목째 숨긴다. */}
+            {detail.position && (
+              <InfoBlock label={content.positionLabel} value={detail.position} />
+            )}
             <InfoBlock label={content.deadlineLabel} value={detail.deadline} />
           </div>
         </div>

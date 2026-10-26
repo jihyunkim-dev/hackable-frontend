@@ -21,6 +21,8 @@ export const newsletterSubscribeContent = {
   consentLabel: "개인정보 수집∙이용 동의",
   requiredLabel: "(필수)",
   submit: "구독하기",
+  submitting: "구독 신청 중...",
+  error: "구독 신청에 실패했어요. 잠시 후 다시 시도해주세요.",
   success: {
     notice: ["입력하신 주소로 확인 메일을 드렸어요.", "메일함에서 확인해주세요."],
   },

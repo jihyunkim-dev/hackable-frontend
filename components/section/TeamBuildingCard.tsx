@@ -49,7 +49,10 @@ export default function TeamBuildingCard({
       </h3>
       <p className="flex items-center gap-1">
         <span className="text-heading-xs text-primary-600">{item.dDay}</span>
-        <span className="text-label-m text-gray-500">{remainingSuffix}</span>
+        {/* "상시"·"마감"에는 "남았어요"를 붙이지 않는다. */}
+        {item.dDay.startsWith("D-") && (
+          <span className="text-label-m text-gray-500">{remainingSuffix}</span>
+        )}
       </p>
       <div className="mt-auto flex items-center gap-1 pt-4">
         <span className="py-1 text-label-m text-gray-800 sm:text-label-l">

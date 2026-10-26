@@ -1,4 +1,7 @@
-import type { FilterGroup } from "@/configs/contents/filter";
+import {
+  defaultFilterGroups,
+  defaultSortOptions,
+} from "@/configs/contents/filter";
 
 export const teamBuildingContent = {
   // value는 URL 파라미터(?type=)와 맞춘다. 전체는 파라미터 없음
@@ -10,28 +13,9 @@ export const teamBuildingContent = {
   searchPlaceholder: "어떤 팀원을 찾고 있나요?",
   create: { label: "모집글 작성", href: "/teambuilding/create" },
 
-  filterGroups: [
-    {
-      id: "position",
-      label: "포지션",
-      options: [
-        "기획",
-        "마케팅",
-        "디자이너",
-        "백엔드 개발자",
-        "프론트엔드 개발자",
-        "AI 엔지니어",
-      ],
-    },
-    // TODO: 기술스택 옵션 확정 필요 (피그마에 버튼만 있음)
-    {
-      id: "techStack",
-      label: "기술스택",
-      options: ["React", "Next.js", "Spring", "Node.js", "Figma", "AWS"],
-    },
-    { id: "status", label: "모집 상태", options: ["모집중", "모집마감"] },
-  ] satisfies FilterGroup[],
-  sortOptions: ["최신순", "마감임박순"],
+  // 지원사업과 같은 필터 구성 (기술스택은 맞출 데이터가 없어 뺐다)
+  filterGroups: defaultFilterGroups,
+  sortOptions: defaultSortOptions,
 
   card: {
     remainingSuffix: "남았어요",

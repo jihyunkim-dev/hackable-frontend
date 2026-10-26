@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 
 export type ClipBlock =
   | { type: "paragraph"; text: string }
+  // 서버에서 마크다운을 변환·sanitize한 HTML (API 본문)
+  | { type: "html"; html: string }
   | { type: "heading"; id: string; text: string }
   | {
       type: "image";
@@ -26,14 +28,34 @@ export interface ClipDetail {
   views: number;
   bookmarks: number;
   blocks: ClipBlock[];
+  // 목차. 없으면 heading 블록에서 만든다.
+  headings?: { id: string; text: string }[];
 }
+
+// 마크다운 본문 스타일. 제목·문단·목록·표·이미지·캡션(*기울임*)을 기존 블록 스타일과 맞춘다.
+const MARKDOWN_STYLE = cn(
+  "flex flex-col gap-2.5 text-body-m lg:gap-5 lg:text-body-l",
+  "[&_h2]:scroll-mt-[calc(var(--header-height-desktop)+24px)] [&_h2]:pt-2 [&_h2]:text-body-l [&_h2]:font-bold lg:[&_h2]:text-heading-s lg:[&_h2]:text-gray-800",
+  "[&_h3]:scroll-mt-[calc(var(--header-height-desktop)+24px)] [&_h3]:pt-1 [&_h3]:text-body-l [&_h3]:font-bold [&_h3]:text-gray-800",
+  "[&_a]:text-primary-500 [&_a]:underline [&_strong]:font-bold",
+  "[&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-1",
+  "[&_em]:text-body-s [&_em]:text-gray-500 [&_em]:not-italic",
+  "[&_img]:h-auto [&_img]:w-full [&_img]:rounded-sm lg:[&_img]:rounded-lg",
+  "[&_table]:w-full [&_table]:border-collapse [&_table]:text-body-s lg:[&_table]:text-body-m",
+  "[&_th]:border [&_th]:border-gray-300 [&_th]:bg-gray-50 [&_th]:p-2 [&_th]:text-left [&_th]:font-bold",
+  "[&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_td]:align-top",
+  "[&_blockquote]:border-l-4 [&_blockquote]:border-primary-200 [&_blockquote]:pl-3 [&_blockquote]:text-gray-600",
+  "[&_code]:rounded-sm [&_code]:bg-gray-100 [&_code]:px-1",
+);
 
 // 클립 상세 본문. lg 이상: 왼쪽 북마크·공유 / 가운데 본문 / 오른쪽 목차
 export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
   const content = clipContent.detail;
-  const headings = detail.blocks.flatMap((block) =>
-    block.type === "heading" ? [{ id: block.id, text: block.text }] : [],
-  );
+  const headings =
+    detail.headings ??
+    detail.blocks.flatMap((block) =>
+      block.type === "heading" ? [{ id: block.id, text: block.text }] : [],
+    );
 
   return (
     <section className="mx-auto flex w-full max-w-[1440px] justify-center">
@@ -88,19 +110,24 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
         </header>
 
         <p className="flex items-center gap-2 px-4 py-2 text-label-s text-gray-700 lg:px-0 lg:text-label-m">
-          <span className="flex items-center gap-2">
-            <Image
-              src={commonIconUrl.clockPurple}
-              alt=""
-              width={16}
-              height={16}
-              className="lg:size-5"
-            />
-            {detail.readTime}
-          </span>
-          <span aria-hidden className="text-gray-500">
-            ∙
-          </span>
+          {/* 읽는 시간이 없으면 시계 아이콘과 구분점을 함께 숨긴다. */}
+          {detail.readTime && (
+            <>
+              <span className="flex items-center gap-2">
+                <Image
+                  src={commonIconUrl.clockPurple}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="lg:size-5"
+                />
+                {detail.readTime}
+              </span>
+              <span aria-hidden className="text-gray-500">
+                ∙
+              </span>
+            </>
+          )}
           <time>{detail.createdAt}</time>
           <span className="ml-auto flex items-center gap-1 lg:gap-2.5">
             <Image
@@ -133,6 +160,16 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
 }
 
 function ClipBlockView({ block }: { block: ClipBlock }) {
+  if (block.type === "html") {
+    return (
+      // 표가 화면보다 넓으면 본문 안에서 가로 스크롤
+      <div
+        className={cn(MARKDOWN_STYLE, "overflow-x-auto")}
+        dangerouslySetInnerHTML={{ __html: block.html }}
+      />
+    );
+  }
+
   if (block.type === "heading") {
     return (
       <h2

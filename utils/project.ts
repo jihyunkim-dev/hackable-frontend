@@ -1,15 +1,33 @@
 // API 프로젝트 응답을 화면용 데이터로 바꾼다.
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import sanitizeHtml from "sanitize-html";
 import type { ProjectItem } from "@/components/section/ProjectCard";
 import type { ProjectDetail } from "@/components/section/ProjectDetailSection";
-import { projectDetailPath } from "@/configs/contents/project";
+import {
+  projectApiCategories,
+  projectContent,
+  projectDetailPath,
+  type ProjectCategory,
+} from "@/configs/contents/project";
+import { isAllowedImageUrl } from "@/configs/imageHosts";
 import { placeholderImageUrl } from "@/configs/urls";
+import { getPagination, PAGE_SIZE, toSkip } from "@/utils/pagination";
 import {
   RequestProjectDetail,
+  RequestProjectList,
+  RequestSearchProjects,
+  type ListSort,
+  type ProjectSearchDocument,
   type ProjectDetailResponse,
   type ProjectListItemResponse,
 } from "@/utils/requestToSrv";
+
+// 서버 캐시 이름표. 새 데이터가 들어오면 revalidateTag("projects")로 이 캐시만 지운다.
+const CACHE_TAG = "projects";
+
+const HACKATHON_PATH =
+  projectContent.categories.find((category) => category.value === "hackathon")
+    ?.href ?? "/project/ai-hackathon";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
@@ -29,7 +47,7 @@ export function formatDDay(endDate: string | null, now: number): string {
 }
 
 // 2026-10-26T00:00:00 → 2026.10.26
-const formatDate = (value: string) => value.slice(0, 10).replaceAll("-", ".");
+export const formatDate = (value: string) => value.slice(0, 10).replaceAll("-", ".");
 
 // 접수 기간: 2026.10.26 ~ 2026.12.05
 export function formatPeriod(start: string | null, end: string | null): string {
@@ -38,11 +56,19 @@ export function formatPeriod(start: string | null, end: string | null): string {
 }
 
 // 상세 경로: /project/ai-hackathon/1017-jekkeoton-...
-export function getProjectHref(project: ProjectListItemResponse): string {
+// 카드·상세 경로에 필요한 필드만 받는다. (목록 응답과 검색 결과를 같이 쓴다)
+type ProjectCardSource = Pick<
+  ProjectListItemResponse,
+  "project_id" | "category" | "title" | "end_date" | "thumbnail_img" | "seo_url"
+> & { prize?: string | null };
+
+export function getProjectHref(
+  project: Pick<ProjectCardSource, "project_id" | "category" | "seo_url">,
+): string {
   // 목록에 없는 새 카테고리가 오면 해커톤 경로로 보낸다.
   const basePath =
     (project.category && projectDetailPath[project.category]) ||
-    projectDetailPath.hackathon;
+    HACKATHON_PATH;
   const slug = project.seo_url ?? String(project.project_id);
   return `${basePath}/${slug}`;
 }
@@ -81,19 +107,22 @@ export function toProjectDetail(
     period: formatPeriod(project.start_date, project.end_date),
     dDay: formatDDay(project.end_date, now),
     views: project.view_count,
-    thumbnail: project.thumbnail_img || placeholderImageUrl.thumbnail,
+    thumbnail: isAllowedImageUrl(project.thumbnail_img)
+      ? project.thumbnail_img
+      : placeholderImageUrl.thumbnail,
     bodyHtml: sanitizeBody(project.description ?? ""),
     applyUrl: project.external_url,
     href: getProjectHref(project),
   };
 }
 
-// 상세 데이터를 1분간 캐시한다. (generateMetadata와 화면이 같은 결과를 쓴다)
+// 상세 데이터를 1시간 캐시한다. (generateMetadata와 화면이 같은 결과를 쓴다)
 export async function getProjectDetail(
   slug: string,
 ): Promise<ProjectDetail | null> {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("hours");
+  cacheTag(CACHE_TAG);
 
   const id = parseSlugId(slug);
   if (!id) return null;
@@ -103,13 +132,15 @@ export async function getProjectDetail(
 }
 
 export function toProjectItem(
-  project: ProjectListItemResponse,
+  project: ProjectCardSource,
   now: number,
 ): ProjectItem {
   return {
     id: String(project.project_id),
     title: project.title,
-    thumbnail: project.thumbnail_img || null,
+    thumbnail: isAllowedImageUrl(project.thumbnail_img)
+      ? project.thumbnail_img
+      : null,
     dDay: formatDDay(project.end_date, now),
     prizeLabel: "시상규모",
     prize: project.prize ?? "미정",
@@ -125,4 +156,55 @@ export function toSummary(html: string, length = 150): string {
     .replace(/\s+/g, " ")
     .trim();
   return text.length > length ? `${text.slice(0, length)}…` : text;
+}
+
+// 검색 결과 문서를 카드용 형태로 맞춘다. (id가 문자열로 온다)
+const fromSearchDocument = (
+  document: ProjectSearchDocument,
+): ProjectCardSource => ({ ...document, project_id: Number(document.id) });
+
+// 페이지별 목록을 1시간 캐시한다. (미리 렌더링되는 1페이지 화면도 이 결과를 쓴다)
+// category가 all이면 세분류를 보내지 않아 기본 목록 전부를 받는다.
+// 검색어(q)가 있으면 검색 API를 쓴다. 검색은 관련도 순이라 정렬(sort)은 반영되지 않는다.
+export async function getProjectPage(
+  page: number,
+  category: ProjectCategory = "all",
+  sort: ListSort = "latest",
+  q = "",
+) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAG);
+
+  const categories =
+    category === "all" ? undefined : projectApiCategories[category];
+
+  if (q) {
+    const result = await RequestSearchProjects({
+      q,
+      category: categories,
+      page,
+      per_page: PAGE_SIZE.project,
+    });
+    const now = Date.now();
+    return {
+      items: (result?.hits ?? []).map((hit) =>
+        toProjectItem(fromSearchDocument(hit.document), now),
+      ),
+      pagination: getPagination(result?.found ?? 0, page, PAGE_SIZE.project),
+    };
+  }
+
+  const data = await RequestProjectList({
+    skip: toSkip(page, PAGE_SIZE.project),
+    limit: PAGE_SIZE.project,
+    category: categories,
+    sort,
+  });
+  const now = Date.now();
+
+  return {
+    items: (data?.items ?? []).map((project) => toProjectItem(project, now)),
+    pagination: getPagination(data?.total_count ?? 0, page, PAGE_SIZE.project),
+  };
 }

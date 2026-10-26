@@ -7,23 +7,34 @@ import MultiLine from "@/components/ui/MultiLine";
 import { newsletterSubscribeContent } from "@/configs/contents/newsletter";
 import { commonIconUrl, logoPrimaryUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
+import { RequestNewsletterSubscribe } from "@/utils/requestToSrv";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// 이메일과 필수 동의가 채워져야 구독 버튼이 활성화되고, 제출하면 완료 화면으로 바뀐다.
-// TODO: 구독 API 연동
+// 이메일과 필수 동의가 채워져야 구독 버튼이 활성화되고, 구독 신청에 성공하면 완료 화면으로 바뀐다.
 export function NewsletterSubscribeForm() {
   const content = newsletterSubscribeContent;
   const fieldId = useId();
   const [email, setEmail] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-  const canSubmit = EMAIL_PATTERN.test(email) && agreed;
+  const canSubmit = EMAIL_PATTERN.test(email) && agreed && !isSubmitting;
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (canSubmit) setSubmittedEmail(email);
+    if (!canSubmit) return;
+
+    setIsSubmitting(true);
+    setHasError(false);
+    const trimmedEmail = email.trim();
+    const result = await RequestNewsletterSubscribe({ email: trimmedEmail });
+    setIsSubmitting(false);
+
+    if (result) setSubmittedEmail(trimmedEmail);
+    else setHasError(true);
   };
 
   if (submittedEmail) {
@@ -57,7 +68,12 @@ export function NewsletterSubscribeForm() {
             type="email"
             autoComplete="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setHasError(false);
+            }}
+            aria-invalid={hasError || undefined}
+            aria-describedby={hasError ? `${fieldId}-error` : undefined}
             placeholder={content.emailPlaceholder}
             className="h-10 w-full rounded-sm border border-gray-200 bg-white px-3 text-body-m font-medium text-gray-800 outline-none placeholder:text-gray-500 focus:border-primary-300"
           />
@@ -83,12 +99,22 @@ export function NewsletterSubscribeForm() {
             </span>
           </label>
         </div>
+        {hasError && (
+          <p
+            id={`${fieldId}-error`}
+            role="alert"
+            className="text-body-s font-medium text-destructive-300"
+          >
+            {content.error}
+          </p>
+        )}
         <Button
           type="submit"
           disabled={!canSubmit}
+          aria-busy={isSubmitting || undefined}
           className="h-10 w-full rounded-sm text-label-m font-bold disabled:bg-gray-200 disabled:text-gray-500"
         >
-          {content.submit}
+          {isSubmitting ? content.submitting : content.submit}
         </Button>
       </form>
     </div>

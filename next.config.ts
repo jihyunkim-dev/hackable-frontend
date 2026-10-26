@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { remoteImageHosts } from "./configs/imageHosts";
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -14,13 +15,11 @@ const nextConfig: NextConfig = {
     qualities: [75, 90],
     // AVIF를 먼저 써서 같은 화질에서 용량을 줄인다.
     formats: ["image/avif", "image/webp"],
-    // API 썸네일 이미지 출처 (수집 사이트가 늘어나면 추가)
-    remotePatterns: [
-      { protocol: "https", hostname: "www.thinkcontest.com" },
-      { protocol: "https", hostname: "cdn.allforyoung.com" },
-      { protocol: "https", hostname: "s3.ap-northeast-2.amazonaws.com" },
-      { protocol: "https", hostname: "*.s3.ap-northeast-2.amazonaws.com" },
-    ],
+    // API 썸네일 이미지 출처 (configs/imageHosts.ts에서 관리)
+    remotePatterns: remoteImageHosts.map((hostname) => ({
+      protocol: "https" as const,
+      hostname,
+    })),
   },
   partialPrefetching: true,
   turbopack: {

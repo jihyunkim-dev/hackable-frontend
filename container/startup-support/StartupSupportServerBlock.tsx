@@ -6,15 +6,20 @@ import PromoBanner from "@/components/section/PromoBanner";
 import SearchSection from "@/components/section/SearchSection";
 import { bannerContent } from "@/configs/contents/banners";
 import { projectContent } from "@/configs/contents/project";
+import type { ListSort } from "@/utils/requestToSrv";
 
 interface StartupSupportServerBlockProps {
   items: ProjectItem[];
   pagination: { currentPage: number; totalPages: number };
+  sort: ListSort;
+  q: string;
 }
 
 export default function StartupSupportServerBlock({
   items,
   pagination,
+  sort,
+  q,
 }: StartupSupportServerBlockProps) {
   return (
     <DefaultLayout>
@@ -23,8 +28,15 @@ export default function StartupSupportServerBlock({
       <SearchSection
         action={projectContent.startupSupport.href}
         placeholder={projectContent.startupSupport.searchPlaceholder}
+
+        query={q}      />
+      <ProjectListSection
+        category="support"
+        items={items}
+        sort={sort}
+        q={q}
+        {...pagination}
       />
-      <ProjectListSection category="support" items={items} {...pagination} />
     </DefaultLayout>
   );
 }
