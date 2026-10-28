@@ -4,7 +4,9 @@ import { createContext, ReactNode } from "react";
 
 interface TeamBuildingContextProps {}
 
-export const TeamBuildingContext = createContext({} as TeamBuildingContextProps);
+export const TeamBuildingContext = createContext(
+  {} as TeamBuildingContextProps,
+);
 
 export default function TeamBuildingClientContainer({
   children,
@@ -12,5 +14,9 @@ export default function TeamBuildingClientContainer({
   children: ReactNode;
 }) {
   const TeamBuildingContextValues = {};
-  return <TeamBuildingContext value={TeamBuildingContextValues}>{children}</TeamBuildingContext>;
+  return (
+    <TeamBuildingContext value={TeamBuildingContextValues}>
+      {children}
+    </TeamBuildingContext>
+  );
 }

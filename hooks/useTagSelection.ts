@@ -26,8 +26,7 @@ export function useTagSelection(initial: TagSelection = {}) {
   );
 
   const isSelected = useCallback(
-    (groupId: string, tag: string) =>
-      (selection[groupId] ?? []).includes(tag),
+    (groupId: string, tag: string) => (selection[groupId] ?? []).includes(tag),
     [selection],
   );
 

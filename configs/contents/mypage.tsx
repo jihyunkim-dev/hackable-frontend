@@ -1,6 +1,16 @@
 export const mypageContent = {
   profileEdit: "프로필 수정",
   logout: "로그아웃",
+  guest: {
+    title: "로그인이 필요해요",
+    description: [
+      "로그인하면 북마크한 프로젝트와",
+      "내가 쓴 팀빌딩 글을 볼 수 있어요.",
+    ],
+    button: "로그인",
+  },
+  empty: "아직 없어요.",
+  loadError: "내 활동을 불러오지 못했어요. 잠시 후 다시 시도해주세요.",
   activityTitle: "내 활동",
   settingsTitle: "계정 설정",
   settingsLabel: "계정 설정 열기",
@@ -22,13 +32,17 @@ export const mypageContent = {
     bookmarkedTitle: "북마크한 팀빌딩",
     writtenTitle: "내가 작성한 팀빌딩",
     statusLabel: "모집 상태",
+    statusError: "모집 상태를 바꾸지 못했어요. 다시 시도해주세요.",
   },
   clip: {
     bookmarkedTitle: "북마크한 클립",
   },
   withdraw: {
     title: "계정 탈퇴",
-    description: ["계정 탈퇴 시 아래 정보가 삭제되거나", "이용할 수 없게 됩니다."],
+    description: [
+      "계정 탈퇴 시 아래 정보가 삭제되거나",
+      "이용할 수 없게 됩니다.",
+    ],
     items: [
       "프로필 정보",
       "좋아요한 프로젝트/클립",
@@ -42,6 +56,7 @@ export const mypageContent = {
       cancel: "취소",
       submit: "탈퇴하기",
       close: "닫기",
+      error: "탈퇴하지 못했어요. 다시 시도해주세요.",
     },
   },
 };

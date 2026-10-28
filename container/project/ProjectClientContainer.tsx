@@ -12,5 +12,7 @@ export default function ProjectClientContainer({
   children: ReactNode;
 }) {
   const ProjectContextValues = {};
-  return <ProjectContext value={ProjectContextValues}>{children}</ProjectContext>;
+  return (
+    <ProjectContext value={ProjectContextValues}>{children}</ProjectContext>
+  );
 }

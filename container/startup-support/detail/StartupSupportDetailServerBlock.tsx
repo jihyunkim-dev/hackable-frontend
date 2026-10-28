@@ -16,7 +16,10 @@ export default function StartupSupportDetailServerBlock({
     <DefaultLayout>
       <HeaderSpacer />
       <ProjectDetailSection detail={detail} />
-      <PromoBanner {...bannerContent.startupSupport} className="mt-6 lg:mt-12" />
+      <PromoBanner
+        {...bannerContent.startupSupport}
+        className="mt-6 lg:mt-12"
+      />
       <NewsletterSection />
     </DefaultLayout>
   );

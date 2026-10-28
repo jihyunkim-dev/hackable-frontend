@@ -10,6 +10,8 @@ export interface ProjectDetail {
   dDay: string;
   views: number;
   thumbnail: string;
+  // contain: 기관 로고처럼 잘리면 안 되는 이미지는 흰 배경 위에 통째로 보여준다. (기본 cover)
+  thumbnailFit?: "cover" | "contain";
   bodyHtml: string; // 서버에서 sanitize한 HTML
   applyUrl: string | null; // 없으면 참여하기 버튼을 숨긴다.
   href: string; // 정식 상세 경로
@@ -28,6 +30,10 @@ export default function ProjectDetailSection({
 }) {
   const { periodLabel, viewsLabel, dDayLabel, applyLabel } =
     projectDetailContent;
+  const thumbnailClassName =
+    detail.thumbnailFit === "contain"
+      ? "bg-white object-contain"
+      : "object-cover object-top";
 
   return (
     <section className="mx-auto w-full max-w-[1440px] lg:flex lg:items-start lg:px-15">
@@ -38,7 +44,7 @@ export default function ProjectDetailSection({
           fill
           priority
           sizes="100vw"
-          className="object-cover object-top"
+          className={thumbnailClassName}
         />
       </div>
 
@@ -79,7 +85,7 @@ export default function ProjectDetailSection({
               alt=""
               fill
               sizes="392px"
-              className="object-cover object-top"
+              className={thumbnailClassName}
             />
           </div>
           <p className="line-clamp-2 px-2 text-heading-s text-gray-700">

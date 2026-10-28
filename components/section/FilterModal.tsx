@@ -87,7 +87,8 @@ function FilterModalBody({
             onClick={() => moveToGroup(group.id)}
             className={cn(
               "shrink-0 border-b-2 border-transparent p-2.5 text-label-m text-gray-500 transition-colors lg:text-label-l",
-              group.id === activeGroupId && "border-primary-500 text-primary-500",
+              group.id === activeGroupId &&
+                "border-primary-500 text-primary-500",
             )}
           >
             {group.label}

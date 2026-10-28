@@ -39,23 +39,24 @@ export const dummyProjects: Record<OpportunityTabValue, ProjectItem[]> = {
 
 export const createDummyClipList = (length = 4): ClipItem[] =>
   Array.from({ length }, (_, index) => ({
-  id: `clip-${index + 1}`,
-  category: "기획∙마케팅∙디자인",
-  title: "기획자, 안티그래비티(Antigravity) 이렇게 써봤습니다",
-  description:
-    "요즘 실무에서 발생하는 대부분의 문제는 커뮤니케이션에서 비롯된다. 기획서가 디자인 시안으로, 개발자의 코드로 변환되는 과정에서 설득과 설명만으로는 100% 기획자의 의도를 전달하기 어렵기 때문이다. 그래서 최근 주목받고 있는 바이브코딩",
-  readTime: "8분",
-  createdAt: "2026.01.19",
-  thumbnail: dummyImageUrl.clipThumbnail,
-  href: `/clip/clip-${index + 1}`,
-}));
+    id: `clip-${index + 1}`,
+    category: "기획∙마케팅∙디자인",
+    title: "기획자, 안티그래비티(Antigravity) 이렇게 써봤습니다",
+    description:
+      "요즘 실무에서 발생하는 대부분의 문제는 커뮤니케이션에서 비롯된다. 기획서가 디자인 시안으로, 개발자의 코드로 변환되는 과정에서 설득과 설명만으로는 100% 기획자의 의도를 전달하기 어렵기 때문이다. 그래서 최근 주목받고 있는 바이브코딩",
+    readTime: "8분",
+    createdAt: "2026.01.19",
+    thumbnail: dummyImageUrl.clipThumbnail,
+    href: `/clip/clip-${index + 1}`,
+  }));
 
 export const dummyClips = createDummyClipList();
 
 // 목록 페이지 더미 데이터
 const posterSamples: Omit<ProjectItem, "id" | "href">[] = [
   {
-    title: "2026 롯데월드 상품 디자인 공모전 - YOU & I : 함께하는 순간, 롯데월드",
+    title:
+      "2026 롯데월드 상품 디자인 공모전 - YOU & I : 함께하는 순간, 롯데월드",
     thumbnail: dummyImageUrl.posterLotte,
     dDay: "D-10",
     prizeLabel: "시상규모",
@@ -96,9 +97,14 @@ export const createDummyProjectList = (
       category === "all"
         ? index % 3
         : sampleCategory.indexOf(category === "support" ? "startup" : category);
-    const type = category === "support" ? "support" : sampleCategory[sampleIndex];
+    const type =
+      category === "support" ? "support" : sampleCategory[sampleIndex];
     const id = `${type}-${index + 1}`;
-    return { ...posterSamples[sampleIndex], id, href: `${listDetailPath[type]}/${id}` };
+    return {
+      ...posterSamples[sampleIndex],
+      id,
+      href: `${listDetailPath[type]}/${id}`,
+    };
   });
 
 // 상세 페이지 더미 데이터
@@ -135,7 +141,9 @@ export const createDummyProjectDetail = (
   id: string,
 ): ProjectDetail => {
   const sample =
-    posterSamples[sampleCategory.indexOf(type === "support" ? "startup" : type)];
+    posterSamples[
+      sampleCategory.indexOf(type === "support" ? "startup" : type)
+    ];
   return {
     id,
     title: sample.title,
@@ -168,10 +176,13 @@ export const createDummyTeamBuildingList = (length = 8): TeamBuildingItem[] =>
     href: `/teambuilding/team-${index + 1}`,
   }));
 
-export const createDummyTeamBuildingDetail = (id: string): TeamBuildingDetail => ({
+export const createDummyTeamBuildingDetail = (
+  id: string,
+): TeamBuildingDetail => ({
   id,
   isOpen: true,
-  title: "[사이드프로젝트 / 프로덕트 디자이너 1명] 운동 기록 서비스 OnRep 팀원 모집",
+  title:
+    "[사이드프로젝트 / 프로덕트 디자이너 1명] 운동 기록 서비스 OnRep 팀원 모집",
   author: "작성자1",
   createdAt: "2026.10.08 14:38",
   views: 128,
@@ -204,35 +215,44 @@ export const createDummyTeamBuildingDetail = (id: string): TeamBuildingDetail =>
 });
 
 // 클립 더미 데이터
-export const dummyFeaturedClips: FeaturedClip[] = Array.from({ length: 5 }, (_, index) => ({
-  id: `featured-${index + 1}`,
-  category: "개발",
-  title: ["영리한 개발자와", "현명한 개발자의 차이점"],
-  image: dummyImageUrl.clipFeatured,
-  href: `/clip/clip-${index + 1}`,
-}));
+export const dummyFeaturedClips: FeaturedClip[] = Array.from(
+  { length: 5 },
+  (_, index) => ({
+    id: `featured-${index + 1}`,
+    category: "개발",
+    title: ["영리한 개발자와", "현명한 개발자의 차이점"],
+    image: dummyImageUrl.clipFeatured,
+    href: `/clip/clip-${index + 1}`,
+  }),
+);
 
-export const dummyWeeklyClips: WeeklyClipItem[] = Array.from({ length: 4 }, (_, index) => ({
-  id: `weekly-${index + 1}`,
-  title: "Claude Code 토큰 완벽 가이드 : AI 네이티브 개발의 핵심",
-  category: "AI",
-  readTime: "11분",
-  createdAt: "2026.01.21",
-  thumbnail: dummyImageUrl.clipWeekly,
-  href: `/clip/clip-${index + 1}`,
-}));
+export const dummyWeeklyClips: WeeklyClipItem[] = Array.from(
+  { length: 4 },
+  (_, index) => ({
+    id: `weekly-${index + 1}`,
+    title: "Claude Code 토큰 완벽 가이드 : AI 네이티브 개발의 핵심",
+    category: "AI",
+    readTime: "11분",
+    createdAt: "2026.01.21",
+    thumbnail: dummyImageUrl.clipWeekly,
+    href: `/clip/clip-${index + 1}`,
+  }),
+);
 
 export const dummyWeeklyTitle = "2월 4주차 인기클립";
 
-export const dummyRecommendClips: RecommendClipItem[] = Array.from({ length: 3 }, (_, index) => ({
-  id: `recommend-${index + 1}`,
-  tags: ["기획", "AI", "자동화", "바이브코딩"],
-  title: "기획자, 안티그래비티(Antigravity) 이렇게 써봤습니다",
-  readTime: "8분",
-  createdAt: "2026.01.22",
-  thumbnail: dummyImageUrl.clipThumbnail,
-  href: `/clip/clip-${index + 2}`,
-}));
+export const dummyRecommendClips: RecommendClipItem[] = Array.from(
+  { length: 3 },
+  (_, index) => ({
+    id: `recommend-${index + 1}`,
+    tags: ["기획", "AI", "자동화", "바이브코딩"],
+    title: "기획자, 안티그래비티(Antigravity) 이렇게 써봤습니다",
+    readTime: "8분",
+    createdAt: "2026.01.22",
+    thumbnail: dummyImageUrl.clipThumbnail,
+    href: `/clip/clip-${index + 2}`,
+  }),
+);
 
 export const createDummyClipDetail = (id: string): ClipDetail => ({
   id,
@@ -255,12 +275,20 @@ export const createDummyClipDetail = (id: string): ClipDetail => ({
       height: 734,
       caption: "인플루언서 파인더 <출처: 작가>",
     },
-    { type: "heading", id: "setup", text: "AI 에이전트와 협업하기 위한 기초 세팅" },
+    {
+      type: "heading",
+      id: "setup",
+      text: "AI 에이전트와 협업하기 위한 기초 세팅",
+    },
     {
       type: "paragraph",
       text: "처음 MVP는 인플루언서 검색으로 시작했다. 목표는 공동구매를 진행할 인플루언서를 빠르게 찾고, 조건에 맞는 후보를 정리하는 것이었다.\n\n1) 안티그래비티 다운로드 및 설정\n2) 실행 환경 구축(Runtime & 도구)\n3) DB 연동",
     },
-    { type: "heading", id: "closing", text: "마치며: 기획의 언어는 바뀌어야 한다" },
+    {
+      type: "heading",
+      id: "closing",
+      text: "마치며: 기획의 언어는 바뀌어야 한다",
+    },
     {
       type: "paragraph",
       text: "바이브 코딩으로 상상했던 것을 만들어보니, 생각했던 것 이상으로 많은 것을 직접 확인할 수 있었다. 이제 기획자의 언어는 문서에서 동작하는 결과물로 옮겨가고 있다.",
@@ -270,7 +298,11 @@ export const createDummyClipDetail = (id: string): ClipDetail => ({
 
 // 마이페이지 더미 데이터
 export const dummyMypage = {
-  profile: { name: "김지현", role: "프론트엔드 개발자", image: dummyImageUrl.profile },
+  profile: {
+    name: "김지현",
+    role: "프론트엔드 개발자",
+    image: dummyImageUrl.profile,
+  },
   bookmarkedProjects: {
     hackathon: createDummyProjectList("hackathon", 6),
     contest: createDummyProjectList("contest", 6),

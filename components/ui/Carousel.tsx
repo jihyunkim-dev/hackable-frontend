@@ -97,7 +97,10 @@ export default function Carousel({
               role="group"
               aria-roledescription="slide"
               aria-label={`${index + 1} / ${slides.length}`}
-              className={cn("min-w-0 shrink-0 grow-0 basis-full", slideClassName)}
+              className={cn(
+                "min-w-0 shrink-0 grow-0 basis-full",
+                slideClassName,
+              )}
             >
               {slide}
             </div>

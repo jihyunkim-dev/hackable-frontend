@@ -25,10 +25,35 @@ export function HeroCarousel({ slides }: { slides: MainCarouselSlide[] }) {
           options={{ loop: true }}
           autoplayDelay={AUTOPLAY_DELAY}
           onSelectIndex={setSelectedIndex}
-          className="w-full md:row-span-2 md:rounded-[20px]"
+          // md 이상: 이미지 높이가 오른쪽 칸 높이가 된다. (정보는 이미지 위쪽, 버튼은 이미지 아래쪽 끝에 맞춘다)
+          className="w-full md:row-span-2 md:self-start"
+          renderControls={({ selectedIndex: current, count, scrollTo }) => (
+            // 이미지 안 아래쪽 가운데. 밝은 이미지에서도 보이도록 반투명 배경 위에 점을 둔다. (배너 캐러셀과 같은 점 모양)
+            <div className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/30 px-2 py-1 sm:bottom-3 sm:gap-2 sm:px-2.5 sm:py-1.5 md:bottom-4">
+              {Array.from({ length: count }, (_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  aria-label={`${index + 1}번째 소식 보기`}
+                  aria-current={index === current}
+                  onClick={() => scrollTo(index)}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all motion-reduce:transition-none sm:h-2",
+                    index === current
+                      ? "w-5 bg-primary-400 sm:w-8"
+                      : "w-1.5 bg-white/70 hover:bg-white sm:w-2",
+                  )}
+                />
+              ))}
+            </div>
+          )}
         >
           {slides.map((slide, index) => (
-            <div key={slide.id} className="relative aspect-[8/5]">
+            // 캐러셀 이미지는 16:9 (1920x1080) 기준. md 이상에서는 이미지 칸만 둥글게 자른다.
+            <div
+              key={slide.id}
+              className="relative aspect-video overflow-hidden md:rounded-[20px]"
+            >
               <Image
                 src={slide.image}
                 alt={slide.imageAlt}

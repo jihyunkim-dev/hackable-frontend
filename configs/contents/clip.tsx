@@ -8,7 +8,11 @@ export const clipContent = {
   categories: [
     { value: "all", label: "전체", href: "/clip" },
     { value: "tech", label: "AI・개발", href: "/clip?category=tech" },
-    { value: "vibeCoding", label: "바이브코딩", href: "/clip?category=vibeCoding" },
+    {
+      value: "vibeCoding",
+      label: "바이브코딩",
+      href: "/clip?category=vibeCoding",
+    },
     { value: "pmd", label: "기획・마케팅・디자인", href: "/clip?category=pmd" },
     { value: "trend", label: "트렌드", href: "/clip?category=trend" },
   ],

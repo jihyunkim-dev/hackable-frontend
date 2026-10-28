@@ -6,7 +6,9 @@ interface StartupCompetitionDetailContextProps {
   id: string;
 }
 
-export const StartupCompetitionDetailContext = createContext({} as StartupCompetitionDetailContextProps);
+export const StartupCompetitionDetailContext = createContext(
+  {} as StartupCompetitionDetailContextProps,
+);
 
 export default function StartupCompetitionDetailClientContainer({
   id,
@@ -16,5 +18,11 @@ export default function StartupCompetitionDetailClientContainer({
   children: ReactNode;
 }) {
   const StartupCompetitionDetailContextValues = { id };
-  return <StartupCompetitionDetailContext value={StartupCompetitionDetailContextValues}>{children}</StartupCompetitionDetailContext>;
+  return (
+    <StartupCompetitionDetailContext
+      value={StartupCompetitionDetailContextValues}
+    >
+      {children}
+    </StartupCompetitionDetailContext>
+  );
 }

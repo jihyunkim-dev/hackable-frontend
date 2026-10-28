@@ -3,11 +3,7 @@
 // import { PAGE_SIZE, paginate } from "@/utils/pagination";
 import { parsePage } from "@/utils/pagination";
 import { getProjectPage } from "@/utils/project";
-import {
-  parseQuery,
-  parseSort,
-  type SearchParams,
-} from "@/utils/searchParams";
+import { parseQuery, parseSort, type SearchParams } from "@/utils/searchParams";
 import ProjectClientContainer from "./ProjectClientContainer";
 import ProjectServerBlock from "./ProjectServerBlock";
 
@@ -37,7 +33,12 @@ export default async function ProjectServerContainer({
 
   return (
     <ProjectClientContainer>
-      <ProjectServerBlock items={items} pagination={pagination} sort={sort} q={q} />
+      <ProjectServerBlock
+        items={items}
+        pagination={pagination}
+        sort={sort}
+        q={q}
+      />
     </ProjectClientContainer>
   );
 }

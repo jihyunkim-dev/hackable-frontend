@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
+import LoginRequiredLink from "@/components/ui/LoginRequiredLink";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
 import { commonIconUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
@@ -67,10 +68,10 @@ function SubscribeLink({ className }: { className?: string }) {
   );
 }
 
-// 모바일 전용. md 이상은 목록 상단의 작성 버튼을 쓴다.
+// 모바일 전용. md 이상은 목록 상단의 작성 버튼을 쓴다. 로그인하지 않았으면 로그인 모달을 띄운다.
 function CreateTeamBuildingLink() {
   return (
-    <Link
+    <LoginRequiredLink
       href={teamBuildingContent.create.href}
       aria-label={teamBuildingContent.create.label}
       className={cn(
@@ -78,7 +79,13 @@ function CreateTeamBuildingLink() {
         "size-14 rounded-full bg-linear-[135deg] from-rose-500 to-primary-500 md:hidden",
       )}
     >
-      <Image src={commonIconUrl.plus} alt="" width={24} height={24} className="size-7" />
-    </Link>
+      <Image
+        src={commonIconUrl.plus}
+        alt=""
+        width={24}
+        height={24}
+        className="size-7"
+      />
+    </LoginRequiredLink>
   );
 }

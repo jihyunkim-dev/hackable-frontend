@@ -164,6 +164,30 @@ export const RequestProjectBookmark = async (
   }
 };
 
+// 내가 북마크한 프로젝트 (북마크한 최신순)
+// TODO: 문서에 응답 형식이 비어 있다. 다른 목록과 같은 { total_count, items }로 본다.
+export const RequestMyProjectBookmarks = async (
+  token: string,
+  query: PagingQuery = {},
+): Promise<ProjectListResponse | null> => {
+  try {
+    const res = await fetch(`${url}/project/bookmark${toQuery({ ...query })}`, {
+      headers: authHeader(token),
+    });
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("MyProjectBookmarks Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("MyProjectBookmarks Fetch Error", error);
+    return null;
+  }
+};
+
 // ===== Startup support (지원사업) =====
 
 export type GrantCategoryValue = "space" | "business";
@@ -265,6 +289,32 @@ export const RequestGrantBookmark = async (
     return await res.json();
   } catch (error) {
     console.error("GrantBookmark Fetch Error", error);
+    return null;
+  }
+};
+
+// 내가 북마크한 지원사업 (북마크한 최신순)
+export const RequestMyGrantBookmarks = async (
+  token: string,
+  query: PagingQuery = {},
+): Promise<GrantListResponse | null> => {
+  try {
+    const res = await fetch(
+      `${url}/startup-support/bookmark${toQuery({ ...query })}`,
+      {
+        headers: authHeader(token),
+      },
+    );
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("MyGrantBookmarks Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("MyGrantBookmarks Fetch Error", error);
     return null;
   }
 };
@@ -503,13 +553,10 @@ export const RequestTeambuildingBookmark = async (
   token: string,
 ): Promise<BookmarkResponse | null> => {
   try {
-    const res = await fetch(
-      `${url}/teambuildings/${teambuildingId}/bookmark`,
-      {
-        method: isBookmarked ? "DELETE" : "POST",
-        headers: authHeader(token),
-      },
-    );
+    const res = await fetch(`${url}/teambuildings/${teambuildingId}/bookmark`, {
+      method: isBookmarked ? "DELETE" : "POST",
+      headers: authHeader(token),
+    });
 
     if (!res.ok) {
       const errorData: ApiError = await res.json();
@@ -520,6 +567,60 @@ export const RequestTeambuildingBookmark = async (
     return await res.json();
   } catch (error) {
     console.error("TeambuildingBookmark Fetch Error", error);
+    return null;
+  }
+};
+
+// 북마크 목록은 전체 목록과 달리 total_count가 함께 온다.
+export interface TeambuildingListResponse {
+  total_count: number;
+  items: TeambuildingResponse[];
+}
+
+// 내가 북마크한 팀빌딩 (북마크한 최신순)
+export const RequestMyTeambuildingBookmarks = async (
+  token: string,
+  query: PagingQuery = {},
+): Promise<TeambuildingListResponse | null> => {
+  try {
+    const res = await fetch(
+      `${url}/teambuildings/bookmark${toQuery({ ...query })}`,
+      {
+        headers: authHeader(token),
+      },
+    );
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("MyTeambuildingBookmarks Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("MyTeambuildingBookmarks Fetch Error", error);
+    return null;
+  }
+};
+
+// 내가 쓴 팀빌딩 (삭제한 글 제외, 최신순)
+export const RequestMyTeambuildings = async (
+  token: string,
+): Promise<TeambuildingResponse[] | null> => {
+  try {
+    const res = await fetch(`${url}/teambuildings/me`, {
+      headers: authHeader(token),
+    });
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("MyTeambuildings Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("MyTeambuildings Fetch Error", error);
     return null;
   }
 };
@@ -751,7 +852,9 @@ export interface UserResponse {
   email: string;
   nickname: string | null;
   uid: string | null;
+  provider: "kakao" | "google" | "email";
   logged_at: string | null;
+  created_at: string | null;
   term_approved: boolean;
   profile: UserProfile | null;
 }
@@ -776,9 +879,10 @@ export interface GoogleLoginRequest {
   term_approved?: boolean;
 }
 
-// TODO: 응답 스키마 미정(OpenAPI에 빈 스키마). 백엔드 확정 시 교체
-export interface LoginResponse {
+// 로그인·재발급 응답. access_token은 1시간 뒤 만료된다.
+export interface TokenResponse {
   access_token: string;
+  refresh_token: string;
   token_type: string;
 }
 
@@ -809,7 +913,7 @@ export const RequestEmailSignUp = async (
 
 export const RequestEmailLogin = async (
   body: EmailLoginRequest,
-): Promise<LoginResponse | null> => {
+): Promise<TokenResponse | null> => {
   try {
     const res = await fetch(`${url}/auth/login`, {
       method: "POST",
@@ -836,7 +940,7 @@ export const RequestEmailLogin = async (
 export const RequestGoogleLogin = async (
   body: GoogleLoginRequest,
   idToken: string,
-): Promise<LoginResponse | null> => {
+): Promise<TokenResponse | null> => {
   try {
     const res = await fetch(`${url}/auth/google`, {
       method: "POST",
@@ -862,7 +966,7 @@ export const RequestGoogleLogin = async (
 
 export const RequestKakaoLogin = async (
   accessToken: string,
-): Promise<LoginResponse | null> => {
+): Promise<TokenResponse | null> => {
   try {
     const res = await fetch(
       `${url}/auth/kakao${toQuery({ access_token: accessToken })}`,
@@ -883,9 +987,88 @@ export const RequestKakaoLogin = async (
 };
 
 // 카카오 로그인 페이지로 이동시키는 주소 (fetch가 아닌 페이지 이동용)
+// 로그인이 끝나면 카카오가 프론트 /auth/kakao/callback 으로 인가 코드(?code=)를 붙여 돌려보낸다.
 export const kakaoLoginUrl = `${url}/auth/kakao/login`;
 
-export const RequestMe = async (token: string): Promise<UserResponse | null> => {
+// 카카오 인가 코드를 백엔드에서 우리 서비스 토큰으로 바꾼다.
+// 백엔드는 결과를 쿼리로 붙인 프론트 주소로 리다이렉트하므로, 따라가지 않고 그 주소의 쿼리만 꺼낸다.
+// 성공: access_token·refresh_token·login_success=true / 실패: login_success=false·error·message
+export const RequestKakaoCallback = async (
+  code: string,
+): Promise<URLSearchParams | null> => {
+  try {
+    const res = await fetch(`${url}/auth/kakao/callback${toQuery({ code })}`, {
+      redirect: "manual",
+    });
+    const location = res.headers.get("location");
+
+    if (!location) {
+      const errorData: ApiError = await res.json();
+      console.error("KakaoCallback Error", errorData);
+      return null;
+    }
+
+    return new URL(location, url).searchParams;
+  } catch (error) {
+    console.error("KakaoCallback Fetch Error", error);
+    return null;
+  }
+};
+
+// access_token 재발급. refresh_token도 새로 바뀌므로 응답의 두 토큰을 모두 저장해야 한다.
+// 한 번 쓴 refresh_token을 다시 보내면 백엔드가 탈취로 보고 그 계정의 로그인을 모두 끊는다.
+export const RequestRefreshToken = async (
+  refreshToken: string,
+): Promise<TokenResponse | null> => {
+  try {
+    const res = await fetch(`${url}/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("RefreshToken Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("RefreshToken Fetch Error", error);
+    return null;
+  }
+};
+
+// 로그아웃: refresh_token을 무효로 만든다. (응답 본문 없음, 204)
+export const RequestLogout = async (refreshToken: string): Promise<boolean> => {
+  try {
+    const res = await fetch(`${url}/auth/logout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("Logout Error", errorData);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Logout Fetch Error", error);
+    return false;
+  }
+};
+
+export const RequestMe = async (
+  token: string,
+): Promise<UserResponse | null> => {
   try {
     const res = await fetch(`${url}/auth/me`, {
       headers: authHeader(token),
@@ -904,7 +1087,7 @@ export const RequestMe = async (token: string): Promise<UserResponse | null> => 
   }
 };
 
-// 서버 미구현 상태. 성공 여부만 돌려준다.
+// 회원 탈퇴 (응답 본문 없음, 204). 성공 여부만 돌려준다.
 export const RequestWithdraw = async (token: string): Promise<boolean> => {
   try {
     const res = await fetch(`${url}/auth/withdraw`, {

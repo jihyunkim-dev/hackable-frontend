@@ -29,7 +29,8 @@ export default function ProjectServerBlock({
         action="/project"
         placeholder={projectContent.searchPlaceholder}
 
-        query={q}      />
+        query={q}
+      />
       <ProjectListSection
         category="all"
         items={items}

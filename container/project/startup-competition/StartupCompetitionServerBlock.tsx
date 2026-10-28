@@ -29,7 +29,8 @@ export default function StartupCompetitionServerBlock({
         action="/project/startup-competition"
         placeholder={projectContent.searchPlaceholder}
 
-        query={q}      />
+        query={q}
+      />
       <ProjectListSection
         category="startup"
         items={items}

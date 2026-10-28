@@ -3,6 +3,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { TeamBuildingItem } from "@/components/section/TeamBuildingCard";
 import type { TeamBuildingDetail } from "@/components/section/TeamBuildingDetailSection";
 import { PAGE_SIZE, toSkip } from "@/utils/pagination";
+import { TEAMBUILDING_STATUS_VALUE } from "@/utils/teamBuildingForm";
 import { formatDate, formatDDay, parseSlugId } from "@/utils/project";
 import {
   RequestTeambuildingDetail,
@@ -12,10 +13,11 @@ import {
 } from "@/utils/requestToSrv";
 
 // 서버 캐시 이름표. 글 작성·수정 후 revalidateTag("teambuildings")로 이 캐시만 지운다.
-const CACHE_TAG = "teambuildings";
+export const TEAMBUILDING_CACHE_TAG = "teambuildings";
 
 // TODO: 모집 상태 값 확정 필요 (현재 "recruiting" 또는 null만 옴). 마감 값이 아니면 모집중으로 본다.
-const CLOSED_STATUS = "closed";
+export const TEAMBUILDING_STATUS = TEAMBUILDING_STATUS_VALUE;
+const CLOSED_STATUS = TEAMBUILDING_STATUS.closed;
 
 export function toTeamBuildingItem(
   post: TeambuildingResponse,
@@ -44,7 +46,7 @@ export async function getTeamBuildingPage(
 ) {
   "use cache";
   cacheLife("minutes");
-  cacheTag(CACHE_TAG);
+  cacheTag(TEAMBUILDING_CACHE_TAG);
 
   const pageSize = PAGE_SIZE.teamBuilding;
   const data = await RequestTeambuildingList({
@@ -93,7 +95,7 @@ export async function getTeamBuildingDetail(
 ): Promise<TeamBuildingDetail | null> {
   "use cache";
   cacheLife("minutes");
-  cacheTag(CACHE_TAG);
+  cacheTag(TEAMBUILDING_CACHE_TAG);
 
   const id = parseSlugId(slug);
   if (!id) return null;

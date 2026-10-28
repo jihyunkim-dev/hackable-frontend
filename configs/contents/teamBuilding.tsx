@@ -42,18 +42,26 @@ export const teamBuildingContent = {
     },
     titlePlaceholder: "제목을 입력해주세요.(150자 이내)",
     titleMaxLength: 150,
+    // 백엔드 TeambuildingCreate.description 최대 길이와 같다.
+    bodyMaxLength: 5000,
     bodyPlaceholder:
       "팀빌딩과 관련된 모집 내용을 서술해주세요.\n[팀빌딩 모집 예시]\n• 팀빌딩 프로젝트 설명\n• 팀빌딩 프로젝트 목표\n• 필요한 기술스택\n• 지원하는 방법, 수단",
     image: {
       label: "이미지 첨부",
       description: "이미지 첨부는 하나의 이미지만 가능합니다.",
       remove: "이미지 삭제",
+      unsupported: "이미지 첨부는 준비 중이에요. 글만 먼저 등록해주세요.",
     },
     statusLabel: "모집 상태",
     positionLabel: "모집 포지션",
-    positionPlaceholder: "팀빌딩에 필요한 모집 포지션과 인원 수를 작성해주세요.",
+    positionPlaceholder:
+      "팀빌딩에 필요한 모집 포지션과 인원 수를 작성해주세요.",
     deadlineLabel: "마감일",
-    deadlinePlaceholder: "팀빌딩의 마감 기한을 작성해주세요.",
+    deadlinePlaceholder:
+      "팀빌딩 마감일을 선택해주세요. 비워두면 상시 모집으로 표시돼요.",
+    titleRequired: "제목을 입력해주세요.",
+    loginRequired: ["로그인하면 팀빌딩 모집글을", "작성할 수 있어요."],
+    saveError: "모집글을 저장하지 못했어요. 잠시 후 다시 시도해주세요.",
     cancel: "취소",
     submit: "등록",
     save: "수정",

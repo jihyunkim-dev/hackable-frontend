@@ -13,7 +13,11 @@ export interface RecommendClipItem {
 }
 
 // 클립 상세 하단 추천 카드 (세로형)
-export default function RecommendClipCard({ item }: { item: RecommendClipItem }) {
+export default function RecommendClipCard({
+  item,
+}: {
+  item: RecommendClipItem;
+}) {
   return (
     <Link href={item.href} className="group flex flex-col gap-2.5 p-2.5">
       <div className="relative aspect-[300/173] overflow-hidden rounded-lg bg-black">
@@ -28,7 +32,9 @@ export default function RecommendClipCard({ item }: { item: RecommendClipItem })
       <p className="flex flex-wrap items-center gap-2 text-label-m text-gray-600">
         {item.tags.map((tag, index) => (
           <span key={tag} className="flex items-center gap-2">
-            {index > 0 && <span aria-hidden className="h-2.5 w-px bg-gray-300" />}
+            {index > 0 && (
+              <span aria-hidden className="h-2.5 w-px bg-gray-300" />
+            )}
             {tag}
           </span>
         ))}
@@ -39,7 +45,12 @@ export default function RecommendClipCard({ item }: { item: RecommendClipItem })
       <p className="flex items-center justify-end gap-1 text-label-s text-gray-500">
         {item.readTime && (
           <>
-            <Image src={commonIconUrl.clockPurple} alt="" width={16} height={16} />
+            <Image
+              src={commonIconUrl.clockPurple}
+              alt=""
+              width={16}
+              height={16}
+            />
             {item.readTime}
             <span aria-hidden>∙</span>
           </>

@@ -6,16 +6,34 @@ import { ReactNode } from "react";
 import MultiLine from "@/components/ui/MultiLine";
 import { signInContent } from "@/configs/contents/signIn";
 import { commonIconUrl, signInLogoUrl } from "@/configs/urls";
+import { startKakaoLogin } from "@/hooks/useAuth";
+import { setLoginModalOpen, useLoginModalOpen } from "@/hooks/useLoginModal";
 
 // 카카오 로그인 버튼 배경은 카카오 브랜드 가이드 색상을 그대로 쓴다.
 const KAKAO_YELLOW = "bg-[#FEE500]";
 
+// 레이아웃에 하나 두는 공용 로그인 모달. openLoginModal()로 연다. (hooks/useLoginModal)
+export function GlobalSignInModal() {
+  const open = useLoginModalOpen();
+  return <SignInModal open={open} onOpenChange={setLoginModalOpen} />;
+}
+
 // 로그인 모달 (URL 없이 열림)
-// TODO: 구글·카카오 소셜 로그인 연동
-export default function SignInModal({ trigger }: { trigger: ReactNode }) {
+// trigger를 넘기면 그 버튼으로 열고, open/onOpenChange를 넘기면 밖에서 연다.
+// 카카오: 백엔드 카카오 로그인으로 이동했다가 /auth/kakao/callback 으로 돌아온다.
+// TODO: 구글 로그인 연동 (백엔드 준비 전)
+export default function SignInModal({
+  trigger,
+  open,
+  onOpenChange,
+}: {
+  trigger?: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
   return (
-    <Dialog.Root>
-      <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      {trigger && <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>}
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/50" />
         <Dialog.Content className="fixed top-1/2 left-1/2 z-[60] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-gray-50 outline-none sm:w-[467px]">
@@ -62,6 +80,7 @@ export default function SignInModal({ trigger }: { trigger: ReactNode }) {
               <SocialButton
                 icon={commonIconUrl.kakao}
                 label={signInContent.kakao}
+                onClick={startKakaoLogin}
                 className={KAKAO_YELLOW}
               />
             </div>
@@ -76,14 +95,17 @@ function SocialButton({
   icon,
   label,
   className,
+  onClick,
 }: {
   icon: string;
   label: string;
   className: string;
+  onClick?: () => void;
 }) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className={`flex h-8 items-center rounded-lg px-4 text-body-s text-gray-800 shadow-xs transition-opacity hover:opacity-90 sm:h-10 sm:px-6 sm:text-body-m sm:font-medium ${className}`}
     >
       <Image

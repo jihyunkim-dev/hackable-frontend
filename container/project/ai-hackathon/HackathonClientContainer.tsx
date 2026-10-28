@@ -12,5 +12,9 @@ export default function HackathonClientContainer({
   children: ReactNode;
 }) {
   const HackathonContextValues = {};
-  return <HackathonContext value={HackathonContextValues}>{children}</HackathonContext>;
+  return (
+    <HackathonContext value={HackathonContextValues}>
+      {children}
+    </HackathonContext>
+  );
 }

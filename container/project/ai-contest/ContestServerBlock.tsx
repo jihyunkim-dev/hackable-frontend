@@ -29,7 +29,8 @@ export default function ContestServerBlock({
         action="/project/ai-contest"
         placeholder={projectContent.searchPlaceholder}
 
-        query={q}      />
+        query={q}
+      />
       <ProjectListSection
         category="contest"
         items={items}

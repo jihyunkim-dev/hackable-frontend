@@ -1,219 +1,30 @@
-import Image from "next/image";
 import DefaultLayout from "@/components/layout/DefaultLayout";
 import HeaderSpacer from "@/components/layout/HeaderSpacer";
-import ClipCard, { type ClipItem } from "@/components/section/ClipCard";
-import ProjectCard, {
-  type ProjectItem,
-} from "@/components/section/ProjectCard";
-import TeamBuildingCard, {
-  type TeamBuildingItem,
-} from "@/components/section/TeamBuildingCard";
-import Button from "@/components/ui/Button";
 import MultiLine from "@/components/ui/MultiLine";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { mypageContent } from "@/configs/contents/mypage";
 import {
-  MyTeamBuildingCard,
+  ActivitySection,
+  MypageAuthGate,
   MypageView,
+  ProfileSection,
   WithdrawButton,
-  type MyTeamBuildingPost,
 } from "./MypageClientBlock";
 
-interface MypageData {
-  profile: { name: string; role: string; image: string };
-  bookmarkedProjects: Record<
-    "hackathon" | "contest" | "support",
-    ProjectItem[]
-  >;
-  bookmarkedTeamBuildings: TeamBuildingItem[];
-  writtenTeamBuildings: MyTeamBuildingPost[];
-  bookmarkedClips: ClipItem[];
-}
-
-export default function MypageServerBlock({ data }: { data: MypageData }) {
+// 로그인 사용자 데이터는 브라우저에서 TanStack Query로 받는다. (MypageClientContainer)
+export default function MypageServerBlock() {
   return (
     <DefaultLayout>
       <HeaderSpacer />
       <div className="mx-auto w-full max-w-[960px] lg:py-6">
-        <ProfileSection profile={data.profile} />
-        <MypageView
-          activity={<ActivitySection data={data} />}
-          settings={<WithdrawSection />}
-        />
+        <MypageAuthGate>
+          <ProfileSection />
+          <MypageView
+            activity={<ActivitySection />}
+            settings={<WithdrawSection />}
+          />
+        </MypageAuthGate>
       </div>
     </DefaultLayout>
-  );
-}
-
-/* ===== 프로필 ===== */
-
-function ProfileSection({ profile }: { profile: MypageData["profile"] }) {
-  return (
-    <section className="flex flex-col gap-6 px-4 py-7 lg:flex-row lg:items-start lg:px-0">
-      <div className="flex flex-1 items-start gap-4">
-        <div className="relative size-30 shrink-0 overflow-hidden rounded-full bg-gray-100 lg:size-40">
-          <Image
-            src={profile.image}
-            alt=""
-            fill
-            sizes="160px"
-            className="object-cover"
-          />
-        </div>
-        <div className="flex flex-col gap-2 py-1">
-          <h1 className="text-heading-m font-bold text-gray-800 lg:font-semibold">
-            {profile.name}
-          </h1>
-          <p className="text-heading-xs font-bold text-gray-800 lg:font-semibold">
-            {profile.role}
-          </p>
-        </div>
-      </div>
-      {/* 프로필 수정 아래에 같은 폭으로 로그아웃을 둔다. (모바일: 전체 폭, lg: 오른쪽 124px) */}
-      <div className="flex w-full flex-col gap-2 lg:w-31">
-        {/* TODO: 프로필 수정 화면 연결 (시안 없음) */}
-        <Button
-          variant="outline"
-          className="h-8 w-full border-gray-300 text-label-l font-bold text-gray-700 hover:bg-gray-50 lg:h-10 lg:font-semibold"
-        >
-          {mypageContent.profileEdit}
-        </Button>
-        {/* TODO: 로그아웃 기능 연결 (로그인 연동 후) */}
-        <Button
-          type="button"
-          className="h-8 w-full bg-gray-400 text-label-l font-bold text-white hover:bg-gray-600 lg:h-10 lg:font-semibold"
-        >
-          {mypageContent.logout}
-        </Button>
-      </div>
-    </section>
-  );
-}
-
-/* ===== 내 활동 ===== */
-
-function ActivitySection({ data }: { data: MypageData }) {
-  return (
-    <Tabs defaultValue={mypageContent.tabs[0].value} className="pb-10">
-      <TabsList
-        aria-label={mypageContent.activityTitle}
-        className="justify-start gap-4 border-none px-6 py-3"
-      >
-        {mypageContent.tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.value}
-            value={tab.value}
-            className="py-1 text-label-m font-bold text-gray-500 data-[state=active]:border-primary-600 data-[state=active]:text-gray-800 lg:text-heading-xs lg:font-semibold"
-          >
-            {tab.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-
-      <TabsContent value="project">
-        <ProjectPanel projects={data.bookmarkedProjects} />
-      </TabsContent>
-      <TabsContent value="teamBuilding">
-        <TeamBuildingPanel
-          bookmarked={data.bookmarkedTeamBuildings}
-          written={data.writtenTeamBuildings}
-        />
-      </TabsContent>
-      <TabsContent value="clip">
-        <PanelTitle>{mypageContent.clip.bookmarkedTitle}</PanelTitle>
-        <ul className="flex flex-col gap-2.5 px-3 py-2.5 sm:gap-5">
-          {data.bookmarkedClips.map((item) => (
-            <li key={item.id}>
-              <ClipCard item={item} />
-            </li>
-          ))}
-        </ul>
-      </TabsContent>
-    </Tabs>
-  );
-}
-
-function PanelTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h3 className="px-6 py-1 text-body-m font-medium text-gray-600 lg:py-2.5 lg:text-heading-xs lg:font-semibold">
-      {children}
-    </h3>
-  );
-}
-
-function ProjectPanel({
-  projects,
-}: {
-  projects: MypageData["bookmarkedProjects"];
-}) {
-  const { bookmarkedTitle, filters } = mypageContent.project;
-
-  return (
-    <>
-      <PanelTitle>{bookmarkedTitle}</PanelTitle>
-      <Tabs defaultValue={filters[0].value}>
-        <TabsList
-          aria-label={bookmarkedTitle}
-          className="justify-start gap-3 border-none px-4 py-3"
-        >
-          {filters.map((filter) => (
-            <TabsTrigger
-              key={filter.value}
-              value={filter.value}
-              className="mb-0 h-8 rounded-full border-none bg-gray-100 px-4 text-label-l text-gray-800 data-[state=active]:bg-primary-500 data-[state=active]:text-gray-50"
-            >
-              {filter.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {filters.map((filter) => (
-          <TabsContent key={filter.value} value={filter.value}>
-            <ul className="grid grid-cols-2 justify-items-center gap-y-2 px-1 py-1 sm:gap-y-5 md:grid-cols-3">
-              {projects[filter.value as keyof typeof projects].map((item) => (
-                <li key={item.id}>
-                  <ProjectCard item={item} variant="plain" />
-                </li>
-              ))}
-            </ul>
-          </TabsContent>
-        ))}
-      </Tabs>
-    </>
-  );
-}
-
-function TeamBuildingPanel({
-  bookmarked,
-  written,
-}: {
-  bookmarked: TeamBuildingItem[];
-  written: MyTeamBuildingPost[];
-}) {
-  const { bookmarkedTitle, writtenTitle } = mypageContent.teamBuilding;
-
-  return (
-    <>
-      <PanelTitle>{bookmarkedTitle}</PanelTitle>
-      <ul className="grid gap-2.5 px-5 py-2 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
-        {bookmarked.map((item) => (
-          <li key={item.id}>
-            <TeamBuildingCard item={item} bookmarked />
-          </li>
-        ))}
-      </ul>
-
-      <div className="pt-4">
-        <PanelTitle>{writtenTitle}</PanelTitle>
-      </div>
-      {/* md 미만: 구분선 목록 (sm은 2열) / md 이상: 276px 카드를 가로로 나열 */}
-      <ul className="grid px-4 py-2 sm:grid-cols-2 sm:gap-x-5 sm:px-6 sm:py-4 md:flex md:flex-wrap md:gap-5 md:py-2.5 lg:gap-7">
-        {written.map((post) => (
-          <li key={post.id}>
-            <MyTeamBuildingCard post={post} />
-          </li>
-        ))}
-      </ul>
-    </>
   );
 }
 

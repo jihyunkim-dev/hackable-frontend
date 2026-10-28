@@ -12,5 +12,7 @@ export default function ContestClientContainer({
   children: ReactNode;
 }) {
   const ContestContextValues = {};
-  return <ContestContext value={ContestContextValues}>{children}</ContestContext>;
+  return (
+    <ContestContext value={ContestContextValues}>{children}</ContestContext>
+  );
 }

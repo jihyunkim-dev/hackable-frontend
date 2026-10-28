@@ -6,7 +6,9 @@ interface TeamBuildingDetailContextProps {
   id: string;
 }
 
-export const TeamBuildingDetailContext = createContext({} as TeamBuildingDetailContextProps);
+export const TeamBuildingDetailContext = createContext(
+  {} as TeamBuildingDetailContextProps,
+);
 
 export default function TeamBuildingDetailClientContainer({
   id,
@@ -16,5 +18,9 @@ export default function TeamBuildingDetailClientContainer({
   children: ReactNode;
 }) {
   const TeamBuildingDetailContextValues = { id };
-  return <TeamBuildingDetailContext value={TeamBuildingDetailContextValues}>{children}</TeamBuildingDetailContext>;
+  return (
+    <TeamBuildingDetailContext value={TeamBuildingDetailContextValues}>
+      {children}
+    </TeamBuildingDetailContext>
+  );
 }

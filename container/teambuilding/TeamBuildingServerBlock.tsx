@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import DefaultLayout from "@/components/layout/DefaultLayout";
 import HeaderSpacer from "@/components/layout/HeaderSpacer";
 import CategoryNav from "@/components/section/CategoryNav";
@@ -10,6 +9,7 @@ import TeamBuildingCard, {
   type TeamBuildingItem,
 } from "@/components/section/TeamBuildingCard";
 import Button from "@/components/ui/Button";
+import LoginRequiredLink from "@/components/ui/LoginRequiredLink";
 import Pagination from "@/components/ui/Pagination";
 import { bannerContent } from "@/configs/contents/banners";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
@@ -73,7 +73,8 @@ function TeamBuildingListSection({
             variant="gradient"
             className="hidden gap-1.5 md:inline-flex"
           >
-            <Link href={teamBuildingContent.create.href}>
+            {/* 로그인하지 않았으면 이동하지 않고 로그인 모달을 띄운다. */}
+            <LoginRequiredLink href={teamBuildingContent.create.href}>
               <Image
                 src={commonIconUrl.plus}
                 alt=""
@@ -82,7 +83,7 @@ function TeamBuildingListSection({
                 className="size-5"
               />
               {teamBuildingContent.create.label}
-            </Link>
+            </LoginRequiredLink>
           </Button>
         </div>
         <FilterBar

@@ -30,13 +30,25 @@ export default function ClipFeaturedCarousel({
       renderControls={({ selectedIndex, count, scrollPrev, scrollNext }) => (
         <div className="absolute right-2 bottom-3 flex items-center gap-2 rounded-full bg-gray-800 px-2.5 py-1 text-[10px] font-extrabold tracking-widest text-white lg:right-4 lg:bottom-5 lg:gap-3 lg:px-3 lg:py-1.5 lg:text-label-m">
           <button type="button" aria-label="이전 클립" onClick={scrollPrev}>
-            <Image src={commonIconUrl.chevronSmall} alt="" width={10} height={5} className="rotate-90" />
+            <Image
+              src={commonIconUrl.chevronSmall}
+              alt=""
+              width={10}
+              height={5}
+              className="rotate-90"
+            />
           </button>
           <span aria-live="polite">
             {selectedIndex + 1} / {count}
           </span>
           <button type="button" aria-label="다음 클립" onClick={scrollNext}>
-            <Image src={commonIconUrl.chevronSmall} alt="" width={10} height={5} className="-rotate-90" />
+            <Image
+              src={commonIconUrl.chevronSmall}
+              alt=""
+              width={10}
+              height={5}
+              className="-rotate-90"
+            />
           </button>
         </div>
       )}

@@ -29,7 +29,8 @@ export default function StartupSupportServerBlock({
         action={projectContent.startupSupport.href}
         placeholder={projectContent.startupSupport.searchPlaceholder}
 
-        query={q}      />
+        query={q}
+      />
       <ProjectListSection
         category="support"
         items={items}

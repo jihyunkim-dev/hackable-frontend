@@ -37,7 +37,9 @@ export default function Switch({
           checked ? "translate-x-[14px] bg-white" : "bg-gray-400",
         )}
       />
-      {name && <input type="hidden" name={name} value={checked ? "open" : "closed"} />}
+      {name && (
+        <input type="hidden" name={name} value={checked ? "open" : "closed"} />
+      )}
     </button>
   );
 }

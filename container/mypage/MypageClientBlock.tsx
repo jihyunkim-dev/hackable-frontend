@@ -3,13 +3,105 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import Link from "next/link";
-import { ReactNode, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ReactNode, use, useState } from "react";
+import ClipCard from "@/components/section/ClipCard";
+import ProjectCard from "@/components/section/ProjectCard";
+import SignInModal from "@/components/section/SignInModal";
+import TeamBuildingCard, {
+  type TeamBuildingItem,
+} from "@/components/section/TeamBuildingCard";
 import Button from "@/components/ui/Button";
 import MultiLine from "@/components/ui/MultiLine";
+import ProfileAvatar from "@/components/ui/ProfileAvatar";
 import Switch from "@/components/ui/Switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { mypageContent } from "@/configs/contents/mypage";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
 import { commonIconUrl } from "@/configs/urls";
+import { useLogout } from "@/hooks/useAuth";
+import { useUpdateTeamBuildingStatus, useWithdraw } from "@/hooks/useMypage";
+import type { MypageActivity } from "@/utils/mypage";
+import { MypageContext } from "./MypageClientContainer";
+
+// 로그인 확인 전에는 비워 두고, 로그인하지 않았으면 로그인 안내를 보여준다.
+export function MypageAuthGate({ children }: { children: ReactNode }) {
+  const { status } = use(MypageContext);
+  const { guest } = mypageContent;
+
+  if (status === "loading") return <div className="min-h-[60vh]" />;
+  if (status === "guest") {
+    return (
+      <section className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-4 text-center">
+        <h1 className="text-heading-m font-bold text-gray-800">
+          {guest.title}
+        </h1>
+        <p className="text-body-l text-gray-600">
+          <MultiLine lines={guest.description} />
+        </p>
+        <SignInModal
+          trigger={
+            <Button variant="secondary" className="mt-3 px-10">
+              {guest.button}
+            </Button>
+          }
+        />
+      </section>
+    );
+  }
+  return children;
+}
+
+/* ===== 프로필 ===== */
+
+export function ProfileSection() {
+  const { profile } = use(MypageContext);
+  const router = useRouter();
+  const logout = useLogout();
+
+  if (!profile) return null;
+
+  return (
+    <section className="flex flex-col gap-6 px-4 py-7 lg:flex-row lg:items-start lg:px-0">
+      <div className="flex flex-1 items-start gap-4">
+        <ProfileAvatar
+          image={profile.image}
+          sizes="160px"
+          className="size-30 lg:size-40"
+          iconClassName="size-10 opacity-40 lg:size-14"
+        />
+        <div className="flex flex-col gap-2 py-1">
+          <h1 className="text-heading-m font-bold text-gray-800 lg:font-semibold">
+            {profile.name}
+          </h1>
+          <p className="text-heading-xs font-bold text-gray-800 lg:font-semibold">
+            {profile.role}
+          </p>
+        </div>
+      </div>
+      {/* 프로필 수정 아래에 같은 폭으로 로그아웃을 둔다. (모바일: 전체 폭, lg: 오른쪽 124px) */}
+      <div className="flex w-full flex-col gap-2 lg:w-31">
+        {/* TODO: 프로필 수정 화면 연결 (시안 없음) */}
+        <Button
+          variant="outline"
+          className="h-8 w-full border-gray-300 text-label-l font-bold text-gray-700 hover:bg-gray-50 lg:h-10 lg:font-semibold"
+        >
+          {mypageContent.profileEdit}
+        </Button>
+        <Button
+          type="button"
+          disabled={logout.isPending}
+          onClick={() =>
+            logout.mutate(undefined, { onSuccess: () => router.replace("/") })
+          }
+          className="h-8 w-full bg-gray-400 text-label-l font-bold text-white hover:bg-gray-600 lg:h-10 lg:font-semibold"
+        >
+          {mypageContent.logout}
+        </Button>
+      </div>
+    </section>
+  );
+}
 
 // 마이페이지는 URL 하나에서 "내 활동" ↔ "계정 설정" 화면을 전환한다.
 // 두 화면 내용은 서버에서 렌더링해 넘겨받는다.
@@ -64,10 +156,20 @@ export function MypageView({
 }
 
 // 계정 탈퇴 확인 모달
-// TODO: 탈퇴 API 연동
 export function WithdrawButton() {
   const { withdraw } = mypageContent;
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const withdrawMutation = useWithdraw();
+
+  const handleWithdraw = () =>
+    withdrawMutation.mutate(undefined, {
+      onSuccess: () => {
+        setOpen(false);
+        router.replace("/");
+      },
+      onError: () => window.alert(withdraw.confirm.error),
+    });
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -111,7 +213,8 @@ export function WithdrawButton() {
               </Button>
             </Dialog.Close>
             <Button
-              onClick={() => setOpen(false)}
+              onClick={handleWithdraw}
+              disabled={withdrawMutation.isPending}
               className="h-8 w-[104px] bg-destructive-300 text-body-m font-medium hover:bg-destructive-500"
             >
               {withdraw.confirm.submit}
@@ -123,25 +226,12 @@ export function WithdrawButton() {
   );
 }
 
-export interface MyTeamBuildingPost {
-  id: string;
-  category: string;
-  title: string;
-  isOpen: boolean;
-  dDay: string;
-  author: string;
-  views: number;
-  bookmarks: number;
-  href: string;
-}
-
 // 내가 작성한 팀빌딩: 목록에서 바로 모집 상태를 바꿀 수 있다.
 // md 미만: 구분선으로 나뉜 목록 (머리줄에 카테고리 + 모집 상태)
 // md 이상: 테두리 카드 (머리줄에 모집 상태, 아래에 카테고리, 맨 아래 작성자)
-// TODO: 모집 상태 변경 API 연동
-export function MyTeamBuildingCard({ post }: { post: MyTeamBuildingPost }) {
-  const [isOpen, setIsOpen] = useState(post.isOpen);
-  const { statusLabel } = mypageContent.teamBuilding;
+function MyTeamBuildingCard({ post }: { post: TeamBuildingItem }) {
+  const updateStatus = useUpdateTeamBuildingStatus();
+  const { statusLabel, statusError } = mypageContent.teamBuilding;
   const { remainingSuffix, viewsLabel, bookmarksLabel } =
     teamBuildingContent.card;
 
@@ -155,8 +245,13 @@ export function MyTeamBuildingCard({ post }: { post: MyTeamBuildingPost }) {
           {statusLabel}
         </span>
         <Switch
-          checked={isOpen}
-          onCheckedChange={setIsOpen}
+          checked={post.isOpen}
+          onCheckedChange={(isOpen) =>
+            updateStatus.mutate(
+              { id: post.id, isOpen },
+              { onError: () => window.alert(statusError) },
+            )
+          }
           label={statusLabel}
         />
       </div>
@@ -197,5 +292,169 @@ export function MyTeamBuildingCard({ post }: { post: MyTeamBuildingPost }) {
         </span>
       </div>
     </div>
+  );
+}
+
+/* ===== 내 활동 ===== */
+
+export function ActivitySection() {
+  const { activity, isActivityLoading } = use(MypageContext);
+
+  return (
+    <Tabs defaultValue={mypageContent.tabs[0].value} className="pb-10">
+      <TabsList
+        aria-label={mypageContent.activityTitle}
+        className="justify-start gap-4 border-none px-6 py-3"
+      >
+        {mypageContent.tabs.map((tab) => (
+          <TabsTrigger
+            key={tab.value}
+            value={tab.value}
+            className="py-1 text-label-m font-bold text-gray-500 data-[state=active]:border-primary-600 data-[state=active]:text-gray-800 lg:text-heading-xs lg:font-semibold"
+          >
+            {tab.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+
+      {isActivityLoading ? (
+        <div className="min-h-60" />
+      ) : !activity ? (
+        <EmptyMessage>{mypageContent.loadError}</EmptyMessage>
+      ) : (
+        <>
+          <TabsContent value="project">
+            <ProjectPanel projects={activity.bookmarkedProjects} />
+          </TabsContent>
+          <TabsContent value="teamBuilding">
+            <TeamBuildingPanel
+              bookmarked={activity.bookmarkedTeamBuildings}
+              written={activity.writtenTeamBuildings}
+            />
+          </TabsContent>
+          <TabsContent value="clip">
+            <PanelTitle>{mypageContent.clip.bookmarkedTitle}</PanelTitle>
+            {activity.bookmarkedClips.length === 0 ? (
+              <EmptyMessage>{mypageContent.empty}</EmptyMessage>
+            ) : (
+              <ul className="flex flex-col gap-2.5 px-3 py-2.5 sm:gap-5">
+                {activity.bookmarkedClips.map((item) => (
+                  <li key={item.id}>
+                    <ClipCard item={item} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+        </>
+      )}
+    </Tabs>
+  );
+}
+
+function PanelTitle({ children }: { children: ReactNode }) {
+  return (
+    <h3 className="px-6 py-1 text-body-m font-medium text-gray-600 lg:py-2.5 lg:text-heading-xs lg:font-semibold">
+      {children}
+    </h3>
+  );
+}
+
+function EmptyMessage({ children }: { children: ReactNode }) {
+  return (
+    <p className="px-6 py-10 text-center text-body-m text-gray-500">
+      {children}
+    </p>
+  );
+}
+
+function ProjectPanel({
+  projects,
+}: {
+  projects: MypageActivity["bookmarkedProjects"];
+}) {
+  const { bookmarkedTitle, filters } = mypageContent.project;
+
+  return (
+    <>
+      <PanelTitle>{bookmarkedTitle}</PanelTitle>
+      <Tabs defaultValue={filters[0].value}>
+        <TabsList
+          aria-label={bookmarkedTitle}
+          className="justify-start gap-3 border-none px-4 py-3"
+        >
+          {filters.map((filter) => (
+            <TabsTrigger
+              key={filter.value}
+              value={filter.value}
+              className="mb-0 h-8 rounded-full border-none bg-gray-100 px-4 text-label-l text-gray-800 data-[state=active]:bg-primary-500 data-[state=active]:text-gray-50"
+            >
+              {filter.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {filters.map((filter) => {
+          const items = projects[filter.value as keyof typeof projects];
+          return (
+            <TabsContent key={filter.value} value={filter.value}>
+              {items.length === 0 ? (
+                <EmptyMessage>{mypageContent.empty}</EmptyMessage>
+              ) : (
+                <ul className="grid grid-cols-2 justify-items-center gap-y-2 px-1 py-1 sm:gap-y-5 md:grid-cols-3">
+                  {items.map((item) => (
+                    <li key={item.id}>
+                      <ProjectCard item={item} variant="plain" />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </TabsContent>
+          );
+        })}
+      </Tabs>
+    </>
+  );
+}
+
+function TeamBuildingPanel({
+  bookmarked,
+  written,
+}: {
+  bookmarked: TeamBuildingItem[];
+  written: TeamBuildingItem[];
+}) {
+  const { bookmarkedTitle, writtenTitle } = mypageContent.teamBuilding;
+
+  return (
+    <>
+      <PanelTitle>{bookmarkedTitle}</PanelTitle>
+      {bookmarked.length === 0 ? (
+        <EmptyMessage>{mypageContent.empty}</EmptyMessage>
+      ) : (
+        <ul className="grid gap-2.5 px-5 py-2 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
+          {bookmarked.map((item) => (
+            <li key={item.id}>
+              <TeamBuildingCard item={item} showBookmark />
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="pt-10 lg:pt-14">
+        <PanelTitle>{writtenTitle}</PanelTitle>
+      </div>
+      {written.length === 0 ? (
+        <EmptyMessage>{mypageContent.empty}</EmptyMessage>
+      ) : (
+        // md 미만: 구분선 목록 (sm은 2열) / md 이상: 276px 카드를 가로로 나열
+        <ul className="grid px-4 py-2 sm:grid-cols-2 sm:gap-x-5 sm:px-6 sm:py-4 md:flex md:flex-wrap md:gap-5 md:py-2.5 lg:gap-7">
+          {written.map((post) => (
+            <li key={post.id}>
+              <MyTeamBuildingCard post={post} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   );
 }

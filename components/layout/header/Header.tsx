@@ -2,8 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, Suspense } from "react";
 import Button from "@/components/ui/Button";
-import { logoUrl, userIconUrl } from "@/configs/urls";
-import { LoginButton, NavLink } from "./HeaderClient";
+import { logoUrl } from "@/configs/urls";
+import {
+  AccountButton,
+  LoginErrorNotice,
+  MobileAccountButton,
+  NavLink,
+} from "./HeaderClient";
 import { headerActions, navItems } from "./navigation";
 
 export default function Header() {
@@ -11,8 +16,17 @@ export default function Header() {
     <>
       <header className="fixed inset-x-0 top-0 z-50 h-(--header-height-mobile) bg-background-normal md:h-(--header-height-desktop)">
         <div className="relative flex h-full items-center justify-between px-5">
-          <Link href={headerActions.home.href} aria-label={headerActions.home.label}>
-            <Image src={logoUrl} alt="hackable" width={109} height={21} priority />
+          <Link
+            href={headerActions.home.href}
+            aria-label={headerActions.home.label}
+          >
+            <Image
+              src={logoUrl}
+              alt="hackable"
+              width={109}
+              height={21}
+              priority
+            />
           </Link>
 
           <DesktopNav />
@@ -23,6 +37,7 @@ export default function Header() {
       </header>
 
       <MobileNavBar />
+      <LoginErrorNotice />
     </>
   );
 }
@@ -60,7 +75,10 @@ function DesktopActions() {
           {headerActions.subscribe.label}
         </Link>
       </Button>
-      <LoginButton label={headerActions.login.label} />
+      <AccountButton
+        loginLabel={headerActions.login.label}
+        myPage={headerActions.myPage}
+      />
     </div>
   );
 }
@@ -76,13 +94,10 @@ function MobileActions() {
       >
         {headerActions.subscribe.label}
       </Link>
-      <Link
-        href={headerActions.myPage.href}
-        aria-label={headerActions.myPage.label}
-        className="flex size-9 items-center justify-center rounded-full bg-gray-50"
-      >
-        <Image src={userIconUrl} alt="" width={16} height={16} />
-      </Link>
+      <MobileAccountButton
+        loginLabel={headerActions.login.label}
+        myPage={headerActions.myPage}
+      />
     </div>
   );
 }
@@ -122,7 +137,12 @@ interface ActiveLinkProps {
 
 // usePathname이 프리렌더 시점에 확정되지 않는 경로를 위해 Suspense로 감싼다.
 // fallback은 활성 표시만 없는 동일한 링크라 레이아웃 변화가 없다.
-function ActiveLink({ href, className, activeClassName, children }: ActiveLinkProps) {
+function ActiveLink({
+  href,
+  className,
+  activeClassName,
+  children,
+}: ActiveLinkProps) {
   return (
     <Suspense
       fallback={
@@ -131,7 +151,11 @@ function ActiveLink({ href, className, activeClassName, children }: ActiveLinkPr
         </Link>
       }
     >
-      <NavLink href={href} className={className} activeClassName={activeClassName}>
+      <NavLink
+        href={href}
+        className={className}
+        activeClassName={activeClassName}
+      >
         {children}
       </NavLink>
     </Suspense>

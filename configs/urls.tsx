@@ -46,6 +46,11 @@ export const commonIconUrl = {
   plus: "/icons/plus-icon.svg",
   // 클립 상세 lg 이상 80px 버튼용 (선 두께 2px 원본 크기)
   bookmarkOutlineLarge: "/icons/bookmark-outline-lg-icon.svg",
+  // 북마크한 상태 (위 아이콘들의 채운 버전)
+  bookmarkCardFilled: "/icons/bookmark-card-filled-icon.svg",
+  bookmarkClipFilled: "/icons/bookmark-clip-filled-icon.svg",
+  bookmarkFilledSmall: "/icons/bookmark-filled-sm-icon.svg",
+  bookmarkFilledLarge: "/icons/bookmark-filled-lg-icon.svg",
   shareLarge: "/icons/share-lg-icon.svg",
 };
 
@@ -66,7 +71,13 @@ const banner = (name: string, smHeight = 536, xlHeight = 640) => ({
 
 // 화면 크기별 배너 이미지 (xs: ~767, sm: 768~990, xl: 991~)
 export const bannerImageUrl: Record<
-  "project" | "hackathon" | "contest" | "grants" | "startupSupport" | "teamBuilding" | "subscribe",
+  | "project"
+  | "hackathon"
+  | "contest"
+  | "grants"
+  | "startupSupport"
+  | "teamBuilding"
+  | "subscribe",
   Record<"xs" | "sm" | "xl", BannerImage>
 > = {
   project: banner("project", 544, 650),
@@ -85,13 +96,22 @@ export const subscribeClipBannerUrl: BannerImage = {
   height: 636,
 };
 
+// 지원사업 주최 기관 로고 (512x512 JPG). 주소 규칙: {기관 로고 폴더}/{hosted}.jpg
+// 모든 기관에 로고가 있는 건 아니라서, 쓰기 전에 있는지 확인한다. (utils/grant.ts)
+export const hostLogoBaseUrl = "https://cdn.hackable.co.kr/웹용_512_JPG";
+
 // 썸네일이 없을 때 보여주는 "이미지 준비중" 이미지
 export const placeholderImageUrl = {
   thumbnail: "/images/thumbnail-placeholder.png",
 };
 
+// 메인 히어로 캐러셀 이미지 (16:9, 1920x1080)
+// TODO: carousel-newsletter.png는 8:5(1278x800)라 16:9 칸에서 위아래가 조금 잘린다. 16:9로 다시 만들어야 함
 export const mainImageUrl = {
   carouselNewsletter: "/images/main/carousel-newsletter.png",
+  carouselTeamBuilding: "/images/main/carousel-teambuilding.png",
+  carouselStartupSupport: "/images/main/carousel-startup-support.png",
+  carouselClip: "/images/main/carousel-clip.png",
 };
 
 // TODO: API 연동 후 제거

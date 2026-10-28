@@ -29,7 +29,8 @@ export default function HackathonServerBlock({
         action="/project/ai-hackathon"
         placeholder={projectContent.searchPlaceholder}
 
-        query={q}      />
+        query={q}
+      />
       <ProjectListSection
         category="hackathon"
         items={items}

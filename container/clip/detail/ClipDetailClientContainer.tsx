@@ -16,5 +16,9 @@ export default function ClipDetailClientContainer({
   children: ReactNode;
 }) {
   const ClipDetailContextValues = { id };
-  return <ClipDetailContext value={ClipDetailContextValues}>{children}</ClipDetailContext>;
+  return (
+    <ClipDetailContext value={ClipDetailContextValues}>
+      {children}
+    </ClipDetailContext>
+  );
 }

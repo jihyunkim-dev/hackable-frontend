@@ -6,7 +6,9 @@ interface HackathonDetailContextProps {
   id: string;
 }
 
-export const HackathonDetailContext = createContext({} as HackathonDetailContextProps);
+export const HackathonDetailContext = createContext(
+  {} as HackathonDetailContextProps,
+);
 
 export default function HackathonDetailClientContainer({
   id,
@@ -16,5 +18,9 @@ export default function HackathonDetailClientContainer({
   children: ReactNode;
 }) {
   const HackathonDetailContextValues = { id };
-  return <HackathonDetailContext value={HackathonDetailContextValues}>{children}</HackathonDetailContext>;
+  return (
+    <HackathonDetailContext value={HackathonDetailContextValues}>
+      {children}
+    </HackathonDetailContext>
+  );
 }

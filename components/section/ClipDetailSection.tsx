@@ -1,5 +1,6 @@
 import Image from "next/image";
 import ClipToc from "@/components/section/ClipToc";
+import BookmarkToggle from "@/components/ui/BookmarkToggle";
 import ShareButton from "@/components/ui/ShareButton";
 import { clipContent } from "@/configs/contents/clip";
 import { commonIconUrl } from "@/configs/urls";
@@ -63,11 +64,19 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
         <div className="sticky top-[calc(var(--header-height-desktop)+24px)] flex flex-col items-center gap-9 px-10 py-17">
           {/* 80px 버튼에는 원본 크기 아이콘을 써서 선 두께(2px)를 유지한다. */}
           <BookmarkButton
+            id={detail.id}
             label={content.bookmarkLabel}
-            icon={{
-              src: commonIconUrl.bookmarkOutlineLarge,
-              width: 25,
-              height: 30,
+            icons={{
+              off: {
+                src: commonIconUrl.bookmarkOutlineLarge,
+                width: 25,
+                height: 30,
+              },
+              on: {
+                src: commonIconUrl.bookmarkFilledLarge,
+                width: 25,
+                height: 30,
+              },
             }}
             className="size-20 rounded-[18px]"
           />
@@ -90,6 +99,7 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
             </p>
             <div className="flex gap-2.5 lg:hidden">
               <BookmarkButton
+                id={detail.id}
                 label={content.bookmarkLabel}
                 className="size-8 rounded-sm border-gray-100"
                 iconClassName="h-3.5 w-3"
@@ -208,35 +218,36 @@ function ClipBlockView({ block }: { block: ClipBlock }) {
   );
 }
 
-// TODO: 북마크 API 연동
+const SMALL_BOOKMARK_ICONS = {
+  off: { src: commonIconUrl.bookmarkOutline, width: 12, height: 15 },
+  on: { src: commonIconUrl.bookmarkFilledSmall, width: 12, height: 15 },
+};
+
 function BookmarkButton({
+  id,
   label,
-  icon = { src: commonIconUrl.bookmarkOutline, width: 12, height: 15 },
+  icons = SMALL_BOOKMARK_ICONS,
   className,
   iconClassName,
 }: {
+  id: string;
   label: string;
   // 아이콘 이미지 교체용 (기본: 작은 북마크 아이콘)
-  icon?: { src: string; width: number; height: number };
+  icons?: typeof SMALL_BOOKMARK_ICONS;
   className?: string;
   iconClassName?: string;
 }) {
   return (
-    <button
-      type="button"
-      aria-label={label}
+    <BookmarkToggle
+      type="clip"
+      id={id}
+      label={label}
+      icons={icons}
       className={cn(
-        "flex items-center justify-center border border-gray-200 bg-white transition-colors hover:bg-gray-50",
+        "border border-gray-200 bg-white transition-colors hover:bg-gray-50",
         className,
       )}
-    >
-      <Image
-        src={icon.src}
-        alt=""
-        width={icon.width}
-        height={icon.height}
-        className={iconClassName}
-      />
-    </button>
+      iconClassName={iconClassName}
+    />
   );
 }

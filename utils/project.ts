@@ -47,7 +47,8 @@ export function formatDDay(endDate: string | null, now: number): string {
 }
 
 // 2026-10-26T00:00:00 → 2026.10.26
-export const formatDate = (value: string) => value.slice(0, 10).replaceAll("-", ".");
+export const formatDate = (value: string) =>
+  value.slice(0, 10).replaceAll("-", ".");
 
 // 접수 기간: 2026.10.26 ~ 2026.12.05
 export function formatPeriod(start: string | null, end: string | null): string {
@@ -67,8 +68,7 @@ export function getProjectHref(
 ): string {
   // 목록에 없는 새 카테고리가 오면 해커톤 경로로 보낸다.
   const basePath =
-    (project.category && projectDetailPath[project.category]) ||
-    HACKATHON_PATH;
+    (project.category && projectDetailPath[project.category]) || HACKATHON_PATH;
   const slug = project.seo_url ?? String(project.project_id);
   return `${basePath}/${slug}`;
 }

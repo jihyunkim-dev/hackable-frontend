@@ -6,6 +6,7 @@ import Header from "@/components/layout/header/Header";
 import Footer from "@/components/layout/footer/Footer";
 import FloatingButton from "@/components/layout/FloatingButton";
 import QueryProvider from "@/components/layout/QueryProvider";
+import { GlobalSignInModal } from "@/components/section/SignInModal";
 
 export const metadata: Metadata = {
   title: "hackable",
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </main>
           <Footer />
           <FloatingButton />
+          <GlobalSignInModal />
         </QueryProvider>
       </body>
     </html>

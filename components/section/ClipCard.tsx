@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import BookmarkToggle from "@/components/ui/BookmarkToggle";
 import { commonIconUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
 
@@ -19,12 +20,12 @@ interface ClipCardProps {
   className?: string;
 }
 
+// 카드 전체가 링크처럼 눌리도록 제목 링크를 카드 크기로 늘리고(after:inset-0), 북마크 버튼만 그 위에 올린다.
 export default function ClipCard({ item, className }: ClipCardProps) {
   return (
-    <Link
-      href={item.href}
+    <div
       className={cn(
-        "flex gap-2 rounded-xl bg-white p-2 shadow-sm transition-colors sm:gap-5 sm:bg-gray-50 sm:p-5 sm:shadow-none sm:hover:bg-gray-100",
+        "relative flex gap-2 rounded-xl bg-white p-2 shadow-sm transition-colors sm:gap-5 sm:bg-gray-50 sm:p-5 sm:shadow-none sm:hover:bg-gray-100",
         className,
       )}
     >
@@ -35,7 +36,9 @@ export default function ClipCard({ item, className }: ClipCardProps) {
           </p>
         )}
         <h3 className="line-clamp-2 text-label-m font-bold text-gray-800 sm:text-heading-s sm:font-bold">
-          {item.title}
+          <Link href={item.href} className="after:absolute after:inset-0">
+            {item.title}
+          </Link>
         </h3>
         <p className="hidden text-body-m font-medium text-ellipsis text-gray-500 sm:line-clamp-3">
           {item.description}
@@ -72,15 +75,22 @@ export default function ClipCard({ item, className }: ClipCardProps) {
           sizes="(min-width: 768px) 280px, 112px"
           className="object-cover"
         />
-        {/* TODO: 북마크 기능은 API 연동 시 버튼으로 전환 */}
-        <Image
-          src={commonIconUrl.bookmarkClip}
-          alt=""
-          width={28}
-          height={28}
-          className="absolute top-[7px] right-[5px] size-[18px] sm:top-3 sm:right-[11px] sm:size-7"
+        <BookmarkToggle
+          type="clip"
+          id={item.id}
+          label="북마크"
+          icons={{
+            off: { src: commonIconUrl.bookmarkClip, width: 28, height: 28 },
+            on: {
+              src: commonIconUrl.bookmarkClipFilled,
+              width: 28,
+              height: 28,
+            },
+          }}
+          className="absolute top-[7px] right-[5px] sm:top-3 sm:right-[11px]"
+          iconClassName="size-[18px] sm:size-7"
         />
       </div>
-    </Link>
+    </div>
   );
 }

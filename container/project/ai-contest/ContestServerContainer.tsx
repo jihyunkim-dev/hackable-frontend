@@ -3,11 +3,7 @@
 // import { PAGE_SIZE, paginate } from "@/utils/pagination";
 import { parsePage } from "@/utils/pagination";
 import { getProjectPage } from "@/utils/project";
-import {
-  parseQuery,
-  parseSort,
-  type SearchParams,
-} from "@/utils/searchParams";
+import { parseQuery, parseSort, type SearchParams } from "@/utils/searchParams";
 import ContestClientContainer from "./ContestClientContainer";
 import ContestServerBlock from "./ContestServerBlock";
 
@@ -38,7 +34,12 @@ export default async function ContestServerContainer({
 
   return (
     <ContestClientContainer>
-      <ContestServerBlock items={items} pagination={pagination} sort={sort} q={q} />
+      <ContestServerBlock
+        items={items}
+        pagination={pagination}
+        sort={sort}
+        q={q}
+      />
     </ContestClientContainer>
   );
 }

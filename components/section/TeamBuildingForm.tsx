@@ -2,11 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChangeEvent, useEffect, useId, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChangeEvent, FormEvent, useEffect, useId, useState } from "react";
 import Button from "@/components/ui/Button";
 import Switch from "@/components/ui/Switch";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
 import { commonIconUrl } from "@/configs/urls";
+import { useMe } from "@/hooks/useAuth";
+import { openLoginModal } from "@/hooks/useLoginModal";
+import { useSaveTeamBuilding } from "@/hooks/useMypage";
+import { cn } from "@/lib/utils";
 
 export interface TeamBuildingFormValues {
   title: string;
@@ -14,12 +19,15 @@ export interface TeamBuildingFormValues {
   imageUrl?: string;
   isOpen: boolean;
   position: string;
+  // YYYY-MM-DD, 비우면 상시 모집
   deadline: string;
 }
 
 interface TeamBuildingFormProps {
   mode: "create" | "edit";
   cancelHref: string;
+  // 수정할 글 id (mode가 edit일 때)
+  teambuildingId?: string;
   defaultValues?: TeamBuildingFormValues;
 }
 
@@ -31,16 +39,24 @@ const emptyValues: TeamBuildingFormValues = {
   deadline: "",
 };
 
-// 팀빌딩 모집글 작성·수정 폼
-// TODO: 등록/수정 API 연동 (현재는 입력 UI만 구현)
+// 팀빌딩 모집글 작성·수정 폼. 저장하면 상세 페이지로 이동한다.
 export default function TeamBuildingForm({
   mode,
   cancelHref,
+  teambuildingId,
   defaultValues = emptyValues,
 }: TeamBuildingFormProps) {
   const content = teamBuildingContent.form;
+  const router = useRouter();
+  const { data: user } = useMe();
+  const save = useSaveTeamBuilding(
+    mode === "edit" ? teambuildingId : undefined,
+  );
   const fieldId = useId();
   const [isOpen, setIsOpen] = useState(defaultValues.isOpen);
+  // 글자 수 표시용. 입력 제한은 maxLength가 막는다. (붙여넣기도 최대 길이까지만 들어간다)
+  const [title, setTitle] = useState(defaultValues.title);
+  const [body, setBody] = useState(defaultValues.body);
   const [preview, setPreview] = useState(defaultValues.imageUrl);
 
   // 미리보기용 object URL은 바뀌거나 사라질 때 해제한다.
@@ -50,14 +66,44 @@ export default function TeamBuildingForm({
     };
   }, [preview]);
 
+  // TODO: 이미지 업로드 API가 생기면 미리보기 후 업로드한 주소를 thumbnail_img로 보낸다.
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) setPreview(URL.createObjectURL(file));
+    event.target.value = "";
+    window.alert(content.image.unsupported);
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (save.isPending) return;
+    // 페이지는 LoginGate로 막지만, 작성 중 로그인이 끝난 경우를 대비한다.
+    if (!user) {
+      openLoginModal();
+      return;
+    }
+    if (!title.trim()) {
+      window.alert(content.titleRequired);
+      return;
+    }
+
+    const form = new FormData(event.currentTarget);
+    save.mutate(
+      {
+        title,
+        body,
+        isOpen,
+        position: String(form.get("position") ?? ""),
+        deadline: String(form.get("deadline") ?? ""),
+      },
+      {
+        onSuccess: (id) => router.push(`/teambuilding/${id}`),
+        onError: () => window.alert(content.saveError),
+      },
+    );
   };
 
   return (
     <form
-      onSubmit={(event) => event.preventDefault()}
+      onSubmit={handleSubmit}
       className="mx-auto flex w-full max-w-[800px] flex-col gap-2.5 px-3 py-4 sm:gap-6 sm:px-8 sm:py-10"
     >
       <aside className="flex flex-col gap-2.5 rounded-lg bg-primary-50 p-3 sm:px-5">
@@ -82,23 +128,42 @@ export default function TeamBuildingForm({
         ))}
       </aside>
 
-      <input
-        name="title"
-        defaultValue={defaultValues.title}
-        maxLength={content.titleMaxLength}
-        placeholder={content.titlePlaceholder}
-        aria-label={content.titlePlaceholder}
-        className="w-full border-b border-gray-200 pb-2.5 text-heading-m text-gray-800 outline-none placeholder:text-gray-400 focus:border-primary-300"
-      />
+      <div className="flex flex-col gap-1">
+        <input
+          name="title"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          maxLength={content.titleMaxLength}
+          placeholder={content.titlePlaceholder}
+          aria-label={content.titlePlaceholder}
+          aria-describedby={`${fieldId}-title-count`}
+          className="w-full border-b border-gray-200 pb-2.5 text-heading-m text-gray-800 outline-none placeholder:text-gray-400 focus:border-primary-300"
+        />
+        <CharCount
+          id={`${fieldId}-title-count`}
+          length={title.length}
+          max={content.titleMaxLength}
+        />
+      </div>
 
-      <textarea
-        name="body"
-        defaultValue={defaultValues.body}
-        placeholder={content.bodyPlaceholder}
-        aria-label="모집 내용"
-        rows={7}
-        className="w-full resize-y text-body-l text-gray-800 outline-none placeholder:text-gray-400"
-      />
+      <div className="flex flex-col gap-1">
+        <textarea
+          name="body"
+          value={body}
+          onChange={(event) => setBody(event.target.value)}
+          maxLength={content.bodyMaxLength}
+          placeholder={content.bodyPlaceholder}
+          aria-label="모집 내용"
+          aria-describedby={`${fieldId}-body-count`}
+          rows={7}
+          className="w-full resize-y text-body-l text-gray-800 outline-none placeholder:text-gray-400"
+        />
+        <CharCount
+          id={`${fieldId}-body-count`}
+          length={body.length}
+          max={content.bodyMaxLength}
+        />
+      </div>
 
       <label
         htmlFor={`${fieldId}-image`}
@@ -161,13 +226,29 @@ export default function TeamBuildingForm({
         placeholder={content.positionPlaceholder}
         defaultValue={defaultValues.position}
       />
-      <Field
-        id={`${fieldId}-deadline`}
-        name="deadline"
-        label={content.deadlineLabel}
-        placeholder={content.deadlinePlaceholder}
-        defaultValue={defaultValues.deadline}
-      />
+      {/* 마감일은 D-day 계산에 쓰여 날짜로 받는다. 비우면 상시 모집 */}
+      <div className="flex flex-col gap-2">
+        <label
+          htmlFor={`${fieldId}-deadline`}
+          className="py-1.5 text-heading-s text-rose-500"
+        >
+          {content.deadlineLabel}
+        </label>
+        <input
+          id={`${fieldId}-deadline`}
+          type="date"
+          name="deadline"
+          defaultValue={defaultValues.deadline}
+          aria-describedby={`${fieldId}-deadline-hint`}
+          className="w-full rounded-[8px] border border-gray-200 p-4 text-body-l text-gray-800 outline-none focus:border-primary-300"
+        />
+        <p
+          id={`${fieldId}-deadline-hint`}
+          className="text-body-s text-gray-500"
+        >
+          {content.deadlinePlaceholder}
+        </p>
+      </div>
 
       <div className="flex gap-4 border-t border-gray-200 pt-4 sm:justify-end">
         <Button
@@ -179,12 +260,36 @@ export default function TeamBuildingForm({
         </Button>
         <Button
           type="submit"
+          disabled={save.isPending}
           className="h-10 flex-1 rounded-lg bg-rose-500 text-label-l hover:bg-rose-700 sm:w-24 sm:flex-none sm:text-heading-xs"
         >
           {mode === "create" ? content.submit : content.save}
         </Button>
       </div>
     </form>
+  );
+}
+
+// 입력 글자 수 / 최대 글자 수. 최대에 닿으면 빨간색으로 바뀐다.
+function CharCount({
+  id,
+  length,
+  max,
+}: {
+  id: string;
+  length: number;
+  max: number;
+}) {
+  return (
+    <p
+      id={id}
+      className={cn(
+        "self-end text-label-s text-gray-400 tabular-nums sm:text-label-m",
+        length >= max && "text-destructive-300",
+      )}
+    >
+      {length.toLocaleString()}/{max.toLocaleString()}
+    </p>
   );
 }
 

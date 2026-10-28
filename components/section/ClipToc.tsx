@@ -21,7 +21,10 @@ export default function ClipToc({
     const link = nav?.querySelector<HTMLElement>('[aria-current="location"]');
     if (!nav || !link) return;
     const top = link.offsetTop - nav.offsetTop;
-    if (top < nav.scrollTop || top + link.offsetHeight > nav.scrollTop + nav.clientHeight) {
+    if (
+      top < nav.scrollTop ||
+      top + link.offsetHeight > nav.scrollTop + nav.clientHeight
+    ) {
       nav.scrollTo({ top: top - nav.clientHeight / 2, behavior: "smooth" });
     }
   }, [activeId]);

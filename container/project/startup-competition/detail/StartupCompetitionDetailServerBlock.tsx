@@ -7,7 +7,11 @@ import ProjectDetailSection, {
 import PromoBanner from "@/components/section/PromoBanner";
 import { bannerContent } from "@/configs/contents/banners";
 
-export default function StartupCompetitionDetailServerBlock({ detail }: { detail: ProjectDetail }) {
+export default function StartupCompetitionDetailServerBlock({
+  detail,
+}: {
+  detail: ProjectDetail;
+}) {
   return (
     <DefaultLayout>
       <HeaderSpacer />

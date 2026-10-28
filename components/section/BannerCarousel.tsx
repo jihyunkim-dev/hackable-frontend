@@ -15,14 +15,23 @@ interface BannerCarouselProps {
 }
 
 // 프로모션 배너 캐러셀 (가운데 점 표시 + 오른쪽 아래 "1 / N" 이동 버튼)
-export default function BannerCarousel({ banners, className }: BannerCarouselProps) {
+export default function BannerCarousel({
+  banners,
+  className,
+}: BannerCarouselProps) {
   return (
     <Carousel
       label="해커블 프로모션"
       options={{ loop: true }}
       autoplayDelay={5000}
       className={className}
-      renderControls={({ selectedIndex, count, scrollPrev, scrollNext, scrollTo }) => (
+      renderControls={({
+        selectedIndex,
+        count,
+        scrollPrev,
+        scrollNext,
+        scrollTo,
+      }) => (
         <>
           <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2">
             {Array.from({ length: count }, (_, index) => (

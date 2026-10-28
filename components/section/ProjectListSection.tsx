@@ -87,7 +87,9 @@ export default function ProjectListSection({
 
         {items.length === 0 && (
           <p className="px-3 py-20 text-center text-body-l text-gray-500">
-            {q ? `"${q}"에 대한 검색 결과가 없어요.` : "아직 등록된 공고가 없어요."}
+            {q
+              ? `"${q}"에 대한 검색 결과가 없어요.`
+              : "아직 등록된 공고가 없어요."}
           </p>
         )}
 

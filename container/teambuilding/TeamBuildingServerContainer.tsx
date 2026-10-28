@@ -24,7 +24,10 @@ export default async function TeamBuildingServerContainer({
 
   // [실제 데이터] 더미 데이터 사용 시 아래 한 줄 주석 처리
   // TODO: API에 프로젝트/스터디 구분이 없어 카테고리(type)는 아직 목록에 반영되지 않는다.
-  const { items, pagination } = await getTeamBuildingPage(parsePage(page), sort);
+  const { items, pagination } = await getTeamBuildingPage(
+    parsePage(page),
+    sort,
+  );
 
   // [더미 데이터] 사용 시 아래 주석 해제
   // const { items, pagination } = paginate(

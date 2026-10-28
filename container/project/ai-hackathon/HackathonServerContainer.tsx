@@ -3,11 +3,7 @@
 // import { PAGE_SIZE, paginate } from "@/utils/pagination";
 import { parsePage } from "@/utils/pagination";
 import { getProjectPage } from "@/utils/project";
-import {
-  parseQuery,
-  parseSort,
-  type SearchParams,
-} from "@/utils/searchParams";
+import { parseQuery, parseSort, type SearchParams } from "@/utils/searchParams";
 import HackathonClientContainer from "./HackathonClientContainer";
 import HackathonServerBlock from "./HackathonServerBlock";
 
@@ -38,7 +34,12 @@ export default async function HackathonServerContainer({
 
   return (
     <HackathonClientContainer>
-      <HackathonServerBlock items={items} pagination={pagination} sort={sort} q={q} />
+      <HackathonServerBlock
+        items={items}
+        pagination={pagination}
+        sort={sort}
+        q={q}
+      />
     </HackathonClientContainer>
   );
 }

@@ -39,9 +39,20 @@ export function NewsletterSubscribeForm() {
 
   if (submittedEmail) {
     return (
-      <div aria-live="polite" className="flex flex-col items-center gap-1 p-2 text-center">
-        <Image src={commonIconUrl.mail} alt="" width={120} height={128} className="h-[92px] w-auto lg:h-30" />
-        <p className="p-2.5 text-body-m font-medium text-primary-500">{submittedEmail}</p>
+      <div
+        aria-live="polite"
+        className="flex flex-col items-center gap-1 p-2 text-center"
+      >
+        <Image
+          src={commonIconUrl.mail}
+          alt=""
+          width={120}
+          height={128}
+          className="h-[92px] w-auto lg:h-30"
+        />
+        <p className="p-2.5 text-body-m font-medium text-primary-500">
+          {submittedEmail}
+        </p>
         <p className="py-5 text-body-m font-medium text-gray-700">
           <MultiLine lines={content.success.notice} />
         </p>
@@ -52,13 +63,22 @@ export function NewsletterSubscribeForm() {
   return (
     <div className="flex w-full flex-col items-center">
       <div className="flex flex-col items-center gap-2.5 p-2.5 text-center">
-        <Image src={logoPrimaryUrl} alt="hackable" width={174} height={33} className="h-[22px] w-auto lg:h-[33px]" />
+        <Image
+          src={logoPrimaryUrl}
+          alt="hackable"
+          width={174}
+          height={33}
+          className="h-[22px] w-auto lg:h-[33px]"
+        />
         <p className="p-2.5 text-body-m font-medium text-gray-600">
           <MultiLine lines={content.description} />
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex w-full max-w-[350px] flex-col gap-2 py-5">
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-full max-w-[350px] flex-col gap-2 py-5"
+      >
         <div className="flex flex-col gap-2 py-5">
           <label htmlFor={`${fieldId}-email`} className="sr-only">
             {content.emailLabel}
@@ -88,12 +108,23 @@ export function NewsletterSubscribeForm() {
               aria-hidden
               className={cn(
                 "flex size-5 items-center justify-center rounded-sm border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-primary-300",
-                agreed ? "border-primary-500 bg-primary-500" : "border-gray-300 bg-white",
+                agreed
+                  ? "border-primary-500 bg-primary-500"
+                  : "border-gray-300 bg-white",
               )}
             >
-              {agreed && <Image src={commonIconUrl.check} alt="" width={20} height={20} />}
+              {agreed && (
+                <Image
+                  src={commonIconUrl.check}
+                  alt=""
+                  width={20}
+                  height={20}
+                />
+              )}
             </span>
-            <span className="text-body-m font-medium text-gray-700">{content.consentLabel}</span>
+            <span className="text-body-m font-medium text-gray-700">
+              {content.consentLabel}
+            </span>
             <span className="ml-auto text-body-m font-medium text-gray-400">
               {content.requiredLabel}
             </span>

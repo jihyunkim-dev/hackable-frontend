@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import BookmarkToggle from "@/components/ui/BookmarkToggle";
 import { commonIconUrl, placeholderImageUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +12,8 @@ export interface ProjectItem {
   prizeLabel: string;
   prize: string;
   href: string;
+  // 북마크 API 종류. 지원사업 카드만 "grant" (기본 "project")
+  bookmarkType?: "project" | "grant";
 }
 
 interface ProjectCardProps {
@@ -21,16 +24,16 @@ interface ProjectCardProps {
 }
 
 // 해커톤·공모전·지원사업 카드. xs는 180px, sm 이상은 300px 카드
+// 카드 전체가 링크처럼 눌리도록 제목 링크를 카드 크기로 늘리고(after:inset-0), 북마크 버튼만 그 위에 올린다.
 export default function ProjectCard({
   item,
   variant = "elevated",
   className,
 }: ProjectCardProps) {
   return (
-    <Link
-      href={item.href}
+    <div
       className={cn(
-        "flex w-[180px] shrink-0 flex-col gap-2 rounded-xl p-3 transition-shadow sm:w-[300px] sm:p-4",
+        "relative flex w-[180px] shrink-0 flex-col gap-2 rounded-xl p-3 transition-shadow sm:w-[300px] sm:p-4",
         variant === "elevated"
           ? "bg-white shadow-sm hover:shadow-md sm:shadow-md sm:hover:shadow-lg"
           : "hover:bg-gray-50",
@@ -45,18 +48,27 @@ export default function ProjectCard({
           sizes="(min-width: 768px) 268px, 156px"
           className="object-cover object-top"
         />
-        {/* TODO: 북마크 기능은 API 연동 시 버튼으로 전환 */}
-        <Image
-          src={commonIconUrl.bookmarkCard}
-          alt=""
-          width={25}
-          height={32}
-          className="absolute top-1 right-1 h-7 w-[22px] sm:top-3.5 sm:right-3.5 sm:h-8 sm:w-[25px]"
+        <BookmarkToggle
+          type={item.bookmarkType ?? "project"}
+          id={item.id}
+          label="북마크"
+          icons={{
+            off: { src: commonIconUrl.bookmarkCard, width: 25, height: 32 },
+            on: {
+              src: commonIconUrl.bookmarkCardFilled,
+              width: 25,
+              height: 32,
+            },
+          }}
+          className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3"
+          iconClassName="h-8 w-[25px] sm:h-10 sm:w-8"
         />
       </div>
 
       <h3 className="line-clamp-3 min-h-[76px] text-heading-xs text-gray-800 sm:line-clamp-2 sm:min-h-20">
-        {item.title}
+        <Link href={item.href} className="after:absolute after:inset-0">
+          {item.title}
+        </Link>
       </h3>
 
       <div className="flex flex-col sm:gap-2.5">
@@ -72,6 +84,6 @@ export default function ProjectCard({
           </span>
         </p>
       </div>
-    </Link>
+    </div>
   );
 }

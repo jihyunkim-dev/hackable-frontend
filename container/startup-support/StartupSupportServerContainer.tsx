@@ -3,11 +3,7 @@
 // import { PAGE_SIZE, paginate } from "@/utils/pagination";
 import { getGrantPage } from "@/utils/grant";
 import { parsePage } from "@/utils/pagination";
-import {
-  parseQuery,
-  parseSort,
-  type SearchParams,
-} from "@/utils/searchParams";
+import { parseQuery, parseSort, type SearchParams } from "@/utils/searchParams";
 import StartupSupportClientContainer from "./StartupSupportClientContainer";
 import StartupSupportServerBlock from "./StartupSupportServerBlock";
 

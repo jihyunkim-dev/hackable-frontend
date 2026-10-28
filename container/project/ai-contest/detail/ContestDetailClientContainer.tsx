@@ -6,7 +6,9 @@ interface ContestDetailContextProps {
   id: string;
 }
 
-export const ContestDetailContext = createContext({} as ContestDetailContextProps);
+export const ContestDetailContext = createContext(
+  {} as ContestDetailContextProps,
+);
 
 export default function ContestDetailClientContainer({
   id,
@@ -16,5 +18,9 @@ export default function ContestDetailClientContainer({
   children: ReactNode;
 }) {
   const ContestDetailContextValues = { id };
-  return <ContestDetailContext value={ContestDetailContextValues}>{children}</ContestDetailContext>;
+  return (
+    <ContestDetailContext value={ContestDetailContextValues}>
+      {children}
+    </ContestDetailContext>
+  );
 }
