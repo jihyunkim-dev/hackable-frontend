@@ -89,6 +89,24 @@ export const bannerImageUrl: Record<
   subscribe: banner("subscribe"),
 };
 
+// 띠배너 (991x220, 문구·버튼이 이미지 안에 있다). 화면 크기와 관계없이 같은 이미지를 쓴다.
+function stripBanner(name: string): Record<"xs" | "sm" | "xl", BannerImage> {
+  const image = {
+    src: `/images/banners/strip-${name}.png`,
+    width: 991,
+    height: 220,
+  };
+  return { xs: image, sm: image, xl: image };
+}
+
+export const stripBannerUrl = {
+  teamBuilding: stripBanner("teambuilding"),
+  startupSupport: stripBanner("support"),
+  clip: stripBanner("clip"),
+  hackathon: stripBanner("hackathon"),
+  kakao: stripBanner("kakao"),
+};
+
 // 클립 페이지 lg 이상: 캐러셀 아래 좁은 칸에 들어가는 구독 배너
 export const subscribeClipBannerUrl: BannerImage = {
   src: "/images/banners/subscribe-clip-lg.jpg",
