@@ -8,7 +8,7 @@ import SignInModal from "@/components/section/SignInModal";
 import Button from "@/components/ui/Button";
 import ProfileAvatar from "@/components/ui/ProfileAvatar";
 import { userIconUrl } from "@/configs/urls";
-import { useMe } from "@/hooks/useAuth";
+import { useAccount } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { getProfileImage } from "@/utils/profile";
 
@@ -48,9 +48,14 @@ export function AccountButton({
   loginLabel: string;
   myPage: { label: string; href: string };
 }) {
-  const { data: user } = useMe();
+  const account = useAccount();
 
-  if (user) {
+  // 로그인 여부를 알기 전에는 빈 자리만 둔다. (로그인 버튼이 잠깐 보였다 바뀌지 않게)
+  if (account.status === "unknown") {
+    return <span aria-hidden className="size-9" />;
+  }
+
+  if (account.status === "user") {
     return (
       <Link
         href={myPage.href}
@@ -58,7 +63,7 @@ export function AccountButton({
         className="rounded-full ring-primary-200 transition-shadow hover:ring-2"
       >
         <ProfileAvatar
-          image={getProfileImage(user)}
+          image={account.user && getProfileImage(account.user)}
           sizes="36px"
           className="size-9"
         />
@@ -85,9 +90,13 @@ export function MobileAccountButton({
   loginLabel: string;
   myPage: { label: string; href: string };
 }) {
-  const { data: user } = useMe();
+  const account = useAccount();
 
-  if (user) {
+  if (account.status === "unknown") {
+    return <span aria-hidden className="size-9 rounded-full bg-gray-50" />;
+  }
+
+  if (account.status === "user") {
     return (
       <Link
         href={myPage.href}
@@ -95,7 +104,7 @@ export function MobileAccountButton({
         className="rounded-full"
       >
         <ProfileAvatar
-          image={getProfileImage(user)}
+          image={account.user && getProfileImage(account.user)}
           sizes="36px"
           className="size-9 bg-gray-50"
         />
