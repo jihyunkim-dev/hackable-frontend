@@ -2,11 +2,13 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
+import Link from "next/link";
 import { ReactNode } from "react";
 import MultiLine from "@/components/ui/MultiLine";
+import { policyContent } from "@/configs/contents/policies";
 import { signInContent } from "@/configs/contents/signIn";
 import { commonIconUrl, signInLogoUrl } from "@/configs/urls";
-import { startKakaoLogin } from "@/hooks/useAuth";
+import { startSocialLogin } from "@/hooks/useAuth";
 import { setLoginModalOpen, useLoginModalOpen } from "@/hooks/useLoginModal";
 
 // 카카오 로그인 버튼 배경은 카카오 브랜드 가이드 색상을 그대로 쓴다.
@@ -21,7 +23,7 @@ export function GlobalSignInModal() {
 // 로그인 모달 (URL 없이 열림)
 // trigger를 넘기면 그 버튼으로 열고, open/onOpenChange를 넘기면 밖에서 연다.
 // 카카오: 백엔드 카카오 로그인으로 이동했다가 /auth/kakao/callback 으로 돌아온다.
-// TODO: 구글 로그인 연동 (백엔드 준비 전)
+// 구글: 백엔드 구글 로그인으로 이동했다가 /auth/google 로 돌아온다.
 export default function SignInModal({
   trigger,
   open,
@@ -75,19 +77,45 @@ export default function SignInModal({
               <SocialButton
                 icon={commonIconUrl.google}
                 label={signInContent.google}
+                onClick={() => startSocialLogin("google")}
                 className="bg-white"
               />
               <SocialButton
                 icon={commonIconUrl.kakao}
                 label={signInContent.kakao}
-                onClick={startKakaoLogin}
+                onClick={() => startSocialLogin("kakao")}
                 className={KAKAO_YELLOW}
               />
             </div>
+            <Agreement />
           </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+// 약관 링크를 누르면 모달을 닫고 해당 페이지로 이동한다.
+function Agreement() {
+  const { agreement } = signInContent;
+  const linkClass = "underline underline-offset-2 hover:text-gray-700";
+
+  return (
+    <p className="px-2 text-center text-body-s break-keep text-gray-500">
+      {agreement.prefix}{" "}
+      <Dialog.Close asChild>
+        <Link href={policyContent.terms.href} className={linkClass}>
+          {agreement.terms}
+        </Link>
+      </Dialog.Close>
+      {agreement.and}{" "}
+      <Dialog.Close asChild>
+        <Link href={policyContent.privacy.href} className={linkClass}>
+          {agreement.privacy}
+        </Link>
+      </Dialog.Close>
+      {agreement.suffix}
+    </p>
   );
 }
 
