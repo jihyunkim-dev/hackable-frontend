@@ -20,7 +20,7 @@ import {
   type TeambuildingResponse,
 } from "@/utils/requestToSrv";
 import {
-  filterTeamBuildings,
+  toTeambuildingFilterParams,
   type TeamBuildingFilters,
 } from "@/utils/teamBuildingFilter";
 
@@ -68,16 +68,17 @@ export function toTeamBuildingItem(
   };
 }
 
-// 한 번에 받는 글 수. 필터를 프론트에서 걸어야 해서 글을 전부 받는다.
+// 한 번에 받는 글 수. 목록 API에 전체 개수가 없어 페이지 수를 알려고 조건에 맞는 글을 전부 받는다.
 const FETCH_CHUNK = 100;
 // 검색 결과 한 번에 받는 수 (Typesense 최대 250)
 const SEARCH_CHUNK = 250;
 
-// 정렬·카테고리에 맞는 글을 전부 받는다.
-// TODO: 백엔드 목록 API에 필터 조건과 total_count가 생기면 페이지 단위 요청으로 되돌린다.
+// 정렬·카테고리·필터에 맞는 글을 전부 받는다. (필터는 백엔드가 건다)
+// TODO: 백엔드 목록 API에 total_count가 생기면 페이지 단위 요청으로 되돌린다.
 async function fetchAllTeamBuildings(
   sort: ListSort,
   category?: TeamBuildingCategory,
+  filters?: TeamBuildingFilters,
 ) {
   const posts: TeambuildingResponse[] = [];
   for (let skip = 0; ; skip += FETCH_CHUNK) {
@@ -86,6 +87,7 @@ async function fetchAllTeamBuildings(
       limit: FETCH_CHUNK,
       sort,
       category,
+      ...(filters && toTeambuildingFilterParams(filters)),
     });
     posts.push(...(chunk ?? []));
     if (!chunk || chunk.length < FETCH_CHUNK) return posts;
@@ -110,9 +112,10 @@ async function searchTeamBuildingIds(q: string) {
 }
 
 // 페이지별 목록을 1분간 캐시한다. 사용자가 바로 쓰는 글이라 짧게 둔다. (미리 렌더링되는 1페이지 화면도 이 결과를 쓴다)
-// 글을 전부 받아 검색어·필터를 걸고 페이지를 나눈다. (utils/teamBuildingFilter)
+// 필터에 맞는 글을 전부 받아 검색어를 걸고 페이지를 나눈다. (필터 조건: utils/teamBuildingFilter)
 // - category가 없으면(전체) 카테고리를 보내지 않는다.
 // - 검색어(q)가 있으면 검색 결과에 든 글만 관련도 순으로 남긴다. (검색 중에는 정렬이 반영되지 않는다)
+//   검색 API에는 필터 조건이 없어, 필터로 거른 목록과 겹치는 글만 남긴다.
 //   검색 결과 문서에는 마감일·조회수가 없어, 목록 데이터와 맞춰 카드를 채운다.
 export async function getTeamBuildingPage(
   page: number,
@@ -127,7 +130,7 @@ export async function getTeamBuildingPage(
 
   const pageSize = PAGE_SIZE.teamBuilding;
   const [all, searchIds] = await Promise.all([
-    fetchAllTeamBuildings(sort, category),
+    fetchAllTeamBuildings(sort, category, filters),
     q ? searchTeamBuildingIds(q) : null,
   ]);
 
@@ -140,7 +143,6 @@ export async function getTeamBuildingPage(
   }
 
   const now = Date.now();
-  if (filters) posts = filterTeamBuildings(posts, filters, now);
 
   const pagination = getPagination(posts.length, page, pageSize);
   const start = toSkip(pagination.currentPage, pageSize);
@@ -172,7 +174,7 @@ export function toTeamBuildingDetail(
     bookmarks: post.bookmark_count,
     body: post.description ?? "",
     position: post.position?.join(", ") ?? "",
-    // TODO: 진행 방식은 백엔드 필드가 생기기 전까지 tags에 들어 있다.
+    // 진행 방식은 tags에 들어 있다. (기간 태그와 섞여 있어 진행 방식 항목만 꺼낸다)
     mode: pickOptions(post.tags, TEAMBUILDING_MODES).join(", "),
     deadline: post.end_date ? formatDate(post.end_date) : "상시",
     image: isAllowedImageUrl(post.thumbnail_img)

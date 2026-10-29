@@ -47,7 +47,7 @@ export interface TeamBuildingFormInput {
   imageUrl: string | null;
 }
 
-// TODO: 백엔드에 진행 방식 필드가 없어 tags에 담는다. 필드가 생기면 옮긴다.
+// 진행 방식은 tags에 담는다. (백엔드가 목록 필터에서 tags로 찾는다. 기간 태그는 서버 라우트가 붙인다)
 export function toTeambuildingRequest(
   input: TeamBuildingFormInput,
 ): TeambuildingRequest {

@@ -105,3 +105,22 @@ export function renderMarkdown(markdown: string) {
 
   return { html: sanitizeHtml(html, SANITIZE_OPTIONS), headings };
 }
+
+// 카드에 보여 줄 요약: 본문 문단의 글자만 이어 앞부분만 자른다. (제목·이미지·표·코드는 뺀다)
+// 목록 카드에 본문 전체를 넘기지 않아 페이지 크기를 줄인다.
+export function toPlainSummary(markdown: string, length = 200) {
+  const tree = unified().use(remarkParse).use(remarkGfm).parse(markdown);
+  const paragraphs: string[] = [];
+  let size = 0;
+  visit(tree, "paragraph", (node) => {
+    if (size >= length) return false;
+    const text = toString(node, { includeImageAlt: false }).trim();
+    if (text) {
+      paragraphs.push(text);
+      size += text.length;
+    }
+    return "skip";
+  });
+  const text = paragraphs.join(" ").replace(/\s+/g, " ");
+  return text.length > length ? `${text.slice(0, length)}…` : text;
+}

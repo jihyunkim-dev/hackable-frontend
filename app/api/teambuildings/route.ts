@@ -5,11 +5,16 @@ import { isR2PublicUrl } from "@/utils/r2";
 import { RequestCreateTeambuilding } from "@/utils/requestToSrv";
 import { TEAMBUILDING_CACHE_TAG } from "@/utils/teamBuilding";
 import { pickTeambuildingRequest } from "@/utils/teamBuildingForm";
+import { withPeriodTag } from "@/utils/teamBuildingFilter";
 
 // 팀빌딩 모집글 등록. 응답: { id }
 export async function POST(request: Request) {
-  const body = pickTeambuildingRequest(await request.json(), (url) =>
-    isR2PublicUrl(url, IMAGE_UPLOAD_PREFIX),
+  // 기간 필터용 태그는 서버에서 마감일로 계산해 붙인다.
+  const body = withPeriodTag(
+    pickTeambuildingRequest(await request.json(), (url) =>
+      isR2PublicUrl(url, IMAGE_UPLOAD_PREFIX),
+    ),
+    Date.now(),
   );
   if (!body.title) return new Response(null, { status: 400 });
 

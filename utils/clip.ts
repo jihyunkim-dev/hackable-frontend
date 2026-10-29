@@ -9,7 +9,7 @@ import { clipContent } from "@/configs/contents/clip";
 import { isAllowedImageUrl } from "@/configs/imageHosts";
 import { placeholderImageUrl } from "@/configs/urls";
 import { getPagination, PAGE_SIZE, toSkip } from "@/utils/pagination";
-import { renderMarkdown } from "@/utils/markdown";
+import { renderMarkdown, toPlainSummary } from "@/utils/markdown";
 import { formatDate, parseSlugId } from "@/utils/project";
 import {
   RequestClipCarousel,
@@ -61,7 +61,7 @@ export function toClipItem(clip: ClipCardSource): ClipItem {
     id: String(clip.id),
     category: toCategoryLabel(clip),
     title: clip.title,
-    description: clip.description ?? "",
+    description: toPlainSummary(clip.description ?? ""),
     readTime: toReadTime(clip),
     createdAt: formatDate(clip.created_at),
     thumbnail: toThumbnail(clip),

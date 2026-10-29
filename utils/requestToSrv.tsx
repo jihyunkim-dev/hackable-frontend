@@ -27,12 +27,15 @@ interface PagingQuery {
 }
 
 // undefined/null 값은 빼고 쿼리스트링을 만든다.
+// 배열은 같은 이름을 반복한다. (?position=기획&position=마케팅)
 const toQuery = (
-  params: Record<string, string | number | null | undefined>,
+  params: Record<string, string | number | string[] | null | undefined>,
 ): string => {
   const query = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
+    if (Array.isArray(value)) {
+      value.forEach((item) => item && query.append(key, item));
+    } else if (value !== undefined && value !== null && value !== "") {
       query.set(key, String(value));
     }
   });
@@ -480,10 +483,19 @@ export interface TeambuildingResponse {
   updated_at: string;
 }
 
+// 필터는 그룹 안에서는 하나라도 맞으면, 그룹끼리는 모두 맞아야 남는다. 비우면 전체
 export interface TeambuildingListQuery extends PagingQuery {
   sort?: ListSort;
   // 생략하면 전체
   category?: string;
+  // 기획 / 디자이너 …
+  position?: string[];
+  // 단기(1~3달) / 중장기(3~6달) (tags에서 찾는다)
+  duration?: string[];
+  // 온라인 / 오프라인 (tags에서 찾는다)
+  mode?: string[];
+  // recruiting / closed
+  status?: string[];
 }
 
 export const RequestTeambuildingList = async (

@@ -8,6 +8,7 @@ import {
 } from "@/utils/requestToSrv";
 import { TEAMBUILDING_CACHE_TAG } from "@/utils/teamBuilding";
 import { pickTeambuildingRequest } from "@/utils/teamBuildingForm";
+import { withPeriodTag } from "@/utils/teamBuildingFilter";
 
 // 내가 쓴 팀빌딩 모집글 수정. 보낸 필드만 바뀐다. (작성자가 아니면 백엔드가 거절한다)
 // 응답: { id, status }
@@ -16,8 +17,12 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const id = Number((await params).id);
-  const body = pickTeambuildingRequest(await request.json(), (url) =>
-    isR2PublicUrl(url, IMAGE_UPLOAD_PREFIX),
+  // 기간 필터용 태그는 서버에서 마감일로 계산해 붙인다.
+  const body = withPeriodTag(
+    pickTeambuildingRequest(await request.json(), (url) =>
+      isR2PublicUrl(url, IMAGE_UPLOAD_PREFIX),
+    ),
+    Date.now(),
   );
   if (!Number.isInteger(id) || Object.keys(body).length === 0) {
     return new Response(null, { status: 400 });
