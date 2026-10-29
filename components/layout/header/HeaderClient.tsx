@@ -11,6 +11,7 @@ import { userIconUrl } from "@/configs/urls";
 import { useAccount } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { getProfileImage } from "@/utils/profile";
+import { showAlert } from "@/hooks/useAlertModal";
 
 interface NavLinkProps {
   href: string;
@@ -127,7 +128,7 @@ export function MobileAccountButton({
   );
 }
 
-// 카카오 로그인에 실패하고 돌아오면(?login_error=안내 문구) 한 번 알려주고 주소에서 지운다.
+// 소셜 로그인에 실패하고 돌아오면(?login_error=안내 문구) 한 번 알려주고 주소에서 지운다.
 export function LoginErrorNotice() {
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -136,7 +137,8 @@ export function LoginErrorNotice() {
 
     url.searchParams.delete("login_error");
     window.history.replaceState(null, "", `${url.pathname}${url.search}`);
-    window.alert(message);
+
+    showAlert(message);
   }, []);
 
   return null;

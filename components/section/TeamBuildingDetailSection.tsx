@@ -1,5 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import AuthorName from "@/components/ui/AuthorName";
+import TeamBuildingDeleteButton from "@/components/section/TeamBuildingDeleteButton";
+import AuthorOnly from "@/components/ui/AuthorOnly";
 import BookmarkToggle from "@/components/ui/BookmarkToggle";
 import ShareButton from "@/components/ui/ShareButton";
 import StatusBadge from "@/components/ui/StatusBadge";
@@ -12,6 +15,8 @@ export interface TeamBuildingDetail {
   isOpen: boolean;
   title: string;
   author: string;
+  // 작성자 이름이 없을 때 내가 쓴 글인지 확인하는 데 쓴다.
+  authorId?: number;
   createdAt: string;
   views: number;
   bookmarks: number;
@@ -51,24 +56,42 @@ export default function TeamBuildingDetailSection({
             <h1 className="text-heading-m text-black lg:py-4">
               {detail.title}
             </h1>
-            <p className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
-              {detail.author && (
-                <span className="text-body-l text-gray-800 lg:py-2.5">
-                  {detail.author}
-                </span>
-              )}
-              <span className="flex w-full items-center gap-1 text-body-m text-gray-500 lg:w-auto lg:gap-2.5 lg:px-2.5">
-                <time>{detail.createdAt}</time>
-                <Image
-                  src={commonIconUrl.eye}
-                  alt="조회수"
-                  width={19}
-                  height={19}
-                  className="size-3 lg:size-[19px]"
+            {/* 메타 줄 오른쪽 끝: 내가 쓴 글이면 수정·삭제 (읽는 사람용 북마크·공유와 떼어 둔다) */}
+            <div className="flex items-end justify-between gap-3">
+              <p className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
+                <AuthorName
+                  author={detail.author}
+                  authorId={detail.authorId}
+                  className="text-body-l text-gray-800 lg:py-2.5"
                 />
-                {detail.views}
-              </span>
-            </p>
+                <span className="flex w-full items-center gap-1 text-body-m text-gray-500 lg:w-auto lg:gap-2.5 lg:px-2.5">
+                  <time>{detail.createdAt}</time>
+                  <Image
+                    src={commonIconUrl.eye}
+                    alt="조회수"
+                    width={19}
+                    height={19}
+                    className="size-3 lg:size-[19px]"
+                  />
+                  {detail.views}
+                </span>
+              </p>
+              <AuthorOnly authorId={detail.authorId}>
+                <div className="flex shrink-0 items-center text-body-m text-gray-500 lg:py-2.5">
+                  <Link
+                    href={`/teambuilding/${detail.id}/edit`}
+                    className="px-1.5 py-0.5 hover:text-gray-800"
+                  >
+                    {content.editLabel}
+                  </Link>
+                  <span aria-hidden className="h-3 w-px bg-gray-300" />
+                  <TeamBuildingDeleteButton
+                    id={detail.id}
+                    className="px-1.5 py-0.5 hover:text-destructive-300"
+                  />
+                </div>
+              </AuthorOnly>
+            </div>
           </header>
 
           <div className="flex flex-col py-3 lg:gap-8">

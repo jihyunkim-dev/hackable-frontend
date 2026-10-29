@@ -8,6 +8,16 @@ export const signInContent = {
   google: "구글로 시작하기",
   kakao: "카카오로 시작하기",
   close: "로그인 닫기",
+  // 로그인 = 약관 동의 (이용약관 제4조). 문구 원문: 해커블 이용약관 및 개인정보 처리방침.md > 로그인 모달 안내 문구
+  agreement: {
+    prefix: "로그인하면 해커블",
+    terms: "이용약관",
+    and: "과",
+    privacy: "개인정보 처리방침",
+    suffix: "에 동의하고",
+    // 다음 줄
+    ageConfirm: "만 14세 이상임을 확인한 것으로 봅니다.",
+  },
   // 로그인이 필요한 화면 (components/section/LoginGate)
   required: {
     title: "로그인이 필요해요",

@@ -1,4 +1,4 @@
-import { bannerImageUrl } from "@/configs/urls";
+import { bannerImageUrl, stripBannerUrl } from "@/configs/urls";
 
 // 배너는 디자인된 그래픽 이미지라 문구를 대체 텍스트로 함께 관리한다.
 export const bannerContent = {
@@ -37,3 +37,33 @@ export const bannerContent = {
     href: "/newsletter/subscribe",
   },
 };
+
+// 팀빌딩 상세 캐러셀 띠배너 (원본: 배너/문구_링크_정리.md). alt = 위 한 줄 + 큰 제목
+export const stripBannerContent = [
+  {
+    images: stripBannerUrl.teamBuilding,
+    alt: "대회는 찾았는데 팀이 없다면? 남은 한 자리, 해커블에서 채워요",
+    href: "/teambuilding",
+  },
+  {
+    images: stripBannerUrl.startupSupport,
+    alt: "마감 지나고 알면 늦어요. 창업 지원사업, 마감 전에 한눈에",
+    href: "/startup-support",
+  },
+  {
+    images: stripBannerUrl.clip,
+    alt: "AI 툴, 다 써볼 시간 없죠? 써본 사람이 정리한 AI 실전 노하우",
+    href: "/clip",
+  },
+  {
+    images: stripBannerUrl.hackathon,
+    alt: "이번 주말, 밤샐 곳 찾았어요? AI·바이브코딩 해커톤 일정 모음",
+    href: "/project/ai-hackathon",
+  },
+  {
+    images: stripBannerUrl.kakao,
+    alt: "마감 지나고 알면 늦어요. 최신 공모전·해커톤 정보, 카톡에서 받아보기",
+    // 카카오톡 오픈채팅 (새 탭)
+    href: "https://open.kakao.com/o/g5MKWici",
+  },
+];

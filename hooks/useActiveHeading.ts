@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 // 지금 읽고 있는 제목의 id를 돌려준다. (목차 활성 표시용)
-// - 화면 위쪽(offset)을 지나간 제목 중 마지막 것을 활성으로 본다.
+// - 화면 세로 가운데선을 지나간 제목 중 마지막 것을 활성으로 본다. (제목이 화면 중앙에 오면 바로 바뀐다)
 // - 아직 첫 제목에 닿기 전이면 첫 제목, 페이지 맨 아래에 닿으면 마지막 제목을 활성으로 한다.
-export function useActiveHeading(ids: string[], offset = 120) {
+export function useActiveHeading(ids: string[]) {
   const [activeId, setActiveId] = useState(ids[0]);
   // 렌더마다 새 배열이 와도 제목 목록이 같으면 다시 구독하지 않도록 문자열로 비교한다.
   const idsKey = ids.join("\n");
@@ -29,8 +29,9 @@ export function useActiveHeading(ids: string[], offset = 120) {
         return;
       }
 
+      const centerLine = window.innerHeight / 2;
       const passed = elements.filter(
-        (element) => element.getBoundingClientRect().top <= offset,
+        (element) => element.getBoundingClientRect().top <= centerLine,
       );
       setActiveId((passed.at(-1) ?? elements[0]).id);
     };
@@ -42,7 +43,7 @@ export function useActiveHeading(ids: string[], offset = 120) {
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
-  }, [idsKey, offset]);
+  }, [idsKey]);
 
   return activeId;
 }

@@ -30,6 +30,16 @@ export const teamBuildingContent = {
     bookmarkLabel: "북마크",
     shareLabel: "공유",
     copiedLabel: "복사됨",
+    editLabel: "수정",
+    delete: {
+      button: "삭제",
+      title: "모집글을 삭제할까요?",
+      description: ["삭제한 모집글은 복구할 수 없어요."],
+      cancel: "취소",
+      submit: "삭제",
+      close: "닫기",
+      error: "모집글을 삭제하지 못했어요. 잠시 후 다시 시도해주세요.",
+    },
   },
 
   form: {
@@ -40,8 +50,9 @@ export const teamBuildingContent = {
         "팀빌딩 목적 외 홍보·상담 유도·투자·부업 권유는 금지이며, 적발 시 게시글 삭제·이용 정지·법적 조치가 진행될 수 있어요.\n외부 채널 문제는 해커블이 책임지지 않으니 의심되면 신고해주세요.",
       ],
     },
-    titlePlaceholder: "제목을 입력해주세요.(150자 이내)",
-    titleMaxLength: 150,
+    titlePlaceholder: "제목을 입력해주세요.(100자 이내)",
+    // 백엔드 TeambuildingCreate.title 최대 길이와 같다.
+    titleMaxLength: 100,
     // 백엔드 TeambuildingCreate.description 최대 길이와 같다.
     bodyMaxLength: 5000,
     bodyPlaceholder:
@@ -60,6 +71,12 @@ export const teamBuildingContent = {
     deadlinePlaceholder:
       "팀빌딩 마감일을 선택해주세요. 비워두면 상시 모집으로 표시돼요.",
     titleRequired: "제목을 입력해주세요.",
+    // 다른 사람이 쓴 글의 수정 화면에 들어왔을 때
+    notAuthor: {
+      title: "수정할 수 없는 글이에요",
+      description: ["내가 작성한 모집글만 수정할 수 있어요."],
+      back: "글로 돌아가기",
+    },
     loginRequired: ["로그인하면 팀빌딩 모집글을", "작성할 수 있어요."],
     saveError: "모집글을 저장하지 못했어요. 잠시 후 다시 시도해주세요.",
     cancel: "취소",

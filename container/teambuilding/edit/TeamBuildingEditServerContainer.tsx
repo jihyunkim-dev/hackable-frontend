@@ -36,9 +36,16 @@ export default async function TeamBuildingEditServerContainer({
   //   deadline: "",
   // };
 
+  // [실제 데이터] 작성자만 수정할 수 있다. (더미 데이터일 때는 undefined로 확인을 건너뛴다)
+  const authorId: number | undefined = post.author_id;
+
   return (
     <TeamBuildingEditClientContainer id={id}>
-      <TeamBuildingEditServerBlock id={id} defaultValues={defaultValues} />
+      <TeamBuildingEditServerBlock
+        id={id}
+        authorId={authorId}
+        defaultValues={defaultValues}
+      />
     </TeamBuildingEditClientContainer>
   );
 }

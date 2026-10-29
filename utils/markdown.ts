@@ -17,6 +17,10 @@ export interface MarkdownHeading {
   text: string;
 }
 
+// 원고의 이미지는 상대 경로(images/파일명)로 온다. 파일은 R2의 clips/images/에 같은 이름으로 올린다.
+const CLIP_IMAGE_BASE = "https://cdn.hackable.co.kr/clips/images/";
+const RELATIVE_IMAGE_PATH = /^(?:\.\/)?images\/([^/?#]+)$/;
+
 // 목차에 넣을 제목 단계 (## 만)
 const TOC_DEPTH = 2;
 
@@ -39,8 +43,12 @@ function rehypeMedia() {
   return (tree: HastRoot) => {
     visit(tree, "element", (node: Element, index, parent) => {
       if (node.tagName === "img") {
+        const relative =
+          typeof node.properties.src === "string"
+            ? RELATIVE_IMAGE_PATH.exec(node.properties.src)
+            : null;
+        if (relative) node.properties.src = CLIP_IMAGE_BASE + relative[1];
         const src = node.properties.src;
-        // TODO: 본문 이미지가 상대 경로(images/...)로 와서 실제 주소를 알 수 없다. 주소 규칙 확정 후 변환
         if (typeof src !== "string" || !isAllowedImageUrl(src)) {
           if (parent && typeof index === "number") {
             parent.children.splice(index, 1);
@@ -86,7 +94,8 @@ export function renderMarkdown(markdown: string) {
   const headings: MarkdownHeading[] = [];
   const html = unified()
     .use(remarkParse)
-    .use(remarkGfm)
+    // 물결표 하나(~)는 "2천~5천"처럼 범위로 쓰므로 취소선으로 보지 않는다. 취소선은 ~~두 개~~만.
+    .use(remarkGfm, { singleTilde: false })
     .use(remarkHeadingIds(headings))
     .use(remarkRehype)
     .use(rehypeMedia)

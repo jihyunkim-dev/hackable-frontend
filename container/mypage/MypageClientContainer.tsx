@@ -5,7 +5,7 @@ import { createContext, ReactNode, useSyncExternalStore } from "react";
 import { useMe } from "@/hooks/useAuth";
 import { useMypageActivity } from "@/hooks/useMypage";
 import type { MypageActivity } from "@/utils/mypage";
-import { getProfileImage } from "@/utils/profile";
+import { getDisplayName, getProfileImage } from "@/utils/profile";
 import type { UserResponse } from "@/utils/requestToSrv";
 
 export interface MypageProfile {
@@ -27,7 +27,7 @@ export const MypageContext = createContext({} as MypageContextProps);
 // 이름은 닉네임 → 프로필 이름 → 이메일 순으로 쓴다.
 function toMypageProfile(user: UserResponse): MypageProfile {
   return {
-    name: user.nickname ?? user.profile?.name ?? user.email,
+    name: getDisplayName(user),
     role: user.profile?.career_position ?? "",
     image: getProfileImage(user),
   };

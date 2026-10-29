@@ -6,6 +6,7 @@ import Header from "@/components/layout/header/Header";
 import Footer from "@/components/layout/footer/Footer";
 import FloatingButton from "@/components/layout/FloatingButton";
 import QueryProvider from "@/components/layout/QueryProvider";
+import { GlobalAlertModal } from "@/components/section/AlertModal";
 import { GlobalSignInModal } from "@/components/section/SignInModal";
 
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Footer />
           <FloatingButton />
           <GlobalSignInModal />
+          <GlobalAlertModal />
         </QueryProvider>
       </body>
     </html>

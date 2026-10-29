@@ -4,14 +4,7 @@ import BannerCarousel from "@/components/section/BannerCarousel";
 import TeamBuildingDetailSection, {
   type TeamBuildingDetail,
 } from "@/components/section/TeamBuildingDetailSection";
-import { bannerContent } from "@/configs/contents/banners";
-
-const promoBanners = [
-  bannerContent.hackathon,
-  bannerContent.contest,
-  bannerContent.grants,
-  bannerContent.subscribe,
-];
+import { stripBannerContent } from "@/configs/contents/banners";
 
 export default function TeamBuildingDetailServerBlock({
   detail,
@@ -23,7 +16,7 @@ export default function TeamBuildingDetailServerBlock({
       <HeaderSpacer />
       <TeamBuildingDetailSection
         detail={detail}
-        banner={<BannerCarousel banners={promoBanners} />}
+        banner={<BannerCarousel banners={stripBannerContent} />}
       />
     </DefaultLayout>
   );

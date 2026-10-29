@@ -101,3 +101,21 @@ export function useSaveTeamBuilding(id?: string) {
       }),
   });
 }
+
+// 팀빌딩 모집글 삭제. 내가 쓴 팀빌딩 목록이 바뀌므로 마이페이지 캐시를 다시 받는다.
+export function useDeleteTeamBuilding(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/teambuildings/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("모집글을 삭제하지 못했어요.");
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.mypage.activity(),
+      }),
+  });
+}

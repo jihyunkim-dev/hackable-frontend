@@ -1,6 +1,8 @@
 "use client";
 
+import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
+import Link from "next/link";
 import { FormEvent, useId, useState } from "react";
 import Button from "@/components/ui/Button";
 import MultiLine from "@/components/ui/MultiLine";
@@ -97,38 +99,40 @@ export function NewsletterSubscribeForm() {
             placeholder={content.emailPlaceholder}
             className="h-10 w-full rounded-sm border border-gray-200 bg-white px-3 text-body-m font-medium text-gray-800 outline-none placeholder:text-gray-500 focus:border-primary-300"
           />
-          <label className="flex cursor-pointer items-center gap-2 py-2.5">
-            <input
-              type="checkbox"
-              checked={agreed}
-              onChange={(event) => setAgreed(event.target.checked)}
-              className="peer sr-only"
-            />
-            <span
-              aria-hidden
-              className={cn(
-                "flex size-5 items-center justify-center rounded-sm border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-primary-300",
-                agreed
-                  ? "border-primary-500 bg-primary-500"
-                  : "border-gray-300 bg-white",
-              )}
-            >
-              {agreed && (
-                <Image
-                  src={commonIconUrl.check}
-                  alt=""
-                  width={20}
-                  height={20}
-                />
-              )}
-            </span>
-            <span className="text-body-m font-medium text-gray-700">
-              {content.consentLabel}
-            </span>
+          {/* 체크 박스는 동의 체크, 문구는 동의 내용 모달을 연다. */}
+          <div className="flex items-center gap-2 py-2.5">
+            <label className="flex cursor-pointer items-center">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(event) => setAgreed(event.target.checked)}
+                aria-label={`${content.consentLabel} ${content.requiredLabel}`}
+                className="peer sr-only"
+              />
+              <span
+                aria-hidden
+                className={cn(
+                  "flex size-5 items-center justify-center rounded-sm border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-primary-300",
+                  agreed
+                    ? "border-primary-500 bg-primary-500"
+                    : "border-gray-300 bg-white",
+                )}
+              >
+                {agreed && (
+                  <Image
+                    src={commonIconUrl.check}
+                    alt=""
+                    width={20}
+                    height={20}
+                  />
+                )}
+              </span>
+            </label>
+            <ConsentModal onAgree={() => setAgreed(true)} />
             <span className="ml-auto text-body-m font-medium text-gray-400">
               {content.requiredLabel}
             </span>
-          </label>
+          </div>
         </div>
         {hasError && (
           <p
@@ -149,5 +153,73 @@ export function NewsletterSubscribeForm() {
         </Button>
       </form>
     </div>
+  );
+}
+
+// 개인정보 수집∙이용 동의 내용 모달. 내용이 길면 모달 안에서 스크롤한다.
+// "동의하기"를 누르면 동의 체크까지 하고 닫는다.
+function ConsentModal({ onAgree }: { onAgree: () => void }) {
+  const content = newsletterSubscribeContent;
+  const consent = content.consent;
+
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger className="text-left text-body-m font-medium text-gray-700 underline underline-offset-2 hover:text-gray-900">
+        {content.consentLabel}
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/50" />
+        <Dialog.Content className="fixed top-1/2 left-1/2 z-[60] flex max-h-[80vh] w-[calc(100%-32px)] max-w-[480px] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl bg-white outline-none">
+          <div className="flex items-start gap-2 border-b border-gray-200 py-3 pr-2 pl-5">
+            <Dialog.Title className="flex-1 pt-1.5 text-body-l font-bold break-keep text-gray-800">
+              {consent.title}
+            </Dialog.Title>
+            <Dialog.Close aria-label={consent.close} className="shrink-0">
+              <Image
+                src={commonIconUrl.close}
+                alt=""
+                width={40}
+                height={40}
+                className="size-8"
+              />
+            </Dialog.Close>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-5 py-4 text-body-m text-gray-700">
+            <Dialog.Description>{consent.intro}</Dialog.Description>
+            <dl className="mt-4 flex flex-col gap-3 rounded-lg bg-gray-50 p-4">
+              {consent.items.map((item) => (
+                <div key={item.label} className="flex flex-col gap-0.5">
+                  <dt className="text-body-s font-bold text-gray-800">
+                    {item.label}
+                  </dt>
+                  <dd>{item.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-4 text-body-s text-gray-500">{consent.notice}</p>
+            <Link
+              href={consent.policyLink.href}
+              target="_blank"
+              className="mt-2 inline-block text-body-s text-primary-500 underline"
+            >
+              {consent.policyLink.label}
+            </Link>
+          </div>
+
+          <div className="border-t border-gray-200 p-4">
+            <Dialog.Close asChild>
+              <Button
+                type="button"
+                onClick={onAgree}
+                className="h-10 w-full rounded-sm text-label-m font-bold"
+              >
+                {consent.agree}
+              </Button>
+            </Dialog.Close>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

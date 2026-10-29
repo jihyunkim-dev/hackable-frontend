@@ -1,3 +1,4 @@
+import { policyContent } from "./contents/policies";
 import { snsIconUrl } from "./urls";
 
 export const companyInfo = {
@@ -5,8 +6,8 @@ export const companyInfo = {
   copyright: "© HACKABLE ALL RIGHTS RESERVED.",
 
   policies: [
-    { label: "이용약관", href: "/terms" },
-    { label: "개인정보처리방침", href: "/privacy" },
+    { label: "이용약관", href: policyContent.terms.href },
+    { label: "개인정보처리방침", href: policyContent.privacy.href },
   ],
 
   // TODO: 실제 SNS 주소로 교체

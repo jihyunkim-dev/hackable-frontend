@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { afterPageSettled } from "@/lib/afterPageSettled";
 
 // 사이트 공용 안내 모달 (window.alert 대신). 모달은 레이아웃에 하나만 두고(GlobalAlertModal),
 // 안내가 필요한 곳에서 showAlert("문구")로 연다. 훅이 아니라 이벤트 핸들러·onError 어디서든 부를 수 있다.
@@ -19,8 +20,11 @@ export function showAlert(
   message: AlertMessage["message"],
   options?: Omit<AlertMessage, "message">,
 ) {
-  current = { message, ...options };
-  emit();
+  // 페이지 첫 로드 중에 불리면 로드가 끝난 뒤 연다. (lib/afterPageSettled)
+  afterPageSettled(() => {
+    current = { message, ...options };
+    emit();
+  });
 }
 
 export function closeAlert() {

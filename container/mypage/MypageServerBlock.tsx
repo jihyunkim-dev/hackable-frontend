@@ -42,7 +42,7 @@ function WithdrawSection() {
         <p className="text-heading-xs ">
           <MultiLine lines={withdraw.description} />
         </p>
-        <ul className="text-body-m pt-8">
+        <ul className="list-disc pt-8 pl-5 text-body-m">
           {withdraw.items.map((item) => (
             <li key={item}>{item}</li>
           ))}

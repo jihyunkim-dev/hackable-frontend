@@ -74,6 +74,21 @@ export default function PromoBanner({
     );
   }
 
+  // 외부 주소(카카오톡 채널 등)는 새 탭으로 연다.
+  if (/^https?:\/\//.test(href)) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={ratio}
+        className={boxClassName}
+      >
+        {picture}
+      </a>
+    );
+  }
+
   return (
     <Link href={href} style={ratio} className={boxClassName}>
       {picture}

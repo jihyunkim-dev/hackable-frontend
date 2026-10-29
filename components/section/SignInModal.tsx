@@ -115,6 +115,8 @@ function Agreement() {
         </Link>
       </Dialog.Close>
       {agreement.suffix}
+      <br />
+      {agreement.ageConfirm}
     </p>
   );
 }

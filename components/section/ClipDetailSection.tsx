@@ -4,6 +4,7 @@ import BookmarkToggle from "@/components/ui/BookmarkToggle";
 import ShareButton from "@/components/ui/ShareButton";
 import { clipContent } from "@/configs/contents/clip";
 import { commonIconUrl } from "@/configs/urls";
+import { MARKDOWN_STYLE } from "@/lib/markdownStyle";
 import { cn } from "@/lib/utils";
 
 export type ClipBlock =
@@ -33,22 +34,6 @@ export interface ClipDetail {
   headings?: { id: string; text: string }[];
 }
 
-// 마크다운 본문 스타일. 제목·문단·목록·표·이미지·캡션(*기울임*)을 기존 블록 스타일과 맞춘다.
-const MARKDOWN_STYLE = cn(
-  "flex flex-col gap-2.5 text-body-m lg:gap-5 lg:text-body-l",
-  "[&_h2]:scroll-mt-[calc(var(--header-height-desktop)+24px)] [&_h2]:pt-2 [&_h2]:text-body-l [&_h2]:font-bold lg:[&_h2]:text-heading-s lg:[&_h2]:text-gray-800",
-  "[&_h3]:scroll-mt-[calc(var(--header-height-desktop)+24px)] [&_h3]:pt-1 [&_h3]:text-body-l [&_h3]:font-bold [&_h3]:text-gray-800",
-  "[&_a]:text-primary-500 [&_a]:underline [&_strong]:font-bold",
-  "[&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-1",
-  "[&_em]:text-body-s [&_em]:text-gray-500 [&_em]:not-italic",
-  "[&_img]:h-auto [&_img]:w-full [&_img]:rounded-sm lg:[&_img]:rounded-lg",
-  "[&_table]:w-full [&_table]:border-collapse [&_table]:text-body-s lg:[&_table]:text-body-m",
-  "[&_th]:border [&_th]:border-gray-300 [&_th]:bg-gray-50 [&_th]:p-2 [&_th]:text-left [&_th]:font-bold",
-  "[&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_td]:align-top",
-  "[&_blockquote]:border-l-4 [&_blockquote]:border-primary-200 [&_blockquote]:pl-3 [&_blockquote]:text-gray-600",
-  "[&_code]:rounded-sm [&_code]:bg-gray-100 [&_code]:px-1",
-);
-
 // 클립 상세 본문. lg 이상: 왼쪽 북마크·공유 / 가운데 본문 / 오른쪽 목차
 export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
   const content = clipContent.detail;
@@ -60,8 +45,9 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
 
   return (
     <section className="mx-auto flex w-full max-w-[1440px] justify-center">
-      <aside className="hidden w-60 shrink-0 lg:block">
-        <div className="sticky top-[calc(var(--header-height-desktop)+24px)] flex flex-col items-center gap-9 px-10 py-17">
+      {/* 왼쪽 버튼과 오른쪽 목차는 같은 위쪽 여백(pt-17)과 같은 sticky 위치를 써서, 스크롤해도 윗선이 맞는다. */}
+      <aside className="hidden w-60 shrink-0 px-10 pt-17 lg:block">
+        <div className="sticky top-[calc(var(--header-height-desktop)+24px)] flex flex-col items-center gap-9">
           {/* 80px 버튼에는 원본 크기 아이콘을 써서 선 두께(2px)를 유지한다. */}
           <BookmarkButton
             id={detail.id}
@@ -159,7 +145,7 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
       </article>
 
       {headings.length > 0 && (
-        <aside className="hidden w-[222px] shrink-0 px-5 pt-23 xl:block">
+        <aside className="hidden w-[222px] shrink-0 px-5 pt-17 xl:block">
           <div className="sticky top-[calc(var(--header-height-desktop)+24px)]">
             <ClipToc label={content.tocLabel} headings={headings} />
           </div>

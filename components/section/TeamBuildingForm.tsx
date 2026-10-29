@@ -12,6 +12,7 @@ import { useMe } from "@/hooks/useAuth";
 import { openLoginModal } from "@/hooks/useLoginModal";
 import { useSaveTeamBuilding } from "@/hooks/useMypage";
 import { cn } from "@/lib/utils";
+import { showAlert } from "@/hooks/useAlertModal";
 
 export interface TeamBuildingFormValues {
   title: string;
@@ -69,7 +70,7 @@ export default function TeamBuildingForm({
   // TODO: 이미지 업로드 API가 생기면 미리보기 후 업로드한 주소를 thumbnail_img로 보낸다.
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.target.value = "";
-    window.alert(content.image.unsupported);
+    showAlert(content.image.unsupported);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -81,7 +82,7 @@ export default function TeamBuildingForm({
       return;
     }
     if (!title.trim()) {
-      window.alert(content.titleRequired);
+      showAlert(content.titleRequired);
       return;
     }
 
@@ -96,7 +97,7 @@ export default function TeamBuildingForm({
       },
       {
         onSuccess: (id) => router.push(`/teambuilding/${id}`),
-        onError: () => window.alert(content.saveError),
+        onError: () => showAlert(content.saveError),
       },
     );
   };

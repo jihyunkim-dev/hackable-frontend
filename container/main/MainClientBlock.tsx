@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ReactNode, useState } from "react";
 import Button from "@/components/ui/Button";
 import Carousel from "@/components/ui/Carousel";
+import CarouselCounter from "@/components/ui/CarouselCounter";
 import MultiLine from "@/components/ui/MultiLine";
 import type { MainCarouselSlide } from "@/configs/contents/main";
 import { cn } from "@/lib/utils";
@@ -27,25 +28,22 @@ export function HeroCarousel({ slides }: { slides: MainCarouselSlide[] }) {
           onSelectIndex={setSelectedIndex}
           // md 이상: 이미지 높이가 오른쪽 칸 높이가 된다. (정보는 이미지 위쪽, 버튼은 이미지 아래쪽 끝에 맞춘다)
           className="w-full md:row-span-2 md:self-start"
-          renderControls={({ selectedIndex: current, count, scrollTo }) => (
-            // 이미지 안 아래쪽 가운데. 밝은 이미지에서도 보이도록 반투명 배경 위에 점을 둔다. (배너 캐러셀과 같은 점 모양)
-            <div className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/30 px-2 py-1 sm:bottom-3 sm:gap-2 sm:px-2.5 sm:py-1.5 md:bottom-4">
-              {Array.from({ length: count }, (_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  aria-label={`${index + 1}번째 소식 보기`}
-                  aria-current={index === current}
-                  onClick={() => scrollTo(index)}
-                  className={cn(
-                    "h-1.5 rounded-full transition-all motion-reduce:transition-none sm:h-2",
-                    index === current
-                      ? "w-5 bg-primary-400 sm:w-8"
-                      : "w-1.5 bg-white/70 hover:bg-white sm:w-2",
-                  )}
-                />
-              ))}
-            </div>
+          renderControls={({
+            selectedIndex: current,
+            count,
+            scrollPrev,
+            scrollNext,
+          }) => (
+            // 이미지 안 오른쪽 아래에 여유를 두고 "< 1 / N >"만 둔다. (위치 표시 겸 이동 버튼)
+            <CarouselCounter
+              selectedIndex={current}
+              count={count}
+              scrollPrev={scrollPrev}
+              scrollNext={scrollNext}
+              prevLabel="이전 소식"
+              nextLabel="다음 소식"
+              className="absolute right-3 bottom-3 sm:right-4 sm:bottom-4 md:right-5 md:bottom-5"
+            />
           )}
         >
           {slides.map((slide, index) => (

@@ -38,7 +38,9 @@ export function toTeambuildingRequest(
       : TEAMBUILDING_STATUS_VALUE.closed,
     position: position.length ? position : null,
     // 마감일 하루 끝까지 모집한다.
-    end_date: input.deadline ? `${input.deadline}T23:59:59` : null,
+    // 시간대(+09:00)를 꼭 붙인다. 없으면 백엔드가 현재 시각(시간대 있음)과 비교하다 오류를 낸다.
+    // ("can't compare offset-naive and offset-aware datetimes")
+    end_date: input.deadline ? `${input.deadline}T23:59:59+09:00` : null,
   };
 }
 

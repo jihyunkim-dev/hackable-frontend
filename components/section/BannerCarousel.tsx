@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import type { ComponentProps } from "react";
 import PromoBanner from "@/components/section/PromoBanner";
 import Carousel from "@/components/ui/Carousel";
-import { commonIconUrl } from "@/configs/urls";
+import CarouselCounter from "@/components/ui/CarouselCounter";
 import { cn } from "@/lib/utils";
 
 type Banner = Omit<ComponentProps<typeof PromoBanner>, "className">;
@@ -14,7 +13,7 @@ interface BannerCarouselProps {
   className?: string;
 }
 
-// 프로모션 배너 캐러셀 (가운데 점 표시 + 오른쪽 아래 "1 / N" 이동 버튼)
+// 프로모션 배너 캐러셀 (가운데 점 표시 + 오른쪽 아래 "< 1 / N >" 이동 버튼)
 export default function BannerCarousel({
   banners,
   className,
@@ -51,29 +50,15 @@ export default function BannerCarousel({
             ))}
           </div>
 
-          <div className="absolute right-3 bottom-2 flex h-6 items-center gap-2 rounded-full bg-gray-800 px-2 text-label-s font-extrabold text-white sm:right-4 sm:bottom-3 sm:h-8 sm:gap-3 sm:px-3 sm:text-label-m">
-            <button type="button" aria-label="이전 배너" onClick={scrollPrev}>
-              <Image
-                src={commonIconUrl.chevronSmall}
-                alt=""
-                width={10}
-                height={5}
-                className="rotate-90"
-              />
-            </button>
-            <span aria-live="polite">
-              {selectedIndex + 1} / {count}
-            </span>
-            <button type="button" aria-label="다음 배너" onClick={scrollNext}>
-              <Image
-                src={commonIconUrl.chevronSmall}
-                alt=""
-                width={10}
-                height={5}
-                className="-rotate-90"
-              />
-            </button>
-          </div>
+          <CarouselCounter
+            selectedIndex={selectedIndex}
+            count={count}
+            scrollPrev={scrollPrev}
+            scrollNext={scrollNext}
+            prevLabel="이전 배너"
+            nextLabel="다음 배너"
+            className="absolute right-3 bottom-2 sm:right-4 sm:bottom-3"
+          />
         </>
       )}
     >

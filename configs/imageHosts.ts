@@ -11,6 +11,8 @@ export const remoteImageHosts = [
   "pub-e2dabf394b6749bf8115e9a86559eaf3.r2.dev",
   // 카카오 프로필 이미지 (k.kakaocdn.net, img1.kakaocdn.net 등)
   "*.kakaocdn.net",
+  // 구글 프로필 이미지 (lh3.googleusercontent.com 등)
+  "*.googleusercontent.com",
 ];
 
 // next/image는 허용하지 않은 호스트의 이미지를 받으면 에러를 내므로, 쓰기 전에 확인한다.

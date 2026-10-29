@@ -23,6 +23,7 @@ import { useLogout } from "@/hooks/useAuth";
 import { useUpdateTeamBuildingStatus, useWithdraw } from "@/hooks/useMypage";
 import type { MypageActivity } from "@/utils/mypage";
 import { MypageContext } from "./MypageClientContainer";
+import { showAlert } from "@/hooks/useAlertModal";
 
 // 로그인 확인 전에는 비워 두고, 로그인하지 않았으면 로그인 안내를 보여준다.
 export function MypageAuthGate({ children }: { children: ReactNode }) {
@@ -168,7 +169,7 @@ export function WithdrawButton() {
         setOpen(false);
         router.replace("/");
       },
-      onError: () => window.alert(withdraw.confirm.error),
+      onError: () => showAlert(withdraw.confirm.error),
     });
 
   return (
@@ -249,7 +250,7 @@ function MyTeamBuildingCard({ post }: { post: TeamBuildingItem }) {
           onCheckedChange={(isOpen) =>
             updateStatus.mutate(
               { id: post.id, isOpen },
-              { onError: () => window.alert(statusError) },
+              { onError: () => showAlert(statusError) },
             )
           }
           label={statusLabel}
