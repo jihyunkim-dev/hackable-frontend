@@ -23,6 +23,8 @@ interface ClipServerBlockProps {
   pagination: { currentPage: number; totalPages: number };
   activeCategoryHref: string;
   // 페이지 이동 시 유지할 검색 조건
+  // 지금 검색 중인 검색어
+  q: string;
   query: Record<string, string | undefined>;
 }
 
@@ -32,27 +34,35 @@ export default function ClipServerBlock({
   clips,
   pagination,
   activeCategoryHref,
+  q,
   query,
 }: ClipServerBlockProps) {
   return (
     <DefaultLayout>
       <HeaderSpacer />
-      <SearchSection />
+      <SearchSection q={q} />
       <HighlightSection featured={featured} weekly={weekly} />
       <ClipListSection
         clips={clips}
         pagination={pagination}
         activeCategoryHref={activeCategoryHref}
+        q={q}
         query={query}
       />
     </DefaultLayout>
   );
 }
 
-function SearchSection() {
+function SearchSection({ q }: { q: string }) {
   return (
     <section className="flex justify-center p-2 py-5 lg:py-3.5">
-      <SearchBar action="/clip" placeholder={clipContent.searchPlaceholder} />
+      <SearchBar
+        // 검색어가 바뀌면 입력창도 새 값으로 다시 그린다.
+        key={q}
+        action="/clip"
+        placeholder={clipContent.searchPlaceholder}
+        defaultValue={q}
+      />
     </section>
   );
 }
@@ -103,10 +113,11 @@ function ClipListSection({
   clips,
   pagination,
   activeCategoryHref,
+  q,
   query,
 }: Pick<
   ClipServerBlockProps,
-  "clips" | "pagination" | "activeCategoryHref" | "query"
+  "clips" | "pagination" | "activeCategoryHref" | "q" | "query"
 >) {
   return (
     <section>
@@ -130,6 +141,13 @@ function ClipListSection({
         />
       </div>
 
+      {clips.length === 0 && (
+        <p className="px-3 py-20 text-center text-body-l text-gray-500">
+          {q
+            ? `"${q}"에 대한 검색 결과가 없어요.`
+            : "아직 등록된 클립이 없어요."}
+        </p>
+      )}
       <ul
         className={cn(
           CONTENT_WIDTH,

@@ -769,6 +769,42 @@ export interface ClipListQuery extends PagingQuery {
   category?: string | null;
 }
 
+// 검색 결과의 클립 문서. 목록 응답과 달리 id가 문자열로 오고, 조회수·북마크 수는 없다.
+export interface ClipSearchDocument {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  tags: string[];
+  thumbnail_img: string | null;
+  duration: number | null;
+  created_at: string;
+}
+
+export interface ClipSearchQuery extends SearchQuery {
+  // 생략하면 전체 (tech, vibeCoding, pmd, trend)
+  category?: string;
+}
+
+export const RequestSearchClips = async (
+  query: ClipSearchQuery,
+): Promise<SearchResponse<ClipSearchDocument> | null> => {
+  try {
+    const res = await fetch(`${url}/search/clips${toQuery({ ...query })}`);
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("SearchClips Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("SearchClips Fetch Error", error);
+    return null;
+  }
+};
+
 export const RequestClipCarousel = async (
   limit?: number,
 ): Promise<ClipResponse[] | null> => {

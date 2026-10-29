@@ -9,7 +9,11 @@
 import { clipContent } from "@/configs/contents/clip";
 import { getClipHighlights, getClipPage } from "@/utils/clip";
 import { parsePage } from "@/utils/pagination";
-import { findCategory, type SearchParams } from "@/utils/searchParams";
+import {
+  findCategory,
+  parseQuery,
+  type SearchParams,
+} from "@/utils/searchParams";
 import ClipClientContainer from "./ClipClientContainer";
 import ClipServerBlock from "./ClipServerBlock";
 
@@ -18,7 +22,8 @@ export default async function ClipServerContainer({
 }: {
   searchParams?: Promise<SearchParams>;
 }) {
-  const { category, page } = (await searchParams) ?? {};
+  const { category, page, q: qParam } = (await searchParams) ?? {};
+  const q = parseQuery(qParam);
   const activeCategory = findCategory(clipContent.categories, category);
   const categoryValue =
     activeCategory.value === "all" ? undefined : activeCategory.value;
@@ -26,7 +31,7 @@ export default async function ClipServerContainer({
   // [실제 데이터] 더미 데이터 사용 시 아래 블록 주석 처리
   const [{ items: clips, pagination }, { featured, weekly }] =
     await Promise.all([
-      getClipPage(parsePage(page), categoryValue),
+      getClipPage(parsePage(page), categoryValue, q),
       getClipHighlights(),
     ]);
 
@@ -39,7 +44,6 @@ export default async function ClipServerContainer({
   // const featured = dummyFeaturedClips;
   // const weekly = { title: dummyWeeklyTitle, items: dummyWeeklyClips };
 
-  // TODO: 검색어 반영
   return (
     <ClipClientContainer>
       <ClipServerBlock
@@ -48,7 +52,8 @@ export default async function ClipServerContainer({
         clips={clips}
         pagination={pagination}
         activeCategoryHref={activeCategory.href}
-        query={{ category: categoryValue }}
+        q={q}
+        query={{ category: categoryValue, q: q || undefined }}
       />
     </ClipClientContainer>
   );

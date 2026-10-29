@@ -8,14 +8,16 @@ import type { WeeklyClipItem } from "@/components/section/WeeklyClipList";
 import { clipContent } from "@/configs/contents/clip";
 import { isAllowedImageUrl } from "@/configs/imageHosts";
 import { placeholderImageUrl } from "@/configs/urls";
-import { PAGE_SIZE, toSkip } from "@/utils/pagination";
+import { getPagination, PAGE_SIZE, toSkip } from "@/utils/pagination";
 import { renderMarkdown } from "@/utils/markdown";
 import { formatDate, parseSlugId } from "@/utils/project";
 import {
   RequestClipCarousel,
   RequestClipDetail,
   RequestClipList,
+  RequestSearchClips,
   type ClipResponse,
+  type ClipSearchDocument,
 } from "@/utils/requestToSrv";
 
 // 서버 캐시 이름표. 새 데이터가 들어오면 revalidateTag("clips")로 이 캐시만 지운다.
@@ -24,25 +26,37 @@ const CACHE_TAG = "clips";
 const RECOMMEND_COUNT = 3;
 const WEEKLY_COUNT = 5;
 
+// 카드에 필요한 필드만. (목록 응답과 검색 결과 문서를 같이 받는다)
+type ClipCardSource = Pick<
+  ClipResponse,
+  | "id"
+  | "title"
+  | "description"
+  | "category"
+  | "thumbnail_img"
+  | "duration"
+  | "created_at"
+>;
+
 // 썸네일이 없거나("" 포함) 허용하지 않은 주소면 "이미지 준비중" 이미지
-const toThumbnail = (clip: ClipResponse) =>
+const toThumbnail = (clip: Pick<ClipResponse, "thumbnail_img">) =>
   isAllowedImageUrl(clip.thumbnail_img)
     ? clip.thumbnail_img
     : placeholderImageUrl.thumbnail;
 
 // TODO: duration 단위 확인 필요 (분으로 가정). 값이 없으면 빈 문자열이고, 화면에서 시간 표시를 숨긴다.
-const toReadTime = (clip: ClipResponse) =>
+const toReadTime = (clip: Pick<ClipResponse, "duration">) =>
   clip.duration ? `${clip.duration}분` : "";
 
 // API 카테고리 값(tech, pmd 등)을 화면 이름(AI・개발 등)으로 바꾼다. 없거나 모르는 값이면 빈 문자열
-const toCategoryLabel = (clip: ClipResponse) =>
+const toCategoryLabel = (clip: Pick<ClipResponse, "category">) =>
   clipContent.categories.find(
     (category) => category.value !== "all" && category.value === clip.category,
   )?.label ?? "";
 
-const toHref = (clip: ClipResponse) => `/clip/${clip.id}`;
+const toHref = (clip: Pick<ClipResponse, "id">) => `/clip/${clip.id}`;
 
-export function toClipItem(clip: ClipResponse): ClipItem {
+export function toClipItem(clip: ClipCardSource): ClipItem {
   return {
     id: String(clip.id),
     category: toCategoryLabel(clip),
@@ -107,14 +121,36 @@ function getWeeklyTitle(now: number) {
   return `${kst.getUTCMonth() + 1}월 ${week}주차 인기클립`;
 }
 
+// 검색 결과 문서를 카드용 형태로 맞춘다. (id가 문자열로 온다)
+const fromSearchDocument = (document: ClipSearchDocument): ClipCardSource => ({
+  ...document,
+  id: Number(document.id),
+});
+
 // 목록 페이지를 1시간 캐시한다. category는 API 값(tech, vibeCoding, pmd, trend)
-// API가 전체 개수를 주지 않아 한 개 더 요청해서 다음 페이지가 있는지만 판단한다.
-export async function getClipPage(page: number, category?: string) {
+// 검색어(q)가 있으면 검색 API를 쓴다. (카테고리도 함께 걸 수 있다)
+// 목록 API는 전체 개수를 주지 않아 한 개 더 요청해서 다음 페이지가 있는지만 판단한다.
+export async function getClipPage(page: number, category?: string, q = "") {
   "use cache";
   cacheLife("hours");
   cacheTag(CACHE_TAG);
 
   const pageSize = PAGE_SIZE.clip;
+
+  if (q) {
+    const result = await RequestSearchClips({
+      q,
+      category,
+      page,
+      per_page: pageSize,
+    });
+    return {
+      items: (result?.hits ?? []).map((hit) =>
+        toClipItem(fromSearchDocument(hit.document)),
+      ),
+      pagination: getPagination(result?.found ?? 0, page, pageSize),
+    };
+  }
   const data = await RequestClipList({
     skip: toSkip(page, pageSize),
     limit: pageSize + 1,
