@@ -42,6 +42,20 @@ const toQuery = (
 
 const authHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
 
+// 로그인이 필요한 요청에서 토큰이 만료·무효(401)일 때 던진다.
+// 다른 실패(잘못된 입력 등)는 지금처럼 null/false로 돌려주고, 401만 이 에러로 구분해
+// withAuth(utils/authSession)가 그때만 토큰을 재발급해 다시 시도하게 한다.
+export class AuthExpiredError extends Error {
+  constructor() {
+    super("access token expired");
+    this.name = "AuthExpiredError";
+  }
+}
+
+const throwIfUnauthorized = (res: Response) => {
+  if (res.status === 401) throw new AuthExpiredError();
+};
+
 // ===== Project (해커톤·공모전·창업경진대회) =====
 
 // 세분류. tech_competition·idea_contest는 category를 생략한 기본 목록에서 빠진다.
@@ -151,6 +165,8 @@ export const RequestProjectBookmark = async (
       headers: authHeader(token),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("ProjectBookmark Error", errorData);
@@ -159,6 +175,7 @@ export const RequestProjectBookmark = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("ProjectBookmark Fetch Error", error);
     return null;
   }
@@ -175,6 +192,8 @@ export const RequestMyProjectBookmarks = async (
       headers: authHeader(token),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("MyProjectBookmarks Error", errorData);
@@ -183,6 +202,7 @@ export const RequestMyProjectBookmarks = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("MyProjectBookmarks Fetch Error", error);
     return null;
   }
@@ -280,6 +300,8 @@ export const RequestGrantBookmark = async (
       headers: authHeader(token),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("GrantBookmark Error", errorData);
@@ -288,6 +310,7 @@ export const RequestGrantBookmark = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("GrantBookmark Fetch Error", error);
     return null;
   }
@@ -306,6 +329,8 @@ export const RequestMyGrantBookmarks = async (
       },
     );
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("MyGrantBookmarks Error", errorData);
@@ -314,6 +339,7 @@ export const RequestMyGrantBookmarks = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("MyGrantBookmarks Fetch Error", error);
     return null;
   }
@@ -506,6 +532,8 @@ export const RequestCreateTeambuilding = async (
       body: JSON.stringify(body),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("CreateTeambuilding Error", errorData);
@@ -514,6 +542,7 @@ export const RequestCreateTeambuilding = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("CreateTeambuilding Fetch Error", error);
     return null;
   }
@@ -534,6 +563,8 @@ export const RequestUpdateTeambuilding = async (
       body: JSON.stringify(body),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("UpdateTeambuilding Error", errorData);
@@ -542,8 +573,36 @@ export const RequestUpdateTeambuilding = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("UpdateTeambuilding Fetch Error", error);
     return null;
+  }
+};
+
+// 내가 쓴 팀빌딩 모집글 삭제 (작성자가 아니면 백엔드가 거절한다). 성공: 204
+export const RequestDeleteTeambuilding = async (
+  teambuildingId: number,
+  token: string,
+): Promise<boolean> => {
+  try {
+    const res = await fetch(`${url}/teambuildings/${teambuildingId}`, {
+      method: "DELETE",
+      headers: authHeader(token),
+    });
+
+    throwIfUnauthorized(res);
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("DeleteTeambuilding Error", errorData);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
+    console.error("DeleteTeambuilding Fetch Error", error);
+    return false;
   }
 };
 
@@ -558,6 +617,8 @@ export const RequestTeambuildingBookmark = async (
       headers: authHeader(token),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("TeambuildingBookmark Error", errorData);
@@ -566,6 +627,7 @@ export const RequestTeambuildingBookmark = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("TeambuildingBookmark Fetch Error", error);
     return null;
   }
@@ -590,6 +652,8 @@ export const RequestMyTeambuildingBookmarks = async (
       },
     );
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("MyTeambuildingBookmarks Error", errorData);
@@ -598,6 +662,7 @@ export const RequestMyTeambuildingBookmarks = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("MyTeambuildingBookmarks Fetch Error", error);
     return null;
   }
@@ -612,6 +677,8 @@ export const RequestMyTeambuildings = async (
       headers: authHeader(token),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("MyTeambuildings Error", errorData);
@@ -620,6 +687,7 @@ export const RequestMyTeambuildings = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("MyTeambuildings Fetch Error", error);
     return null;
   }
@@ -754,6 +822,8 @@ export const RequestClipBookmark = async (
       headers: authHeader(token),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("ClipBookmark Error", errorData);
@@ -762,6 +832,7 @@ export const RequestClipBookmark = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("ClipBookmark Fetch Error", error);
     return null;
   }
@@ -990,6 +1061,10 @@ export const RequestKakaoLogin = async (
 // 로그인이 끝나면 카카오가 프론트 /auth/kakao/callback 으로 인가 코드(?code=)를 붙여 돌려보낸다.
 export const kakaoLoginUrl = `${url}/auth/kakao/login`;
 
+// 구글 로그인 페이지로 이동시키는 주소 (fetch가 아닌 페이지 이동용)
+// 구글은 백엔드 /auth/google/callback 으로 돌아가고, 백엔드가 결과(토큰)를 쿼리로 붙여 프론트 /auth/google 로 보낸다.
+export const googleLoginUrl = `${url}/auth/google/login`;
+
 // 카카오 인가 코드를 백엔드에서 우리 서비스 토큰으로 바꾼다.
 // 백엔드는 결과를 쿼리로 붙인 프론트 주소로 리다이렉트하므로, 따라가지 않고 그 주소의 쿼리만 꺼낸다.
 // 성공: access_token·refresh_token·login_success=true / 실패: login_success=false·error·message
@@ -1074,6 +1149,8 @@ export const RequestMe = async (
       headers: authHeader(token),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("Me Error", errorData);
@@ -1082,6 +1159,7 @@ export const RequestMe = async (
 
     return await res.json();
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("Me Fetch Error", error);
     return null;
   }
@@ -1095,6 +1173,8 @@ export const RequestWithdraw = async (token: string): Promise<boolean> => {
       headers: authHeader(token),
     });
 
+    throwIfUnauthorized(res);
+
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("Withdraw Error", errorData);
@@ -1103,6 +1183,7 @@ export const RequestWithdraw = async (token: string): Promise<boolean> => {
 
     return true;
   } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
     console.error("Withdraw Fetch Error", error);
     return false;
   }
