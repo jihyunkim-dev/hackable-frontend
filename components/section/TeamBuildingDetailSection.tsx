@@ -23,6 +23,8 @@ export interface TeamBuildingDetail {
   body: string;
   position: string;
   deadline: string;
+  // 첨부 이미지 주소 (없으면 숨긴다)
+  image?: string;
 }
 
 // 팀빌딩 상세 본문. lg 이상에서는 왼쪽 뒤로가기, 오른쪽 상태·북마크·공유 열이 붙는다.
@@ -95,6 +97,17 @@ export default function TeamBuildingDetailSection({
           </header>
 
           <div className="flex flex-col py-3 lg:gap-8">
+            {detail.image && (
+              // 크기를 모르는 이미지라 폭에 맞추고 높이는 원래 비율을 따른다.
+              <Image
+                src={detail.image}
+                alt=""
+                width={800}
+                height={600}
+                sizes="(min-width: 1024px) 800px, 100vw"
+                className="mb-4 h-auto w-full rounded-lg lg:mb-0"
+              />
+            )}
             <div className="text-body-l whitespace-pre-line text-gray-800">
               {detail.body}
             </div>

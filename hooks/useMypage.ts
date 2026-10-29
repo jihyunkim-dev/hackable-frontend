@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { clearSession } from "@/hooks/useAuth";
 import { queryKeys } from "@/lib/queryKeys";
 import type { MypageActivity } from "@/utils/mypage";
@@ -28,6 +29,7 @@ export function useMypageActivity(enabled: boolean) {
 // 내가 쓴 팀빌딩의 모집 상태 변경. 스위치가 바로 바뀌도록 먼저 화면을 고치고, 실패하면 되돌린다.
 export function useUpdateTeamBuildingStatus() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const queryKey = queryKeys.mypage.activity();
 
   const setIsOpen = (id: string, isOpen: boolean) =>
@@ -60,6 +62,8 @@ export function useUpdateTeamBuildingStatus() {
       setIsOpen(id, isOpen);
     },
     onError: (_error, { id, isOpen }) => setIsOpen(id, !isOpen),
+    // 브라우저가 들고 있던 팀빌딩 목록·상세 화면도 새로 받게 한다.
+    onSuccess: () => router.refresh(),
   });
 }
 
@@ -77,9 +81,10 @@ export function useWithdraw() {
 }
 
 // 팀빌딩 모집글 등록(id 없음)·수정(id 있음). 성공하면 글 id를 돌려준다.
-// 내가 쓴 팀빌딩 목록이 바뀌므로 마이페이지 캐시를 다시 받는다.
+// 내가 쓴 팀빌딩 목록이 바뀌므로 마이페이지 캐시와 브라우저가 들고 있던 화면을 다시 받는다.
 export function useSaveTeamBuilding(id?: string) {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async (input: TeamBuildingFormInput): Promise<string> => {
@@ -95,14 +100,17 @@ export function useSaveTeamBuilding(id?: string) {
       const data: { id: number } = await res.json();
       return String(data.id);
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({
+    onSuccess: () => {
+      router.refresh();
+      return queryClient.invalidateQueries({
         queryKey: queryKeys.mypage.activity(),
-      }),
+      });
+    },
   });
 }
 
 // 팀빌딩 모집글 삭제. 내가 쓴 팀빌딩 목록이 바뀌므로 마이페이지 캐시를 다시 받는다.
+// 지운 글의 상세 화면을 다시 그리면 404가 나므로, 화면 새로 받기(router.refresh)는 다른 페이지로 옮긴 뒤 부르는 쪽에서 한다.
 export function useDeleteTeamBuilding(id: string) {
   const queryClient = useQueryClient();
 

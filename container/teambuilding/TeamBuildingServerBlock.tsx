@@ -21,6 +21,8 @@ interface TeamBuildingServerBlockProps {
   pagination: { currentPage: number; totalPages: number };
   activeHref: string;
   sort: ListSort;
+  // 지금 검색 중인 검색어
+  q: string;
   // 페이지 이동 시 유지할 검색 조건
   query: Record<string, string | undefined>;
 }
@@ -30,6 +32,7 @@ export default function TeamBuildingServerBlock({
   pagination,
   activeHref,
   sort,
+  q,
   query,
 }: TeamBuildingServerBlockProps) {
   return (
@@ -39,12 +42,14 @@ export default function TeamBuildingServerBlock({
       <SearchSection
         action="/teambuilding"
         placeholder={teamBuildingContent.searchPlaceholder}
+        query={q}
       />
       <TeamBuildingListSection
         items={items}
         pagination={pagination}
         activeHref={activeHref}
         sort={sort}
+        q={q}
         query={query}
       />
     </DefaultLayout>
@@ -56,6 +61,7 @@ function TeamBuildingListSection({
   pagination,
   activeHref,
   sort,
+  q,
   query,
 }: TeamBuildingServerBlockProps) {
   return (
@@ -92,6 +98,13 @@ function TeamBuildingListSection({
           sort={sort}
           className="px-3"
         />
+        {items.length === 0 && (
+          <p className="px-3 py-20 text-center text-body-l text-gray-500">
+            {q
+              ? `"${q}"에 대한 검색 결과가 없어요.`
+              : "아직 등록된 모집글이 없어요."}
+          </p>
+        )}
         <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
           {items.map((item) => (
             <li key={item.id}>

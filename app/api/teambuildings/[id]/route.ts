@@ -1,5 +1,7 @@
 import { revalidateTag } from "next/cache";
 import { withAuth } from "@/utils/authSession";
+import { IMAGE_UPLOAD_PREFIX } from "@/utils/imageUpload";
+import { isR2PublicUrl } from "@/utils/r2";
 import {
   RequestDeleteTeambuilding,
   RequestUpdateTeambuilding,
@@ -14,7 +16,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const id = Number((await params).id);
-  const body = pickTeambuildingRequest(await request.json());
+  const body = pickTeambuildingRequest(await request.json(), (url) =>
+    isR2PublicUrl(url, IMAGE_UPLOAD_PREFIX),
+  );
   if (!Number.isInteger(id) || Object.keys(body).length === 0) {
     return new Response(null, { status: 400 });
   }
@@ -24,8 +28,8 @@ export async function PATCH(
   );
   if (!post) return new Response(null, { status: 400 });
 
-  // 공개 팀빌딩 목록·상세 캐시에도 바뀐 내용이 보이도록 지운다.
-  revalidateTag(TEAMBUILDING_CACHE_TAG, "max");
+  // 공개 팀빌딩 목록·상세 캐시에도 바뀐 내용이 바로 보이도록 즉시 만료시킨다.
+  revalidateTag(TEAMBUILDING_CACHE_TAG, { expire: 0 });
   return Response.json({ id: post.teambuilding_id, status: post.status });
 }
 
@@ -42,6 +46,6 @@ export async function DELETE(
   );
   if (!deleted) return new Response(null, { status: 400 });
 
-  revalidateTag(TEAMBUILDING_CACHE_TAG, "max");
+  revalidateTag(TEAMBUILDING_CACHE_TAG, { expire: 0 });
   return new Response(null, { status: 204 });
 }

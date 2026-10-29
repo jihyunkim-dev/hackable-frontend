@@ -452,6 +452,8 @@ export interface TeambuildingRequest {
   end_date?: string | null;
   thumbnail_img?: string | null;
   status?: string | null;
+  // 프로젝트/스터디 구분. 값은 프론트가 정한다. (utils/teamBuildingForm의 TEAMBUILDING_CATEGORIES)
+  category?: string | null;
   tags?: string[] | null;
   position?: string[] | null;
 }
@@ -467,6 +469,8 @@ export interface TeambuildingResponse {
   end_date: string | null;
   thumbnail_img: string | null;
   status: string | null;
+  // 카테고리가 생기기 전에 쓴 글은 null
+  category: string | null;
   tags: string[] | null;
   position: string[] | null;
   view_count: number;
@@ -478,6 +482,8 @@ export interface TeambuildingResponse {
 
 export interface TeambuildingListQuery extends PagingQuery {
   sort?: ListSort;
+  // 생략하면 전체
+  category?: string;
 }
 
 export const RequestTeambuildingList = async (
@@ -505,6 +511,8 @@ export const RequestTeambuildingDetail = async (
   try {
     const res = await fetch(`${url}/teambuildings/${teambuildingId}`);
 
+    // 지운 글·없는 글은 에러가 아니라 "없음"이다. (상세 화면은 404 화면을 보여 준다)
+    if (res.status === 404) return null;
     if (!res.ok) {
       const errorData: ApiError = await res.json();
       console.error("TeambuildingDetail Error", errorData);
@@ -694,24 +702,31 @@ export const RequestMyTeambuildings = async (
 };
 
 export interface TeambuildingSearchQuery {
-  q?: string;
+  q: string;
   query_by?: string; // 기본 "title,description,tags"
   page?: number;
   per_page?: number;
 }
 
-// Typesense 검색 결과 (hits[].document 에 팀빌딩 문서가 담긴다)
-export interface TeambuildingSearchResponse {
-  found: number;
-  page: number;
-  hits: {
-    document: TeambuildingResponse;
-  }[];
+// 검색 결과의 팀빌딩 문서. 목록 응답과 달리 id가 문자열로 온다.
+export interface TeambuildingSearchDocument {
+  id: string;
+  teambuilding_id: string;
+  title: string;
+  description: string | null;
+  status: string | null;
+  tags: string[] | null;
+  created_at_timestamp: number;
+  // TODO: 백엔드에 추가 요청 필요. 현재 검색 결과에는 오지 않아 카드의 카테고리·마감일·조회수·북마크 수를 못 채운다.
+  category?: string | null;
+  end_date?: string | null;
+  view_count?: number;
+  bookmark_count?: number;
 }
 
 export const RequestSearchTeambuilding = async (
   query: TeambuildingSearchQuery,
-): Promise<TeambuildingSearchResponse | null> => {
+): Promise<SearchResponse<TeambuildingSearchDocument> | null> => {
   try {
     const res = await fetch(
       `${url}/search/teambuildings${toQuery({ ...query })}`,

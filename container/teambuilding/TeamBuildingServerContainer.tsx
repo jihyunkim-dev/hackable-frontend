@@ -5,11 +5,13 @@ import { teamBuildingContent } from "@/configs/contents/teamBuilding";
 import { parsePage } from "@/utils/pagination";
 import {
   findCategory,
+  parseQuery,
   parseSort,
   toSortQuery,
   type SearchParams,
 } from "@/utils/searchParams";
 import { getTeamBuildingPage } from "@/utils/teamBuilding";
+import { isTeamBuildingCategory } from "@/utils/teamBuildingForm";
 import TeamBuildingClientContainer from "./TeamBuildingClientContainer";
 import TeamBuildingServerBlock from "./TeamBuildingServerBlock";
 
@@ -18,15 +20,17 @@ export default async function TeamBuildingServerContainer({
 }: {
   searchParams?: Promise<SearchParams>;
 }) {
-  const { type, page, sort: sortParam } = (await searchParams) ?? {};
+  const { type, page, sort: sortParam, q: qParam } = (await searchParams) ?? {};
   const sort = parseSort(sortParam);
+  const q = parseQuery(qParam);
   const category = findCategory(teamBuildingContent.categories, type);
 
   // [실제 데이터] 더미 데이터 사용 시 아래 한 줄 주석 처리
-  // TODO: API에 프로젝트/스터디 구분이 없어 카테고리(type)는 아직 목록에 반영되지 않는다.
   const { items, pagination } = await getTeamBuildingPage(
     parsePage(page),
     sort,
+    q,
+    isTeamBuildingCategory(category.value) ? category.value : undefined,
   );
 
   // [더미 데이터] 사용 시 아래 주석 해제
@@ -36,7 +40,7 @@ export default async function TeamBuildingServerContainer({
   //   PAGE_SIZE.teamBuilding,
   // );
 
-  // TODO: 검색어·필터 반영
+  // TODO: 필터(포지션 등) 반영
   return (
     <TeamBuildingClientContainer>
       <TeamBuildingServerBlock
@@ -44,8 +48,10 @@ export default async function TeamBuildingServerContainer({
         pagination={pagination}
         activeHref={category.href}
         sort={sort}
+        q={q}
         query={{
           type: category.value === "all" ? undefined : category.value,
+          q: q || undefined,
           sort: toSortQuery(sort),
         }}
       />

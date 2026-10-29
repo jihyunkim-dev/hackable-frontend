@@ -29,6 +29,8 @@ export default function TeamBuildingDeleteButton({
       onSuccess: () => {
         setOpen(false);
         router.replace("/teambuilding");
+        // 목록으로 옮긴 뒤 브라우저가 들고 있던 화면을 새로 받는다. (지운 글이 목록에 남지 않게)
+        router.refresh();
       },
       onError: () => showAlert(content.error),
     });

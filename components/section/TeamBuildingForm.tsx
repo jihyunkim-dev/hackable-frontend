@@ -13,8 +13,19 @@ import { openLoginModal } from "@/hooks/useLoginModal";
 import { useSaveTeamBuilding } from "@/hooks/useMypage";
 import { cn } from "@/lib/utils";
 import { showAlert } from "@/hooks/useAlertModal";
+import {
+  TEAMBUILDING_CATEGORIES,
+  type TeamBuildingCategory,
+} from "@/utils/teamBuildingForm";
+import {
+  IMAGE_UPLOAD_MAX_BYTES,
+  IMAGE_UPLOAD_TYPES,
+  uploadImage,
+} from "@/utils/imageUpload";
 
 export interface TeamBuildingFormValues {
+  // 비어 있으면 작성자가 고르게 한다. (카테고리가 생기기 전에 쓴 글도 비어 있다)
+  category?: TeamBuildingCategory;
   title: string;
   body: string;
   imageUrl?: string;
@@ -54,11 +65,17 @@ export default function TeamBuildingForm({
     mode === "edit" ? teambuildingId : undefined,
   );
   const fieldId = useId();
+  const [category, setCategory] = useState(defaultValues.category);
   const [isOpen, setIsOpen] = useState(defaultValues.isOpen);
   // 글자 수 표시용. 입력 제한은 maxLength가 막는다. (붙여넣기도 최대 길이까지만 들어간다)
   const [title, setTitle] = useState(defaultValues.title);
   const [body, setBody] = useState(defaultValues.body);
+  // 화면에 보이는 이미지: 기존 이미지 주소 또는 새로 고른 파일의 미리보기(blob:)
   const [preview, setPreview] = useState(defaultValues.imageUrl);
+  // 새로 고른 파일. 저장할 때 올린다. (고르기만 하고 나가면 올리지 않는다)
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const isSaving = isUploading || save.isPending;
 
   // 미리보기용 object URL은 바뀌거나 사라질 때 해제한다.
   useEffect(() => {
@@ -67,18 +84,38 @@ export default function TeamBuildingForm({
     };
   }, [preview]);
 
-  // TODO: 이미지 업로드 API가 생기면 미리보기 후 업로드한 주소를 thumbnail_img로 보낸다.
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // 같은 파일을 다시 골라도 change가 일어나게 비운다.
     event.target.value = "";
-    showAlert(content.image.unsupported);
+    if (!file) return;
+    if (!IMAGE_UPLOAD_TYPES.includes(file.type)) {
+      showAlert(content.image.invalidType);
+      return;
+    }
+    if (file.size > IMAGE_UPLOAD_MAX_BYTES) {
+      showAlert(content.image.tooLarge);
+      return;
+    }
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const removeImage = () => {
+    setImageFile(null);
+    setPreview(undefined);
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (save.isPending) return;
+    if (isSaving) return;
     // 페이지는 LoginGate로 막지만, 작성 중 로그인이 끝난 경우를 대비한다.
     if (!user) {
       openLoginModal();
+      return;
+    }
+    if (!category) {
+      showAlert(content.categoryRequired);
       return;
     }
     if (!title.trim()) {
@@ -87,13 +124,33 @@ export default function TeamBuildingForm({
     }
 
     const form = new FormData(event.currentTarget);
+
+    // 새로 고른 이미지가 있으면 먼저 올리고 그 주소를 글에 넣는다.
+    let imageUrl = imageFile ? null : (preview ?? null);
+    if (imageFile) {
+      setIsUploading(true);
+      try {
+        imageUrl = await uploadImage(imageFile);
+      } catch {
+        showAlert(content.image.uploadError);
+        return;
+      } finally {
+        setIsUploading(false);
+      }
+      // 다시 저장할 때 같은 파일을 또 올리지 않는다.
+      setImageFile(null);
+      setPreview(imageUrl);
+    }
+
     save.mutate(
       {
+        category,
         title,
         body,
         isOpen,
         position: String(form.get("position") ?? ""),
         deadline: String(form.get("deadline") ?? ""),
+        imageUrl,
       },
       {
         onSuccess: (id) => router.push(`/teambuilding/${id}`),
@@ -128,6 +185,8 @@ export default function TeamBuildingForm({
           </p>
         ))}
       </aside>
+
+      <CategoryPicker value={category} onChange={setCategory} />
 
       <div className="flex flex-col gap-1">
         <input
@@ -193,7 +252,7 @@ export default function TeamBuildingForm({
           id={`${fieldId}-image`}
           type="file"
           name="image"
-          accept="image/*"
+          accept={IMAGE_UPLOAD_TYPES.join(",")}
           onChange={handleImageChange}
           className="sr-only"
         />
@@ -201,7 +260,8 @@ export default function TeamBuildingForm({
       {preview && (
         <button
           type="button"
-          onClick={() => setPreview(undefined)}
+          onClick={removeImage}
+          disabled={isSaving}
           className="self-end text-label-m text-gray-500 underline"
         >
           {content.image.remove}
@@ -261,13 +321,58 @@ export default function TeamBuildingForm({
         </Button>
         <Button
           type="submit"
-          disabled={save.isPending}
+          disabled={isSaving}
           className="h-10 flex-1 rounded-lg bg-rose-500 text-label-l hover:bg-rose-700 sm:w-24 sm:flex-none sm:text-heading-xs"
         >
           {mode === "create" ? content.submit : content.save}
         </Button>
       </div>
     </form>
+  );
+}
+
+// 프로젝트/스터디 중 하나를 고른다. (라디오 버튼을 버튼 모양으로 보여 준다)
+function CategoryPicker({
+  value,
+  onChange,
+}: {
+  value?: TeamBuildingCategory;
+  onChange: (value: TeamBuildingCategory) => void;
+}) {
+  const labels = new Map(
+    teamBuildingContent.categories.map((item) => [item.value, item.label]),
+  );
+
+  return (
+    <fieldset className="flex items-center gap-3">
+      <legend className="sr-only">
+        {teamBuildingContent.form.categoryLabel}
+      </legend>
+      <span aria-hidden className="text-heading-s text-rose-500">
+        {teamBuildingContent.form.categoryLabel}
+      </span>
+      {TEAMBUILDING_CATEGORIES.map((item) => (
+        <label
+          key={item}
+          className={cn(
+            "cursor-pointer rounded-full border px-4 py-1.5 text-label-l transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary-200",
+            value === item
+              ? "border-rose-500 bg-rose-500 text-white"
+              : "border-gray-200 text-gray-600 hover:border-gray-400",
+          )}
+        >
+          <input
+            type="radio"
+            name="category"
+            value={item}
+            checked={value === item}
+            onChange={() => onChange(item)}
+            className="sr-only"
+          />
+          {labels.get(item)}
+        </label>
+      ))}
+    </fieldset>
   );
 }
 

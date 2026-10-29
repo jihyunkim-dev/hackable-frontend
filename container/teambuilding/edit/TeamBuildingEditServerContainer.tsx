@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { parseSlugId } from "@/utils/project";
 import { RequestTeambuildingDetail } from "@/utils/requestToSrv";
 import { TEAMBUILDING_STATUS } from "@/utils/teamBuilding";
+import { isTeamBuildingCategory } from "@/utils/teamBuildingForm";
 import TeamBuildingEditClientContainer from "./TeamBuildingEditClientContainer";
 import TeamBuildingEditServerBlock from "./TeamBuildingEditServerBlock";
 
@@ -19,11 +20,13 @@ export default async function TeamBuildingEditServerContainer({
   const post = postId ? await RequestTeambuildingDetail(postId) : null;
   if (!post) notFound();
   const defaultValues = {
+    category: isTeamBuildingCategory(post.category) ? post.category : undefined,
     title: post.title,
     body: post.description ?? "",
     isOpen: post.status !== TEAMBUILDING_STATUS.closed,
     position: post.position?.join("\n") ?? "",
     deadline: post.end_date?.slice(0, 10) ?? "",
+    imageUrl: post.thumbnail_img ?? undefined,
   };
 
   // [더미 데이터] 위 [실제 데이터] 블록을 주석 처리하고 아래 주석을 풀면 더미 데이터로 보인다.
