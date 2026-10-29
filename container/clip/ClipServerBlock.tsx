@@ -1,6 +1,7 @@
 import DefaultLayout from "@/components/layout/DefaultLayout";
 import HeaderSpacer from "@/components/layout/HeaderSpacer";
 import ClipCard, { type ClipItem } from "@/components/section/ClipCard";
+import FloatingSearchBar from "@/components/section/FloatingSearchBar";
 import ClipFeaturedCarousel, {
   type FeaturedClip,
 } from "@/components/section/ClipFeaturedCarousel";
@@ -11,7 +12,6 @@ import WeeklyClipList, {
 import CategoryPills from "@/components/ui/CategoryPills";
 import MultiLine from "@/components/ui/MultiLine";
 import Pagination from "@/components/ui/Pagination";
-import SearchBar from "@/components/ui/SearchBar";
 import { bannerContent } from "@/configs/contents/banners";
 import { clipContent } from "@/configs/contents/clip";
 import { subscribeClipBannerUrl } from "@/configs/urls";
@@ -54,15 +54,14 @@ export default function ClipServerBlock({
   );
 }
 
+// 헤더 뒤로 지나가면 화면 아래 플로팅 검색창으로 바뀐다.
 function SearchSection({ q }: { q: string }) {
   return (
-    <section className="flex justify-center p-2 py-5 lg:py-3.5">
-      <SearchBar
-        // 검색어가 바뀌면 입력창도 새 값으로 다시 그린다.
-        key={q}
+    <section className="p-2 py-5 lg:py-3.5">
+      <FloatingSearchBar
         action="/clip"
         placeholder={clipContent.searchPlaceholder}
-        defaultValue={q}
+        query={q}
       />
     </section>
   );
