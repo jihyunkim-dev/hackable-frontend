@@ -1,4 +1,5 @@
 // 팀빌딩 작성·수정 폼 값 ↔ API 요청 본문 변환. (브라우저·서버 공용)
+import { defaultFilterGroups } from "@/configs/contents/filter";
 import type { TeambuildingRequest } from "@/utils/requestToSrv";
 
 // 모집 상태 값. utils/teamBuilding의 TEAMBUILDING_STATUS와 같다.
@@ -19,31 +20,37 @@ export function isTeamBuildingCategory(
   return TEAMBUILDING_CATEGORIES.includes(value as TeamBuildingCategory);
 }
 
-// API 최대 개수
-const POSITION_MAX = 10;
+// 모집 포지션·진행 방식은 목록 필터 모달과 같은 항목에서 고른다. (필터와 값이 맞아야 걸러진다)
+const filterOptions = (id: string) =>
+  defaultFilterGroups.find((group) => group.id === id)?.options ?? [];
+export const TEAMBUILDING_POSITIONS = filterOptions("position");
+export const TEAMBUILDING_MODES = filterOptions("mode");
+
+// 정해진 항목만 남긴다. (예전 글의 자유 입력 포지션, 다른 태그는 빠진다)
+export const pickOptions = (values: unknown, options: string[]) =>
+  Array.isArray(values)
+    ? options.filter((option) => values.includes(option))
+    : [];
 
 export interface TeamBuildingFormInput {
   category: TeamBuildingCategory;
   title: string;
   body: string;
   isOpen: boolean;
-  position: string;
+  // TEAMBUILDING_POSITIONS 중 고른 것 (여러 개)
+  position: string[];
+  // TEAMBUILDING_MODES 중 고른 것 (온라인·오프라인, 여러 개)
+  modes: string[];
   // YYYY-MM-DD, 비우면 상시 모집
   deadline: string;
   // 올린 이미지 주소. null이면 이미지 없음
   imageUrl: string | null;
 }
 
-// 모집 포지션은 줄바꿈·쉼표로 나눠 배열로 보낸다. (상세에서는 ", "로 이어 보여준다)
+// TODO: 백엔드에 진행 방식 필드가 없어 tags에 담는다. 필드가 생기면 옮긴다.
 export function toTeambuildingRequest(
   input: TeamBuildingFormInput,
 ): TeambuildingRequest {
-  const position = input.position
-    .split(/[\n,]/)
-    .map((value) => value.trim())
-    .filter(Boolean)
-    .slice(0, POSITION_MAX);
-
   return {
     title: input.title.trim(),
     category: input.category,
@@ -51,7 +58,8 @@ export function toTeambuildingRequest(
     status: input.isOpen
       ? TEAMBUILDING_STATUS_VALUE.open
       : TEAMBUILDING_STATUS_VALUE.closed,
-    position: position.length ? position : null,
+    position: input.position.length ? input.position : null,
+    tags: input.modes,
     // 마감일 하루 끝까지 모집한다.
     // 시간대(+09:00)를 꼭 붙인다. 없으면 백엔드가 현재 시각(시간대 있음)과 비교하다 오류를 낸다.
     // ("can't compare offset-naive and offset-aware datetimes")
@@ -74,8 +82,12 @@ export function pickTeambuildingRequest(
   if (isTeamBuildingCategory(body.category)) result.category = body.category;
   if (typeof body.end_date === "string" || body.end_date === null)
     result.end_date = body.end_date;
-  if (Array.isArray(body.position) || body.position === null)
-    result.position = body.position?.map(String) ?? null;
+  if (Array.isArray(body.position)) {
+    const position = pickOptions(body.position, TEAMBUILDING_POSITIONS);
+    result.position = position.length ? position : null;
+  } else if (body.position === null) result.position = null;
+  if (Array.isArray(body.tags))
+    result.tags = pickOptions(body.tags, TEAMBUILDING_MODES);
   if (
     (typeof body.thumbnail_img === "string" &&
       isAllowedImage(body.thumbnail_img)) ||

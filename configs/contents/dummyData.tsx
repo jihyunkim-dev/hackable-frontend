@@ -210,7 +210,8 @@ export const createDummyTeamBuildingDetail = (
 연락 방법
 아래 오픈채팅으로 간단한 자기소개와 관심 있는 운동을 보내주세요.
 작업물이 있다면 함께 공유해 주세요.`,
-  position: "프로덕트 디자이너 1명",
+  position: "디자이너",
+  mode: "온라인",
   deadline: "2026.10.20",
 });
 

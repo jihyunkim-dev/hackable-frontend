@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 import { showAlert } from "@/hooks/useAlertModal";
 import {
   TEAMBUILDING_CATEGORIES,
+  TEAMBUILDING_MODES,
+  TEAMBUILDING_POSITIONS,
   type TeamBuildingCategory,
 } from "@/utils/teamBuildingForm";
 import {
@@ -24,13 +26,14 @@ import {
 } from "@/utils/imageUpload";
 
 export interface TeamBuildingFormValues {
-  // 비어 있으면 작성자가 고르게 한다. (카테고리가 생기기 전에 쓴 글도 비어 있다)
-  category?: TeamBuildingCategory;
+  // 프로젝트/스터디 중 하나. 새 글은 프로젝트로 시작한다.
+  category: TeamBuildingCategory;
   title: string;
   body: string;
   imageUrl?: string;
   isOpen: boolean;
-  position: string;
+  position: string[];
+  modes: string[];
   // YYYY-MM-DD, 비우면 상시 모집
   deadline: string;
 }
@@ -44,10 +47,12 @@ interface TeamBuildingFormProps {
 }
 
 const emptyValues: TeamBuildingFormValues = {
+  category: "project",
   title: "",
   body: "",
   isOpen: true,
-  position: "",
+  position: [],
+  modes: [],
   deadline: "",
 };
 
@@ -67,6 +72,8 @@ export default function TeamBuildingForm({
   const fieldId = useId();
   const [category, setCategory] = useState(defaultValues.category);
   const [isOpen, setIsOpen] = useState(defaultValues.isOpen);
+  const [position, setPosition] = useState(defaultValues.position);
+  const [modes, setModes] = useState(defaultValues.modes);
   // 글자 수 표시용. 입력 제한은 maxLength가 막는다. (붙여넣기도 최대 길이까지만 들어간다)
   const [title, setTitle] = useState(defaultValues.title);
   const [body, setBody] = useState(defaultValues.body);
@@ -114,10 +121,6 @@ export default function TeamBuildingForm({
       openLoginModal();
       return;
     }
-    if (!category) {
-      showAlert(content.categoryRequired);
-      return;
-    }
     if (!title.trim()) {
       showAlert(content.titleRequired);
       return;
@@ -148,7 +151,8 @@ export default function TeamBuildingForm({
         title,
         body,
         isOpen,
-        position: String(form.get("position") ?? ""),
+        position,
+        modes,
         deadline: String(form.get("deadline") ?? ""),
         imageUrl,
       },
@@ -280,12 +284,19 @@ export default function TeamBuildingForm({
         />
       </div>
 
-      <Field
-        id={`${fieldId}-position`}
-        name="position"
+      <ChipGroup
         label={content.positionLabel}
-        placeholder={content.positionPlaceholder}
-        defaultValue={defaultValues.position}
+        hint={content.positionHint}
+        options={TEAMBUILDING_POSITIONS}
+        value={position}
+        onChange={setPosition}
+      />
+      <ChipGroup
+        label={content.modeLabel}
+        hint={content.modeHint}
+        options={TEAMBUILDING_MODES}
+        value={modes}
+        onChange={setModes}
       />
       {/* 마감일은 D-day 계산에 쓰여 날짜로 받는다. 비우면 상시 모집 */}
       <div className="flex flex-col gap-2">
@@ -331,12 +342,12 @@ export default function TeamBuildingForm({
   );
 }
 
-// 프로젝트/스터디 중 하나를 고른다. (라디오 버튼을 버튼 모양으로 보여 준다)
+// 프로젝트/스터디 중 하나를 고른다. 항상 하나가 선택돼 있고 누르면 바뀐다. (라디오 버튼을 버튼 모양으로 보여 준다)
 function CategoryPicker({
   value,
   onChange,
 }: {
-  value?: TeamBuildingCategory;
+  value: TeamBuildingCategory;
   onChange: (value: TeamBuildingCategory) => void;
 }) {
   const labels = new Map(
@@ -399,32 +410,53 @@ function CharCount({
   );
 }
 
-function Field({
-  id,
-  name,
+// 여러 개를 고를 수 있는 칩 목록. (목록 필터 모달의 칩과 같은 모양)
+function ChipGroup({
   label,
-  placeholder,
-  defaultValue,
+  hint,
+  options,
+  value,
+  onChange,
 }: {
-  id: string;
-  name: string;
   label: string;
-  placeholder: string;
-  defaultValue: string;
+  hint: string;
+  options: string[];
+  value: string[];
+  onChange: (value: string[]) => void;
 }) {
+  // 고른 순서가 아니라 항목 순서대로 저장한다.
+  const toggle = (option: string) =>
+    onChange(
+      options.filter((item) =>
+        item === option ? !value.includes(item) : value.includes(item),
+      ),
+    );
+
   return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="py-1.5 text-heading-s text-rose-500">
-        {label}
-      </label>
-      <textarea
-        id={id}
-        name={name}
-        defaultValue={defaultValue}
-        placeholder={placeholder}
-        rows={3}
-        className="w-full resize-none text-body-l border border-gray-200 rounded-[8px] p-4 text-gray-800 outline-none placeholder:text-gray-600"
-      />
-    </div>
+    <fieldset className="flex flex-col gap-2">
+      <legend className="py-1.5 text-heading-s text-rose-500">{label}</legend>
+      <ul className="flex flex-wrap gap-2">
+        {options.map((option) => {
+          const selected = value.includes(option);
+          return (
+            <li key={option}>
+              <button
+                type="button"
+                aria-pressed={selected}
+                onClick={() => toggle(option)}
+                className={cn(
+                  "rounded-lg border border-gray-300 px-3 py-1.5 text-label-m text-gray-700 transition-colors hover:border-gray-400 lg:text-label-l",
+                  selected &&
+                    "border-primary-500 bg-primary-50 text-primary-500 hover:border-primary-500",
+                )}
+              >
+                {option}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="text-body-s text-gray-500">{hint}</p>
+    </fieldset>
   );
 }

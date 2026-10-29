@@ -3,7 +3,12 @@ import { notFound } from "next/navigation";
 import { parseSlugId } from "@/utils/project";
 import { RequestTeambuildingDetail } from "@/utils/requestToSrv";
 import { TEAMBUILDING_STATUS } from "@/utils/teamBuilding";
-import { isTeamBuildingCategory } from "@/utils/teamBuildingForm";
+import {
+  isTeamBuildingCategory,
+  pickOptions,
+  TEAMBUILDING_MODES,
+  TEAMBUILDING_POSITIONS,
+} from "@/utils/teamBuildingForm";
 import TeamBuildingEditClientContainer from "./TeamBuildingEditClientContainer";
 import TeamBuildingEditServerBlock from "./TeamBuildingEditServerBlock";
 
@@ -20,11 +25,15 @@ export default async function TeamBuildingEditServerContainer({
   const post = postId ? await RequestTeambuildingDetail(postId) : null;
   if (!post) notFound();
   const defaultValues = {
-    category: isTeamBuildingCategory(post.category) ? post.category : undefined,
+    // 카테고리 없이 쓴 예전 글은 프로젝트로 보여 준다. (저장하면 프로젝트로 들어간다)
+    category: isTeamBuildingCategory(post.category) ? post.category : "project",
     title: post.title,
     body: post.description ?? "",
     isOpen: post.status !== TEAMBUILDING_STATUS.closed,
-    position: post.position?.join("\n") ?? "",
+    // 예전 글의 자유 입력 포지션은 고를 수 있는 항목만 남긴다.
+    position: pickOptions(post.position, TEAMBUILDING_POSITIONS),
+    // TODO: 진행 방식은 백엔드 필드가 생기기 전까지 tags에 들어 있다.
+    modes: pickOptions(post.tags, TEAMBUILDING_MODES),
     deadline: post.end_date?.slice(0, 10) ?? "",
     imageUrl: post.thumbnail_img ?? undefined,
   };
@@ -32,10 +41,12 @@ export default async function TeamBuildingEditServerContainer({
   // [더미 데이터] 위 [실제 데이터] 블록을 주석 처리하고 아래 주석을 풀면 더미 데이터로 보인다.
   // const detail = createDummyTeamBuildingDetail(id);
   // const defaultValues = {
+  //   category: "project",
   //   title: detail.title,
   //   body: detail.body,
   //   isOpen: detail.isOpen,
-  //   position: detail.position,
+  //   position: [],
+  //   modes: [],
   //   deadline: "",
   // };
 

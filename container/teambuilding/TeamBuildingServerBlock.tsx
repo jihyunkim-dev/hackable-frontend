@@ -15,6 +15,10 @@ import { bannerContent } from "@/configs/contents/banners";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
 import { commonIconUrl } from "@/configs/urls";
 import type { ListSort } from "@/utils/requestToSrv";
+import {
+  hasTeamBuildingFilters,
+  type TeamBuildingFilters,
+} from "@/utils/teamBuildingFilter";
 
 interface TeamBuildingServerBlockProps {
   items: TeamBuildingItem[];
@@ -23,6 +27,8 @@ interface TeamBuildingServerBlockProps {
   sort: ListSort;
   // 지금 검색 중인 검색어
   q: string;
+  // 지금 적용된 필터 (필터 버튼에 선택 개수로 보인다)
+  filters: TeamBuildingFilters;
   // 페이지 이동 시 유지할 검색 조건
   query: Record<string, string | undefined>;
 }
@@ -33,6 +39,7 @@ export default function TeamBuildingServerBlock({
   activeHref,
   sort,
   q,
+  filters,
   query,
 }: TeamBuildingServerBlockProps) {
   return (
@@ -50,6 +57,7 @@ export default function TeamBuildingServerBlock({
         activeHref={activeHref}
         sort={sort}
         q={q}
+        filters={filters}
         query={query}
       />
     </DefaultLayout>
@@ -62,6 +70,7 @@ function TeamBuildingListSection({
   activeHref,
   sort,
   q,
+  filters,
   query,
 }: TeamBuildingServerBlockProps) {
   return (
@@ -96,13 +105,16 @@ function TeamBuildingListSection({
           groups={teamBuildingContent.filterGroups}
           sortOptions={teamBuildingContent.sortOptions}
           sort={sort}
+          selection={filters}
           className="px-3"
         />
         {items.length === 0 && (
           <p className="px-3 py-20 text-center text-body-l text-gray-500">
             {q
               ? `"${q}"에 대한 검색 결과가 없어요.`
-              : "아직 등록된 모집글이 없어요."}
+              : hasTeamBuildingFilters(filters)
+                ? "조건에 맞는 모집글이 없어요. 필터를 바꿔보세요."
+                : "아직 등록된 모집글이 없어요."}
           </p>
         )}
         <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">

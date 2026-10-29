@@ -22,6 +22,8 @@ export interface TeamBuildingDetail {
   bookmarks: number;
   body: string;
   position: string;
+  // 온라인, 오프라인 (없으면 숨긴다)
+  mode: string;
   deadline: string;
   // 첨부 이미지 주소 (없으면 숨긴다)
   image?: string;
@@ -117,6 +119,9 @@ export default function TeamBuildingDetailSection({
                 label={content.positionLabel}
                 value={detail.position}
               />
+            )}
+            {detail.mode && (
+              <InfoBlock label={content.modeLabel} value={detail.mode} />
             )}
             <InfoBlock label={content.deadlineLabel} value={detail.deadline} />
           </div>

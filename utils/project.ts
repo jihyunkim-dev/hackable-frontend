@@ -38,10 +38,16 @@ const toKstDay = (time: number) => Math.floor((time + KST_OFFSET_MS) / DAY_MS);
 // 서버 날짜는 시간대 표기가 없는 한국 시간이다.
 const parseKstDate = (value: string) => new Date(`${value}+09:00`).getTime();
 
+// 마감일까지 남은 날 수 (오늘 마감이면 0, 지났으면 음수). 마감일이 없으면 null
+export function daysUntil(endDate: string | null, now: number): number | null {
+  if (!endDate) return null;
+  return toKstDay(parseKstDate(endDate)) - toKstDay(now);
+}
+
 // 마감일까지 남은 날: D-3 / D-Day / 마감, 마감일이 없으면 상시
 export function formatDDay(endDate: string | null, now: number): string {
-  if (!endDate) return "상시";
-  const diff = toKstDay(parseKstDate(endDate)) - toKstDay(now);
+  const diff = daysUntil(endDate, now);
+  if (diff === null) return "상시";
   if (diff < 0) return "마감";
   return diff === 0 ? "D-Day" : `D-${diff}`;
 }

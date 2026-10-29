@@ -6,6 +6,8 @@ import type { TeamBuildingDetail } from "@/components/section/TeamBuildingDetail
 import { getPagination, PAGE_SIZE, toSkip } from "@/utils/pagination";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
 import {
+  pickOptions,
+  TEAMBUILDING_MODES,
   TEAMBUILDING_STATUS_VALUE,
   type TeamBuildingCategory,
 } from "@/utils/teamBuildingForm";
@@ -16,8 +18,11 @@ import {
   RequestTeambuildingList,
   type ListSort,
   type TeambuildingResponse,
-  type TeambuildingSearchDocument,
 } from "@/utils/requestToSrv";
+import {
+  filterTeamBuildings,
+  type TeamBuildingFilters,
+} from "@/utils/teamBuildingFilter";
 
 // 서버 캐시 이름표. 글 작성·수정 후 revalidateTag("teambuildings")로 이 캐시만 지운다.
 export const TEAMBUILDING_CACHE_TAG = "teambuildings";
@@ -63,68 +68,88 @@ export function toTeamBuildingItem(
   };
 }
 
-// 검색 결과 문서를 카드용 형태로 맞춘다. (id가 문자열로 오고, 마감일·조회수·북마크 수는 아직 오지 않는다)
-const fromSearchDocument = (
-  document: TeambuildingSearchDocument,
-): TeamBuildingCardSource => ({
-  teambuilding_id: Number(document.teambuilding_id),
-  status: document.status,
-  category: document.category ?? null,
-  tags: document.tags,
-  title: document.title,
-  end_date: document.end_date ?? null,
-  view_count: document.view_count ?? 0,
-  bookmark_count: document.bookmark_count ?? 0,
-});
+// 한 번에 받는 글 수. 필터를 프론트에서 걸어야 해서 글을 전부 받는다.
+const FETCH_CHUNK = 100;
+// 검색 결과 한 번에 받는 수 (Typesense 최대 250)
+const SEARCH_CHUNK = 250;
+
+// 정렬·카테고리에 맞는 글을 전부 받는다.
+// TODO: 백엔드 목록 API에 필터 조건과 total_count가 생기면 페이지 단위 요청으로 되돌린다.
+async function fetchAllTeamBuildings(
+  sort: ListSort,
+  category?: TeamBuildingCategory,
+) {
+  const posts: TeambuildingResponse[] = [];
+  for (let skip = 0; ; skip += FETCH_CHUNK) {
+    const chunk = await RequestTeambuildingList({
+      skip,
+      limit: FETCH_CHUNK,
+      sort,
+      category,
+    });
+    posts.push(...(chunk ?? []));
+    if (!chunk || chunk.length < FETCH_CHUNK) return posts;
+  }
+}
+
+// 검색어에 맞는 글 id를 관련도 순으로 받는다.
+async function searchTeamBuildingIds(q: string) {
+  const ids: number[] = [];
+  for (let page = 1; ; page += 1) {
+    const result = await RequestSearchTeambuilding({
+      q,
+      page,
+      per_page: SEARCH_CHUNK,
+    });
+    const hits = result?.hits ?? [];
+    ids.push(...hits.map((hit) => Number(hit.document.teambuilding_id)));
+    if (hits.length < SEARCH_CHUNK || ids.length >= (result?.found ?? 0)) {
+      return ids;
+    }
+  }
+}
 
 // 페이지별 목록을 1분간 캐시한다. 사용자가 바로 쓰는 글이라 짧게 둔다. (미리 렌더링되는 1페이지 화면도 이 결과를 쓴다)
-// category가 없으면(전체) 카테고리를 보내지 않는다.
-// 검색어(q)가 있으면 검색 API를 쓴다. 검색은 관련도 순이라 정렬(sort)은 반영되지 않는다.
-// TODO: 검색 API에 카테고리 조건이 없어 검색 중에는 카테고리가 반영되지 않는다. (백엔드 추가 요청)
-// 목록 API는 전체 개수를 주지 않아 한 개 더 요청해서 다음 페이지가 있는지만 판단한다.
+// 글을 전부 받아 검색어·필터를 걸고 페이지를 나눈다. (utils/teamBuildingFilter)
+// - category가 없으면(전체) 카테고리를 보내지 않는다.
+// - 검색어(q)가 있으면 검색 결과에 든 글만 관련도 순으로 남긴다. (검색 중에는 정렬이 반영되지 않는다)
+//   검색 결과 문서에는 마감일·조회수가 없어, 목록 데이터와 맞춰 카드를 채운다.
 export async function getTeamBuildingPage(
   page: number,
   sort: ListSort = "latest",
   q = "",
   category?: TeamBuildingCategory,
+  filters?: TeamBuildingFilters,
 ) {
   "use cache";
   cacheLife("minutes");
   cacheTag(TEAMBUILDING_CACHE_TAG);
 
   const pageSize = PAGE_SIZE.teamBuilding;
+  const [all, searchIds] = await Promise.all([
+    fetchAllTeamBuildings(sort, category),
+    q ? searchTeamBuildingIds(q) : null,
+  ]);
 
-  if (q) {
-    const result = await RequestSearchTeambuilding({
-      q,
-      page,
-      per_page: pageSize,
-    });
-    const now = Date.now();
-    return {
-      items: (result?.hits ?? []).map((hit) =>
-        toTeamBuildingItem(fromSearchDocument(hit.document), now),
-      ),
-      pagination: getPagination(result?.found ?? 0, page, pageSize),
-    };
+  let posts = all;
+  if (searchIds) {
+    const byId = new Map(all.map((post) => [post.teambuilding_id, post]));
+    posts = searchIds
+      .map((id) => byId.get(id))
+      .filter((post): post is TeambuildingResponse => Boolean(post));
   }
 
-  const data = await RequestTeambuildingList({
-    skip: toSkip(page, pageSize),
-    limit: pageSize + 1,
-    sort,
-    category,
-  });
-  const posts = data ?? [];
-  const hasNext = posts.length > pageSize;
   const now = Date.now();
+  if (filters) posts = filterTeamBuildings(posts, filters, now);
+
+  const pagination = getPagination(posts.length, page, pageSize);
+  const start = toSkip(pagination.currentPage, pageSize);
 
   return {
     items: posts
-      .slice(0, pageSize)
+      .slice(start, start + pageSize)
       .map((post) => toTeamBuildingItem(post, now)),
-    // TODO: API에 total_count가 생기면 getPagination으로 교체
-    pagination: { currentPage: page, totalPages: hasNext ? page + 1 : page },
+    pagination,
   };
 }
 
@@ -147,6 +172,8 @@ export function toTeamBuildingDetail(
     bookmarks: post.bookmark_count,
     body: post.description ?? "",
     position: post.position?.join(", ") ?? "",
+    // TODO: 진행 방식은 백엔드 필드가 생기기 전까지 tags에 들어 있다.
+    mode: pickOptions(post.tags, TEAMBUILDING_MODES).join(", "),
     deadline: post.end_date ? formatDate(post.end_date) : "상시",
     image: isAllowedImageUrl(post.thumbnail_img)
       ? post.thumbnail_img

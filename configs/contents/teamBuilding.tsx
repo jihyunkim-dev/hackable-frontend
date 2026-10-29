@@ -26,6 +26,7 @@ export const teamBuildingContent = {
   detail: {
     backLabel: "팀빌딩 목록으로",
     positionLabel: "모집 포지션",
+    modeLabel: "진행 방식",
     deadlineLabel: "마감일",
     bookmarkLabel: "북마크",
     shareLabel: "공유",
@@ -51,7 +52,6 @@ export const teamBuildingContent = {
       ],
     },
     categoryLabel: "카테고리",
-    categoryRequired: "프로젝트와 스터디 중 하나를 선택해주세요.",
     titlePlaceholder: "제목을 입력해주세요.(100자 이내)",
     // 백엔드 TeambuildingCreate.title 최대 길이와 같다.
     titleMaxLength: 100,
@@ -69,8 +69,9 @@ export const teamBuildingContent = {
     },
     statusLabel: "모집 상태",
     positionLabel: "모집 포지션",
-    positionPlaceholder:
-      "팀빌딩에 필요한 모집 포지션과 인원 수를 작성해주세요.",
+    positionHint: "필요한 포지션을 모두 골라주세요. (여러 개 선택 가능)",
+    modeLabel: "진행 방식",
+    modeHint: "온라인·오프라인을 같이 하면 둘 다 골라주세요.",
     deadlineLabel: "마감일",
     deadlinePlaceholder:
       "팀빌딩 마감일을 선택해주세요. 비워두면 상시 모집으로 표시돼요.",

@@ -20,22 +20,53 @@ interface FilterBarProps {
   sortOptions: SortOption[];
   // 현재 정렬 값 (서버에서 URL ?sort를 읽어 넘긴다)
   sort: SortOption["value"];
+  // 현재 적용된 필터 (서버에서 URL을 읽어 넘긴다). 넘기면 적용할 때 URL을 바꿔 서버가 다시 거른다.
+  // 넘기지 않으면 화면에서만 선택이 남는다.
+  selection?: TagSelection;
   className?: string;
 }
 
 // 필터 버튼을 누르면 해당 그룹 탭이 선택된 상태로 필터 모달이 열린다.
-// 정렬은 URL ?sort=로 바꿔 서버가 다시 목록을 요청한다. (기본값 최신순은 파라미터 없음, 페이지는 1로)
-// TODO: 적용한 필터값을 목록 요청(API)에 연결
+// 정렬·필터는 URL(?sort=, ?그룹id=항목,항목)로 바꿔 서버가 다시 목록을 만든다. (페이지는 1로)
+// TODO: 지원사업 목록은 아직 selection을 넘기지 않아 필터가 목록에 반영되지 않는다.
 export default function FilterBar({
   groups = [],
   sortOptions,
   sort,
+  selection: urlSelection,
   className,
 }: FilterBarProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [activeGroupId, setActiveGroupId] = useState(groups[0]?.id ?? "");
-  const [selection, setSelection] = useState<TagSelection>({});
+  const [localSelection, setLocalSelection] = useState<TagSelection>({});
+  const selection = urlSelection ?? localSelection;
+
+  // 지금 주소에서 일부 파라미터만 바꿔 이동한다. (페이지 번호는 지운다)
+  const pushParams = (update: (params: URLSearchParams) => void) => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("page");
+    update(url.searchParams);
+    router.push(`${url.pathname}${url.search}`, { scroll: false });
+  };
+
+  const applySelection = (next: TagSelection) => {
+    if (!urlSelection) {
+      setLocalSelection(next);
+      return;
+    }
+    pushParams((params) => {
+      for (const group of groups) {
+        const values = next[group.id] ?? [];
+        // 모달에서 고른 순서가 아니라 항목 순서대로 넣는다.
+        const ordered = group.options.filter((option) =>
+          values.includes(option),
+        );
+        if (ordered.length) params.set(group.id, ordered.join(","));
+        else params.delete(group.id);
+      }
+    });
+  };
 
   const openAt = (groupId: string) => {
     setActiveGroupId(groupId);
@@ -80,14 +111,10 @@ export default function FilterBar({
           const next = sortOptions.find((option) => option.label === label);
           if (!next || next.value === sort) return;
 
-          const url = new URL(window.location.href);
-          url.searchParams.delete("page");
-          if (next.value === sortOptions[0].value) {
-            url.searchParams.delete("sort");
-          } else {
-            url.searchParams.set("sort", next.value);
-          }
-          router.push(`${url.pathname}${url.search}`, { scroll: false });
+          pushParams((params) => {
+            if (next.value === sortOptions[0].value) params.delete("sort");
+            else params.set("sort", next.value);
+          });
         }}
       />
 
@@ -99,7 +126,7 @@ export default function FilterBar({
           activeGroupId={activeGroupId}
           onActiveGroupChange={setActiveGroupId}
           initialSelection={selection}
-          onApply={setSelection}
+          onApply={applySelection}
         />
       )}
     </div>
