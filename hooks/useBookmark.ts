@@ -15,7 +15,6 @@ export type BookmarkType = "project" | "grant" | "teambuilding" | "clip";
 const ERROR_MESSAGE = "북마크를 바꾸지 못했어요. 다시 시도해주세요.";
 
 // 이번 방문에서 누른 북마크 결과. 마이페이지 목록(activity)보다 먼저 본다.
-// (클립은 북마크 목록 API가 없어 누른 결과로만 상태를 안다)
 type BookmarkOverride = { bookmarked: boolean; count?: number };
 const overrides = new Map<string, BookmarkOverride>();
 const listeners = new Set<() => void>();

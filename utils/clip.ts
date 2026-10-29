@@ -130,6 +130,16 @@ export async function getClipPage(page: number, category?: string) {
   };
 }
 
+// 메인 화면 클립 섹션: 최신 클립 몇 개
+export async function getMainClips(limit: number) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAG);
+
+  const data = await RequestClipList({ limit });
+  return (data ?? []).map(toClipItem);
+}
+
 // 추천 캐러셀 + 인기 클립 (클립 목록 상단)
 export async function getClipHighlights() {
   "use cache";

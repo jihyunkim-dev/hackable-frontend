@@ -826,6 +826,37 @@ export const RequestClipDetail = async (
   }
 };
 
+// 내가 북마크한 클립 (북마크 목록은 total_count가 함께 온다)
+export interface ClipBookmarkListResponse {
+  total_count: number;
+  items: ClipResponse[];
+}
+
+export const RequestMyClipBookmarks = async (
+  token: string,
+  query: PagingQuery = {},
+): Promise<ClipBookmarkListResponse | null> => {
+  try {
+    const res = await fetch(`${url}/clips/bookmark${toQuery({ ...query })}`, {
+      headers: authHeader(token),
+    });
+
+    throwIfUnauthorized(res);
+
+    if (!res.ok) {
+      const errorData: ApiError = await res.json();
+      console.error("MyClipBookmarks Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    if (error instanceof AuthExpiredError) throw error;
+    console.error("MyClipBookmarks Fetch Error", error);
+    return null;
+  }
+};
+
 export const RequestClipBookmark = async (
   clipId: number,
   isBookmarked: boolean,
