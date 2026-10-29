@@ -10,10 +10,21 @@ export const companyInfo = {
     { label: "개인정보처리방침", href: policyContent.privacy.href },
   ],
 
-  // TODO: 실제 SNS 주소로 교체
   sns: [
-    { label: "Threads", href: "#", icon: snsIconUrl.threads },
-    { label: "Instagram", href: "#", icon: snsIconUrl.instagram },
-    { label: "네이버 블로그", href: "#", icon: snsIconUrl.naverBlog },
+    {
+      label: "Threads",
+      href: "https://www.threads.com/@hackable_official?hl=ko",
+      icon: snsIconUrl.threads,
+    },
+    {
+      label: "Instagram",
+      href: "https://www.instagram.com/hackable_official/",
+      icon: snsIconUrl.instagram,
+    },
+    {
+      label: "네이버 블로그",
+      href: "https://blog.naver.com/hackable_official",
+      icon: snsIconUrl.naverBlog,
+    },
   ],
 };

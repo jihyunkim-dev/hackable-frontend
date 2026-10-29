@@ -9,6 +9,7 @@ import WeeklyClipList, {
   type WeeklyClipItem,
 } from "@/components/section/WeeklyClipList";
 import CategoryPills from "@/components/ui/CategoryPills";
+import MultiLine from "@/components/ui/MultiLine";
 import Pagination from "@/components/ui/Pagination";
 import SearchBar from "@/components/ui/SearchBar";
 import { bannerContent } from "@/configs/contents/banners";
@@ -143,9 +144,13 @@ function ClipListSection({
 
       {clips.length === 0 && (
         <p className="px-3 py-20 text-center text-body-l text-gray-500">
-          {q
-            ? `"${q}"에 대한 검색 결과가 없어요.`
-            : "아직 등록된 클립이 없어요."}
+          {q ? (
+            clipContent.empty.search(q)
+          ) : query.category ? (
+            <MultiLine lines={clipContent.empty.category} />
+          ) : (
+            clipContent.empty.all
+          )}
         </p>
       )}
       <ul

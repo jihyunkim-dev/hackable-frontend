@@ -21,6 +21,7 @@ import { teamBuildingContent } from "@/configs/contents/teamBuilding";
 import { commonIconUrl } from "@/configs/urls";
 import { useLogout } from "@/hooks/useAuth";
 import { useUpdateTeamBuildingStatus, useWithdraw } from "@/hooks/useMypage";
+import { cn } from "@/lib/utils";
 import type { MypageActivity } from "@/utils/mypage";
 import { MypageContext } from "./MypageClientContainer";
 import { showAlert } from "@/hooks/useAlertModal";
@@ -53,6 +54,10 @@ export function MypageAuthGate({ children }: { children: ReactNode }) {
   return children;
 }
 
+// 마이페이지 좌우 여백. "내 활동" 제목·탭·목록 제목·카드 목록의 왼쪽 선을 맞춘다.
+// (lg 이상은 바깥 960px 영역이 여백을 대신한다)
+const GUTTER = "px-4 sm:px-6 lg:px-0";
+
 /* ===== 프로필 ===== */
 
 export function ProfileSection() {
@@ -63,7 +68,12 @@ export function ProfileSection() {
   if (!profile) return null;
 
   return (
-    <section className="flex flex-col gap-6 px-4 py-7 lg:flex-row lg:items-start lg:px-0">
+    <section
+      className={cn(
+        "flex flex-col gap-6 py-7 lg:flex-row lg:items-start",
+        GUTTER,
+      )}
+    >
       <div className="flex flex-1 items-start gap-4">
         <ProfileAvatar
           image={profile.image}
@@ -80,15 +90,8 @@ export function ProfileSection() {
           </p>
         </div>
       </div>
-      {/* 프로필 수정 아래에 같은 폭으로 로그아웃을 둔다. (모바일: 전체 폭, lg: 오른쪽 124px) */}
+      {/* 로그아웃 (모바일: 전체 폭, lg: 오른쪽 124px) */}
       <div className="flex w-full flex-col gap-2 lg:w-31">
-        {/* TODO: 프로필 수정 화면 연결 (시안 없음) */}
-        <Button
-          variant="outline"
-          className="h-8 w-full border-gray-300 text-label-l font-bold text-gray-700 hover:bg-gray-50 lg:h-10 lg:font-semibold"
-        >
-          {mypageContent.profileEdit}
-        </Button>
         <Button
           type="button"
           disabled={logout.isPending}
@@ -118,7 +121,7 @@ export function MypageView({
 
   return (
     <>
-      <div className="flex items-center gap-2 px-4 py-3 sm:px-6 lg:px-0">
+      <div className={cn("flex items-center gap-2 py-3", GUTTER)}>
         <h2 className="text-heading-xs font-bold text-gray-800 lg:text-heading-m lg:font-semibold">
           {isSettings
             ? mypageContent.settingsTitle
@@ -305,7 +308,7 @@ export function ActivitySection() {
     <Tabs defaultValue={mypageContent.tabs[0].value} className="pb-10">
       <TabsList
         aria-label={mypageContent.activityTitle}
-        className="justify-start gap-4 border-none px-6 py-3"
+        className={cn("justify-start gap-4 border-none py-3", GUTTER)}
       >
         {mypageContent.tabs.map((tab) => (
           <TabsTrigger
@@ -338,7 +341,9 @@ export function ActivitySection() {
             {activity.bookmarkedClips.length === 0 ? (
               <EmptyMessage>{mypageContent.empty}</EmptyMessage>
             ) : (
-              <ul className="flex flex-col gap-2.5 px-3 py-2.5 sm:gap-5">
+              <ul
+                className={cn("flex flex-col gap-2.5 py-2.5 sm:gap-5", GUTTER)}
+              >
                 {activity.bookmarkedClips.map((item) => (
                   <li key={item.id}>
                     <ClipCard item={item} />
@@ -355,7 +360,12 @@ export function ActivitySection() {
 
 function PanelTitle({ children }: { children: ReactNode }) {
   return (
-    <h3 className="px-6 py-1 text-body-m font-medium text-gray-600 lg:py-2.5 lg:text-heading-xs lg:font-semibold">
+    <h3
+      className={cn(
+        "py-1 text-body-m font-medium text-gray-600 lg:py-2.5 lg:text-heading-xs lg:font-semibold",
+        GUTTER,
+      )}
+    >
       {children}
     </h3>
   );
@@ -363,7 +373,7 @@ function PanelTitle({ children }: { children: ReactNode }) {
 
 function EmptyMessage({ children }: { children: ReactNode }) {
   return (
-    <p className="px-6 py-10 text-center text-body-m text-gray-500">
+    <p className={cn("py-10 text-center text-body-m text-gray-500", GUTTER)}>
       {children}
     </p>
   );
@@ -382,7 +392,7 @@ function ProjectPanel({
       <Tabs defaultValue={filters[0].value}>
         <TabsList
           aria-label={bookmarkedTitle}
-          className="justify-start gap-3 border-none px-4 py-3"
+          className={cn("justify-start gap-3 border-none py-3", GUTTER)}
         >
           {filters.map((filter) => (
             <TabsTrigger
@@ -401,7 +411,9 @@ function ProjectPanel({
               {items.length === 0 ? (
                 <EmptyMessage>{mypageContent.empty}</EmptyMessage>
               ) : (
-                <ul className="grid grid-cols-2 justify-items-center gap-y-2 px-1 py-1 sm:gap-y-5 md:grid-cols-3">
+                // 카드 안쪽 여백(p-3, sm 이상 p-4)만큼 바깥으로 빼서 포스터 왼쪽 끝을 여백 선에 맞춘다.
+                // 양 끝 열을 좌우 끝에 붙이고 남는 폭은 열 사이로 나눈다.
+                <ul className="grid grid-cols-[repeat(2,auto)] justify-between gap-y-2 px-1 py-1 sm:gap-y-5 sm:px-2 md:grid-cols-[repeat(3,auto)] lg:-mx-4 lg:px-0">
                   {items.map((item) => (
                     <li key={item.id}>
                       <ProjectCard item={item} variant="plain" />
@@ -432,7 +444,12 @@ function TeamBuildingPanel({
       {bookmarked.length === 0 ? (
         <EmptyMessage>{mypageContent.empty}</EmptyMessage>
       ) : (
-        <ul className="grid gap-2.5 px-5 py-2 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
+        <ul
+          className={cn(
+            "grid gap-2.5 py-2 sm:grid-cols-2 sm:gap-5 md:grid-cols-3",
+            GUTTER,
+          )}
+        >
           {bookmarked.map((item) => (
             <li key={item.id}>
               <TeamBuildingCard item={item} showBookmark />
@@ -448,7 +465,12 @@ function TeamBuildingPanel({
         <EmptyMessage>{mypageContent.empty}</EmptyMessage>
       ) : (
         // md 미만: 구분선 목록 (sm은 2열) / md 이상: 276px 카드를 가로로 나열
-        <ul className="grid px-4 py-2 sm:grid-cols-2 sm:gap-x-5 sm:px-6 sm:py-4 md:flex md:flex-wrap md:gap-5 md:py-2.5 lg:gap-7">
+        <ul
+          className={cn(
+            "grid py-2 sm:grid-cols-2 sm:gap-x-5 sm:py-4 md:flex md:flex-wrap md:gap-5 md:py-2.5 lg:gap-7",
+            GUTTER,
+          )}
+        >
           {written.map((post) => (
             <li key={post.id}>
               <MyTeamBuildingCard post={post} />

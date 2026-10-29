@@ -1,5 +1,4 @@
 export const mypageContent = {
-  profileEdit: "프로필 수정",
   logout: "로그아웃",
   guest: {
     title: "로그인이 필요해요",
