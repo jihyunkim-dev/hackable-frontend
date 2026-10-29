@@ -8,6 +8,7 @@ import { useMypageActivity } from "@/hooks/useMypage";
 import { queryKeys } from "@/lib/queryKeys";
 import type { MypageActivity } from "@/utils/mypage";
 import type { BookmarkResponse } from "@/utils/requestToSrv";
+import { showAlert } from "@/hooks/useAlertModal";
 
 export type BookmarkType = "project" | "grant" | "teambuilding" | "clip";
 
@@ -138,7 +139,7 @@ export function useBookmark(type: BookmarkType, id: string, count?: number) {
       if (context?.previous) setOverride(key, context.previous);
       else deleteOverride(key);
       queryClient.invalidateQueries({ queryKey: activityKey });
-      window.alert(ERROR_MESSAGE);
+      showAlert(ERROR_MESSAGE);
     },
   });
 
