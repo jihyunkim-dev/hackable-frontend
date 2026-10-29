@@ -7,3 +7,8 @@ export function getProfileImage(user: UserResponse): string | null {
   const image = user.profile?.profile_image?.replace(/^http:\/\//, "https://");
   return isAllowedImageUrl(image) ? image : null;
 }
+
+// 화면에 보여줄 사용자 이름: 닉네임 → 소셜 계정 이름 → 이메일
+export function getDisplayName(user: UserResponse): string {
+  return user.nickname ?? user.profile?.name ?? user.email;
+}
