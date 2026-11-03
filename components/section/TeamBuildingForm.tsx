@@ -101,7 +101,7 @@ export default function TeamBuildingForm({
       showAlert(content.image.errors.invalidType);
       return;
     }
-    // 원본이 너무 크면 줄여도 2MB를 넘기 쉬워 고를 때 막는다. (그 이하는 올릴 때 줄인다)
+    // 2MB를 넘는 이미지는 고를 때 막는다.
     if (file.size > IMAGE_UPLOAD_MAX_BYTES) {
       showAlert(content.image.errors.tooLarge);
       return;

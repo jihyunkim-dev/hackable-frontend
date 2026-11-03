@@ -36,8 +36,12 @@ const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 // 한국 시간 기준 날짜 번호 (자정이 지나면 하루가 바뀐다)
 const toKstDay = (time: number) => Math.floor((time + KST_OFFSET_MS) / DAY_MS);
 
-// 서버 날짜는 시간대 표기가 없는 한국 시간이다.
-const parseKstDate = (value: string) => new Date(`${value}+09:00`).getTime();
+// 서버 날짜는 시간대 표기가 없는 한국 시간이다. (대회·지원사업·팀빌딩)
+// 시간대가 붙어 오면 그대로 읽는다.
+export const parseKstDate = (value: string) =>
+  new Date(
+    /(Z|[+-]\d{2}:?\d{2})$/.test(value) ? value : `${value}+09:00`,
+  ).getTime();
 
 // 마감일까지 남은 날 수 (오늘 마감이면 0, 지났으면 음수). 마감일이 없으면 null
 export function daysUntil(endDate: string | null, now: number): number | null {

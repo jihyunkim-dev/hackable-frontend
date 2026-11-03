@@ -1005,6 +1005,33 @@ export const RequestNewsletterSubscribe = async (
   }
 };
 
+// 수신 거부 결과. invalid는 없거나 만료된 토큰(404)
+export type UnsubscribeResult = "ok" | "invalid";
+
+export const RequestNewsletterUnsubscribe = async (
+  token: string,
+): Promise<UnsubscribeResult | null> => {
+  try {
+    const res = await fetch(
+      `${url}/newsletter/unsubscribe${toQuery({ token })}`,
+      { method: "POST" },
+    );
+
+    if (res.status === 404) return "invalid";
+    if (!res.ok) {
+      const errorData = await readError(res);
+      console.error("NewsletterUnsubscribe Error", errorData);
+      return null;
+    }
+
+    // 응답은 백엔드 안내 HTML이라 읽지 않는다.
+    return "ok";
+  } catch (error) {
+    console.error("NewsletterUnsubscribe Fetch Error", error);
+    return null;
+  }
+};
+
 // ===== Auth (인증) =====
 
 export interface UserProfile {

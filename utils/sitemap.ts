@@ -8,7 +8,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { projectContent } from "@/configs/contents/project";
 import { seoContent } from "@/configs/contents/seo";
 import { siteUrl } from "@/configs/urls";
-import { getProjectHref } from "@/utils/project";
+import { getProjectHref, parseKstDate } from "@/utils/project";
 import {
   RequestClipList,
   RequestProjectList,
@@ -28,13 +28,15 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
-// 백엔드 시각은 시간대 없이 오지만 UTC 기준이다.
+// 대회·클립 수정 시각은 시간대 없이 오지만 UTC 기준이다.
 const toDate = (value: string) =>
   new Date(/[Z+]/.test(value.slice(19)) ? value : `${value}Z`);
+// 팀빌딩 시각과 대회 마감일은 한국 시간이다.
+const toKstDate = (value: string) => new Date(parseKstDate(value));
 
-const latest = (values: string[]) =>
+const latest = (values: Date[]) =>
   values.length
-    ? new Date(Math.max(...values.map((value) => toDate(value).getTime())))
+    ? new Date(Math.max(...values.map((value) => value.getTime())))
     : undefined;
 
 const entry = (path: string, lastModified?: Date): SitemapEntry => ({
@@ -58,8 +60,7 @@ async function fetchProjects(now: number) {
   return projects.filter(
     (project) =>
       !project.end_date ||
-      toDate(project.end_date).getTime() >=
-        now - CLOSED_PROJECT_KEEP_DAYS * DAY_MS,
+      parseKstDate(project.end_date) >= now - CLOSED_PROJECT_KEEP_DAYS * DAY_MS,
   );
 }
 
@@ -87,7 +88,7 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
 
   const projectEntries = projects.map((project) => ({
     href: getProjectHref(project),
-    updatedAt: project.updated_at,
+    updatedAt: toDate(project.updated_at),
   }));
 
   // 대회 카테고리 목록(/project/ai-hackathon …): 그 카테고리 상세 글 중 가장 최근 수정 시각
@@ -101,8 +102,10 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     return entry(category.href, latest(items.map((item) => item.updatedAt)));
   });
 
-  const clipUpdatedAt = clips.map((clip) => clip.updated_at);
-  const teamBuildingUpdatedAt = teamBuildings.map((post) => post.updated_at);
+  const clipUpdatedAt = clips.map((clip) => toDate(clip.updated_at));
+  const teamBuildingUpdatedAt = teamBuildings.map((post) =>
+    toKstDate(post.updated_at),
+  );
 
   return [
     entry(
@@ -119,10 +122,15 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     entry(seoContent.subscribe.path),
     entry(seoContent.terms.path),
     entry(seoContent.privacy.path),
-    ...projectEntries.map((item) => entry(item.href, toDate(item.updatedAt))),
-    ...teamBuildings.map((post) =>
-      entry(`/teambuilding/${post.teambuilding_id}`, toDate(post.updated_at)),
+    ...projectEntries.map((item) => entry(item.href, item.updatedAt)),
+    ...teamBuildings.map((post, index) =>
+      entry(
+        `/teambuilding/${post.teambuilding_id}`,
+        teamBuildingUpdatedAt[index],
+      ),
     ),
-    ...clips.map((clip) => entry(`/clip/${clip.id}`, toDate(clip.updated_at))),
+    ...clips.map((clip, index) =>
+      entry(`/clip/${clip.id}`, clipUpdatedAt[index]),
+    ),
   ];
 }

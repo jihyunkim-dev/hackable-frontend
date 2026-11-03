@@ -11,7 +11,12 @@ import {
   TEAMBUILDING_STATUS_VALUE,
   type TeamBuildingCategory,
 } from "@/utils/teamBuildingForm";
-import { formatDate, formatDDay, parseSlugId } from "@/utils/project";
+import {
+  formatDate,
+  formatDDay,
+  parseKstDate,
+  parseSlugId,
+} from "@/utils/project";
 import {
   RequestSearchTeambuilding,
   RequestTeambuildingDetail,
@@ -157,12 +162,10 @@ export async function getTeamBuildingPage(
 
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
-// 팀빌딩 작성 시각은 시간대 표기 없이 UTC로 온다. 한국 시간으로 바꿔 보여 준다.
-// 2026-05-15T01:07:55 (UTC) → 2026.05.15 10:07
+// 팀빌딩 작성 시각은 시간대 표기 없이 한국 시간으로 온다.
+// 2026-05-15T10:07:55 → 2026.05.15 10:07
 const formatDateTime = (value: string) => {
-  const hasZone = /(Z|[+-]\d{2}:?\d{2})$/.test(value);
-  const utc = new Date(hasZone ? value : `${value}Z`).getTime();
-  const kst = new Date(utc + KST_OFFSET_MS).toISOString();
+  const kst = new Date(parseKstDate(value) + KST_OFFSET_MS).toISOString();
   return `${formatDate(kst)} ${kst.slice(11, 16)}`;
 };
 

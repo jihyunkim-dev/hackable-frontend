@@ -68,7 +68,7 @@ export const teamBuildingContent = {
       remove: "이미지 삭제",
       // 업로드 실패 안내 모달 문구 (utils/imageUpload의 ImageUploadErrorCode별)
       errors: {
-        tooLarge: ["이미지 첨부 용량은", "2MB까지 가능해요."],
+        tooLarge: ["2MB 이하의 이미지만 첨부 가능해요."],
         invalidType: ["JPG, PNG, WEBP, GIF 이미지만", "첨부할 수 있어요."],
         unauthorized: [
           "로그인이 만료되었어요.",

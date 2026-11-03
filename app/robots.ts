@@ -18,6 +18,7 @@ export default function robots(): MetadataRoute.Robots {
         "/api/",
         "/auth/",
         "/mypage",
+        "/newsletter/unsubscribe",
         "/teambuilding/create",
         "/teambuilding/*/edit",
         // 블로그(워드프레스) 관리자 화면·검색 결과

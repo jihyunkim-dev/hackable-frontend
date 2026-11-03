@@ -8,6 +8,7 @@ import {
 } from "@/utils/imageUpload";
 
 // 이미지 한 장을 R2에 올린다. (로그인한 사용자만) 응답: { url }
+// 실패하면 { reason }을 같이 보낸다. (원인 확인용. 키 값은 담지 않는다)
 // 크기는 브라우저에서 미리 줄여 온다. (utils/imageUpload)
 // 백엔드 /utils/convert는 1MB 넘는 파일을 받지 못해(nginx 413) 쓰지 않는다.
 export async function POST(request: Request) {
@@ -16,7 +17,9 @@ export async function POST(request: Request) {
 
   const form = await request.formData().catch(() => null);
   const file = form?.get("file");
-  if (!(file instanceof File)) return new Response(null, { status: 400 });
+  if (!(file instanceof File)) {
+    return Response.json({ reason: "no-file" }, { status: 400 });
+  }
   if (!IMAGE_UPLOAD_TYPES.includes(file.type)) {
     return new Response(null, { status: 415 });
   }
@@ -31,8 +34,11 @@ export async function POST(request: Request) {
   const month = new Date().toISOString().slice(0, 7).replace("-", "/");
   const key = `${IMAGE_UPLOAD_PREFIX}${month}/${crypto.randomUUID()}.${extension}`;
 
-  const url = await putR2Object(key, file, file.type);
-  if (!url) return new Response(null, { status: 502 });
+  const result = await putR2Object(key, file, file.type);
+  if (!result.ok) {
+    return Response.json({ reason: result.reason }, { status: 502 });
+  }
+  const url = result.url;
 
   return Response.json({ url }, { status: 201 });
 }

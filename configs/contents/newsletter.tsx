@@ -49,3 +49,13 @@ export const newsletterSubscribeContent = {
     notice: ["구독이 완료되었어요."],
   },
 };
+
+// 메일의 수신 거부 링크로 들어오는 페이지 (/newsletter/unsubscribe?token=)
+export const newsletterUnsubscribeContent = {
+  title: "해커블 뉴스레터 수신을 거부할까요?",
+  submit: "수신 거부",
+  submitting: "처리 중...",
+  done: "수신 거부가 완료되었어요.",
+  invalid: "유효하지 않은 링크예요.",
+  error: "수신 거부에 실패했어요. 잠시 후 다시 시도해주세요.",
+};

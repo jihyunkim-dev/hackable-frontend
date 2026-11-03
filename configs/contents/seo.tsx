@@ -58,6 +58,11 @@ export const seoContent = {
     description:
       "매주 화요일, 마감 임박 해커톤·AI공모전·예비창업 지원사업과 주간 소식을 메일로 받아보세요. 구독은 무료예요.",
   },
+  unsubscribe: {
+    path: "/newsletter/unsubscribe",
+    title: "뉴스레터 수신 거부 | 해커블",
+    description: "",
+  },
   // 정보구조 문서에 없는 페이지 (기존 문구 유지)
   terms: {
     path: "/terms",

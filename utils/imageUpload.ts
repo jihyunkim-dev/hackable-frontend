@@ -8,11 +8,10 @@ export const IMAGE_UPLOAD_TYPES = [
   "image/gif",
 ];
 
-// 고를 수 있는 원본 최대 10MB. 올리기 전에 브라우저에서 줄인다.
-export const IMAGE_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
-
-// 줄인 뒤 서버가 받는 최대 크기 2MB. (GIF는 줄이지 않으므로 이 크기를 넘으면 올릴 수 없다)
+// 첨부할 수 있는 이미지 최대 2MB. 고를 때 막고, 서버도 같은 크기까지만 받는다.
+// (그 이하 이미지도 올리기 전에 브라우저에서 한 번 더 줄인다)
 export const IMAGE_UPLOAD_MAX_UPLOAD_BYTES = 2 * 1024 * 1024;
+export const IMAGE_UPLOAD_MAX_BYTES = IMAGE_UPLOAD_MAX_UPLOAD_BYTES;
 
 // 긴 변 최대 길이(px). 상세 화면 폭 800px의 2배 화면까지 선명하다.
 const MAX_DIMENSION = 1600;
@@ -84,6 +83,12 @@ export async function uploadImage(file: File): Promise<string> {
     },
   );
   if (!res.ok) {
+    // 원인 확인용: 브라우저 콘솔에 응답 코드와 이유(reason)를 남긴다.
+    console.error(
+      "Image Upload Error",
+      res.status,
+      await res.text().catch(() => ""),
+    );
     throw new ImageUploadError(errorCodeByStatus[res.status] ?? "failed");
   }
   const data: { url: string } = await res.json();
