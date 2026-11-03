@@ -1,13 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import BookmarkToggle from "@/components/ui/BookmarkToggle";
+import TextLogoThumbnail from "@/components/ui/TextLogoThumbnail";
 import { commonIconUrl, placeholderImageUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
 
 export interface ProjectItem {
   id: string;
   title: string;
-  thumbnail: string | null; // 없으면 "이미지 준비중" 이미지
+  thumbnail: string | null; // 없으면 기관명 텍스트 로고(hostName), 그것도 없으면 "이미지 준비중" 이미지
+  // 썸네일이 없을 때 텍스트 로고로 보여 줄 기관명 (지원사업만)
+  hostName?: string;
   dDay: string;
   prizeLabel: string;
   prize: string;
@@ -41,13 +44,20 @@ export default function ProjectCard({
       )}
     >
       <div className="relative h-[150px] overflow-hidden rounded-sm shadow-xs sm:h-[284px] sm:rounded-lg sm:shadow-none">
-        <Image
-          src={item.thumbnail ?? placeholderImageUrl.thumbnail}
-          alt=""
-          fill
-          sizes="(min-width: 768px) 268px, 156px"
-          className="object-cover object-top"
-        />
+        {!item.thumbnail && item.hostName ? (
+          <TextLogoThumbnail
+            name={item.hostName}
+            className="rounded-sm sm:rounded-lg"
+          />
+        ) : (
+          <Image
+            src={item.thumbnail ?? placeholderImageUrl.thumbnail}
+            alt=""
+            fill
+            sizes="(min-width: 768px) 268px, 156px"
+            className="object-cover object-top"
+          />
+        )}
         <BookmarkToggle
           type={item.bookmarkType ?? "project"}
           id={item.id}

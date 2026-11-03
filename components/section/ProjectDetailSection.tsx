@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { FLOATING_POSITION } from "@/components/layout/floatingPosition";
 import Button from "@/components/ui/Button";
+import TextLogoThumbnail from "@/components/ui/TextLogoThumbnail";
 import { projectDetailContent } from "@/configs/contents/projectDetail";
+import { placeholderImageUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
 
 export interface ProjectDetail {
@@ -11,7 +13,9 @@ export interface ProjectDetail {
   period: string;
   dDay: string;
   views: number;
-  thumbnail: string;
+  // 없으면 기관명 텍스트 로고(hostName), 그것도 없으면 "이미지 준비중" 이미지
+  thumbnail: string | null;
+  hostName?: string;
   // contain: 기관 로고처럼 잘리면 안 되는 이미지는 흰 배경 위에 통째로 보여준다. (기본 cover)
   thumbnailFit?: "cover" | "contain";
   bodyHtml: string; // 서버에서 sanitize한 HTML
@@ -42,10 +46,8 @@ export default function ProjectDetailSection({
   return (
     <section className="mx-auto w-full max-w-[1440px] lg:flex lg:items-start lg:px-15">
       <div className="relative aspect-[2/1] w-full overflow-hidden lg:hidden">
-        <Image
-          src={detail.thumbnail}
-          alt=""
-          fill
+        <DetailThumbnail
+          detail={detail}
           priority
           sizes="100vw"
           className={thumbnailClassName}
@@ -84,10 +86,8 @@ export default function ProjectDetailSection({
       <aside className="sticky top-[calc(var(--header-height-desktop)+12px)] hidden w-[456px] shrink-0 p-3 lg:block">
         <div className="flex flex-col gap-3 rounded-xl bg-white p-5 shadow-md">
           <div className="relative h-[215px] overflow-hidden rounded-xl">
-            <Image
-              src={detail.thumbnail}
-              alt=""
-              fill
+            <DetailThumbnail
+              detail={detail}
               sizes="392px"
               className={thumbnailClassName}
             />
@@ -133,6 +133,33 @@ export default function ProjectDetailSection({
         </a>
       )}
     </section>
+  );
+}
+
+// 상세 이미지: 썸네일 → 기관명 텍스트 로고 → "이미지 준비중"
+function DetailThumbnail({
+  detail,
+  sizes,
+  priority,
+  className,
+}: {
+  detail: ProjectDetail;
+  sizes: string;
+  priority?: boolean;
+  className: string;
+}) {
+  if (!detail.thumbnail && detail.hostName) {
+    return <TextLogoThumbnail name={detail.hostName} size="detail" />;
+  }
+  return (
+    <Image
+      src={detail.thumbnail ?? placeholderImageUrl.thumbnail}
+      alt=""
+      fill
+      priority={priority}
+      sizes={sizes}
+      className={className}
+    />
   );
 }
 

@@ -5,7 +5,7 @@ import type { ProjectItem } from "@/components/section/ProjectCard";
 import type { ProjectDetail } from "@/components/section/ProjectDetailSection";
 import { projectContent } from "@/configs/contents/project";
 import { isAllowedImageUrl } from "@/configs/imageHosts";
-import { hostLogoBaseUrl, placeholderImageUrl } from "@/configs/urls";
+import { hostLogoBaseUrl } from "@/configs/urls";
 import { getPagination, PAGE_SIZE, toSkip } from "@/utils/pagination";
 import {
   formatDDay,
@@ -67,7 +67,7 @@ export function getGrantHref(
   return `${projectContent.startupSupport.href}/${grant.seo_url ?? grant.grant_id}`;
 }
 
-// 썸네일 우선순위: 공고 썸네일 → 주최 기관 로고 → 없음("이미지 준비중")
+// 썸네일 우선순위: 공고 썸네일 → 주최 기관 로고 → 기관명 텍스트 로고(ProjectCard) → "이미지 준비중"
 export function toGrantItem(
   grant: GrantCardSource,
   now: number,
@@ -80,6 +80,7 @@ export function toGrantItem(
       ? grant.thumbnail_img
       : hostLogo,
     dDay: formatDDay(grant.end_date, now),
+    hostName: grant.hosted?.trim() || undefined,
     prizeLabel: "지원규모",
     prize: grant.prize ?? "미정",
     href: getGrantHref(grant),
@@ -103,7 +104,8 @@ export function toGrantDetail(
     views: grant.view_count,
     thumbnail: isAllowedImageUrl(grant.thumbnail_img)
       ? grant.thumbnail_img
-      : (hostLogo ?? placeholderImageUrl.thumbnail),
+      : hostLogo,
+    hostName: grant.hosted?.trim() || undefined,
     // 기관 로고는 잘리지 않게 통째로 보여준다.
     thumbnailFit: !hasThumbnail && hostLogo ? "contain" : "cover",
     bodyHtml: sanitizeBody(grant.description ?? ""),
