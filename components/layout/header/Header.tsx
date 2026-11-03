@@ -25,7 +25,7 @@ export default function Header() {
               alt="hackable"
               width={109}
               height={21}
-              priority
+              preload
             />
           </Link>
 

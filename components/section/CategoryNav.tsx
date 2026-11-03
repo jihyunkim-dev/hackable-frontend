@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HUB_TAB_TRANSITION } from "@/components/section/HubTitle";
 import { cn } from "@/lib/utils";
 
 interface CategoryNavProps {
@@ -27,6 +28,7 @@ export default function CategoryNav({
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  transitionTypes={[HUB_TAB_TRANSITION]}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "text-heading-s transition-colors",

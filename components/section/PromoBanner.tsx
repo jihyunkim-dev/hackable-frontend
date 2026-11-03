@@ -29,7 +29,14 @@ export default function PromoBanner({
   className,
 }: PromoBannerProps) {
   // 글자가 많은 배너라 기본(75)보다 높은 품질로 압축한다. (next.config qualities에 등록)
-  const common = { alt, sizes: "100vw", priority, quality: BANNER_QUALITY };
+  // 맨 위 배너는 LCP 이미지라 먼저 받는다. (Next 16의 preload는 우선순위를 높이지 않아 fetchPriority를 같이 준다)
+  const common = {
+    alt,
+    sizes: "100vw",
+    preload: priority,
+    fetchPriority: priority ? ("high" as const) : undefined,
+    quality: BANNER_QUALITY,
+  };
   const lg = images.lg
     ? getImageProps({ ...common, ...images.lg }).props.srcSet
     : undefined;

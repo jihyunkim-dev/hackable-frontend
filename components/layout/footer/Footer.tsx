@@ -12,7 +12,7 @@ export default function Footer() {
           alt={companyInfo.name}
           width={109}
           height={21}
-          className="h-auto w-28 xl:w-36"
+          className="aspect-[109/21] h-auto w-28 xl:w-36"
         />
 
         <SnsLinks />

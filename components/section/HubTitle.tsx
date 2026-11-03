@@ -1,6 +1,17 @@
 import { ViewTransition } from "react";
 import { cn } from "@/lib/utils";
 
+// 탭을 눌러 이동할 때만 붙는 전환 종류 (components/section/CategoryNav의 Link)
+export const HUB_TAB_TRANSITION = "hub-tab";
+
+// 탭 이동일 때만 제목을 움직인다.
+// 처음 여는 탭은 1페이지 화면(Suspense fallback)이 먼저 보이고 실제 화면으로 한 번 더 바뀌는데,
+// 이 두 번째 전환에는 종류가 없어 제목이 다시 움직이지 않는다.
+const HUB_TITLE_CLASS = {
+  [HUB_TAB_TRANSITION]: "hub-title",
+  default: "none",
+};
+
 interface HubTitleProps {
   // 지금 선택된 탭 이름 (전체 / AI공모전 …)
   label: string;
@@ -16,8 +27,8 @@ export default function HubTitle({ label, className }: HubTitleProps) {
     <ViewTransition
       key={label}
       name="hub-title"
-      share="hub-title"
-      enter="hub-title"
+      share={HUB_TITLE_CLASS}
+      enter={HUB_TITLE_CLASS}
       default="none"
     >
       <h1

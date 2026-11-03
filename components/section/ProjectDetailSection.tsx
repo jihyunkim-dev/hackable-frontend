@@ -154,7 +154,8 @@ function DetailThumbnail({
       src={detail.thumbnail ?? placeholderImageUrl.thumbnail}
       alt=""
       fill
-      priority={priority}
+      preload={priority}
+      fetchPriority={priority ? "high" : undefined}
       sizes={sizes}
       className={className}
     />

@@ -63,7 +63,8 @@ export default function ClipFeaturedCarousel({
             src={item.image}
             alt=""
             fill
-            priority={index === 0}
+            preload={index === 0}
+            fetchPriority={index === 0 ? "high" : undefined}
             sizes="(min-width: 1200px) 777px, 100vw"
             className="object-cover object-top"
           />

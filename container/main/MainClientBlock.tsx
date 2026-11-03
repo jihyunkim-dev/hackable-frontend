@@ -56,7 +56,9 @@ export function HeroCarousel({ slides }: { slides: MainCarouselSlide[] }) {
                 src={slide.image}
                 alt={slide.imageAlt}
                 fill
-                priority={index === 0}
+                // 첫 장은 LCP 이미지라 먼저 받는다. (Next 16의 preload는 우선순위를 높이지 않아 fetchPriority를 같이 준다)
+                preload={index === 0}
+                fetchPriority={index === 0 ? "high" : undefined}
                 sizes="(min-width: 1200px) 640px, (min-width: 991px) 480px, 100vw"
                 className="object-cover"
               />
