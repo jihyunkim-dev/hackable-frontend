@@ -19,6 +19,12 @@ import {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   ...pageMetadata(seoContent.home),
+  // 검색엔진 사이트 소유 확인 (네이버 서치어드바이저). 페이지 메타데이터가 덮어쓰지 않아 모든 페이지에 붙는다.
+  verification: {
+    other: {
+      "naver-site-verification": "b30f85645946a215a36d521ac52fc0fbfc87384f",
+    },
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
