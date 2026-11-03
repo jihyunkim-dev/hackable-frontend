@@ -10,7 +10,7 @@
 
   /* ===== Font Family ===== */
 
-  --font-sans: var(--font-suit), sans-serif;
+  --font-sans: var(--font-hackable-sans), sans-serif;
 
   /* ===== Typography ===== */
   /* 모바일(390px) → 데스크탑(1440px) 사이를 clamp로 유동 스케일. Label은 고정. */

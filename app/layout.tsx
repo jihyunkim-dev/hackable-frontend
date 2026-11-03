@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { suit } from "./font";
+import { hackableSans } from "./font";
 import { cn } from "@/lib/utils";
 import { seoContent } from "@/configs/contents/seo";
 import { siteUrl } from "@/configs/urls";
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className={cn(suit.variable, "h-full antialiased")}>
+    <html lang="ko" className={cn(hackableSans.variable, "h-full antialiased")}>
       <body
         className={cn(
           "min-h-full flex flex-col font-sans",
