@@ -14,13 +14,12 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       // 워드프레스 화면 기능이 쓰는 주소라 관리자 경로 중 이것만 연다.
       allow: ["/", "/blog/wp-admin/admin-ajax.php"],
+      // TODO: /mypage·/teambuilding/create·/teambuilding/*/edit는 noindex(페이지 메타)가 먼저 수집되도록 잠시 열어 둔다.
+      // 서치콘솔에서 색인 삭제가 끝나면 다시 막는다.
       disallow: [
         "/api/",
         "/auth/",
-        "/mypage",
         "/newsletter/unsubscribe",
-        "/teambuilding/create",
-        "/teambuilding/*/edit",
         // 블로그(워드프레스) 관리자 화면·검색 결과
         "/blog/wp-admin/",
         "/blog/?s=",
