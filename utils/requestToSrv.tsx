@@ -16,6 +16,13 @@ export interface ApiError {
     | string;
 }
 
+// 실패 응답 본문을 읽는다. 서버 점검·장애 때는 JSON이 아닌 HTML 페이지가 오므로,
+// 그때는 본문을 읽지 않고 상태 코드만 남긴다. (JSON으로 읽으면 SyntaxError가 난다)
+const readError = async (res: Response): Promise<ApiError | string> =>
+  res.headers.get("content-type")?.includes("application/json")
+    ? await res.json()
+    : `${res.status} ${res.statusText}`;
+
 export interface BookmarkResponse {
   is_bookmarked: boolean;
   bookmark_count: number;
@@ -126,7 +133,7 @@ export const RequestProjectList = async (
     );
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("ProjectList Error", errorData);
       return null;
     }
@@ -145,7 +152,7 @@ export const RequestProjectDetail = async (
     const res = await fetch(`${url}/project/${projectId}`);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("ProjectDetail Error", errorData);
       return null;
     }
@@ -171,7 +178,7 @@ export const RequestProjectBookmark = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("ProjectBookmark Error", errorData);
       return null;
     }
@@ -198,7 +205,7 @@ export const RequestMyProjectBookmarks = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("MyProjectBookmarks Error", errorData);
       return null;
     }
@@ -261,7 +268,7 @@ export const RequestGrantList = async (
     const res = await fetch(`${url}/startup-support${toQuery({ ...query })}`);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("GrantList Error", errorData);
       return null;
     }
@@ -280,7 +287,7 @@ export const RequestGrantDetail = async (
     const res = await fetch(`${url}/startup-support/${grantId}`);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("GrantDetail Error", errorData);
       return null;
     }
@@ -306,7 +313,7 @@ export const RequestGrantBookmark = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("GrantBookmark Error", errorData);
       return null;
     }
@@ -335,7 +342,7 @@ export const RequestMyGrantBookmarks = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("MyGrantBookmarks Error", errorData);
       return null;
     }
@@ -413,7 +420,7 @@ export const RequestSearchProjects = async (
     );
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("SearchProjects Error", errorData);
       return null;
     }
@@ -434,7 +441,7 @@ export const RequestSearchGrants = async (
     );
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("SearchGrants Error", errorData);
       return null;
     }
@@ -505,7 +512,7 @@ export const RequestTeambuildingList = async (
     const res = await fetch(`${url}/teambuildings/${toQuery({ ...query })}`);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("TeambuildingList Error", errorData);
       return null;
     }
@@ -526,7 +533,7 @@ export const RequestTeambuildingDetail = async (
     // 지운 글·없는 글은 에러가 아니라 "없음"이다. (상세 화면은 404 화면을 보여 준다)
     if (res.status === 404) return null;
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("TeambuildingDetail Error", errorData);
       return null;
     }
@@ -555,7 +562,7 @@ export const RequestCreateTeambuilding = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("CreateTeambuilding Error", errorData);
       return null;
     }
@@ -586,7 +593,7 @@ export const RequestUpdateTeambuilding = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("UpdateTeambuilding Error", errorData);
       return null;
     }
@@ -613,7 +620,7 @@ export const RequestDeleteTeambuilding = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("DeleteTeambuilding Error", errorData);
       return false;
     }
@@ -640,7 +647,7 @@ export const RequestTeambuildingBookmark = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("TeambuildingBookmark Error", errorData);
       return null;
     }
@@ -675,7 +682,7 @@ export const RequestMyTeambuildingBookmarks = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("MyTeambuildingBookmarks Error", errorData);
       return null;
     }
@@ -700,7 +707,7 @@ export const RequestMyTeambuildings = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("MyTeambuildings Error", errorData);
       return null;
     }
@@ -745,7 +752,7 @@ export const RequestSearchTeambuilding = async (
     );
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("SearchTeambuilding Error", errorData);
       return null;
     }
@@ -805,7 +812,7 @@ export const RequestSearchClips = async (
     const res = await fetch(`${url}/search/clips${toQuery({ ...query })}`);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("SearchClips Error", errorData);
       return null;
     }
@@ -824,7 +831,7 @@ export const RequestClipCarousel = async (
     const res = await fetch(`${url}/clips/carousel${toQuery({ limit })}`);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("ClipCarousel Error", errorData);
       return null;
     }
@@ -843,7 +850,7 @@ export const RequestClipList = async (
     const res = await fetch(`${url}/clips/${toQuery({ ...query })}`);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("ClipList Error", errorData);
       return null;
     }
@@ -862,7 +869,7 @@ export const RequestClipDetail = async (
     const res = await fetch(`${url}/clips/${clipId}`);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("ClipDetail Error", errorData);
       return null;
     }
@@ -892,7 +899,7 @@ export const RequestMyClipBookmarks = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("MyClipBookmarks Error", errorData);
       return null;
     }
@@ -919,7 +926,7 @@ export const RequestClipBookmark = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("ClipBookmark Error", errorData);
       return null;
     }
@@ -959,7 +966,7 @@ export const RequestNewsletter = async (
     const res = await fetch(`${url}/newsletter${toQuery({ ...query })}`);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("Newsletter Error", errorData);
       return null;
     }
@@ -984,7 +991,7 @@ export const RequestNewsletterSubscribe = async (
     });
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("NewsletterSubscribe Error", errorData);
       return null;
     }
@@ -1064,7 +1071,7 @@ export const RequestEmailSignUp = async (
     });
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("EmailSignUp Error", errorData);
       return null;
     }
@@ -1089,7 +1096,7 @@ export const RequestEmailLogin = async (
     });
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("EmailLogin Error", errorData);
       return null;
     }
@@ -1117,7 +1124,7 @@ export const RequestGoogleLogin = async (
     });
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("GoogleLogin Error", errorData);
       return null;
     }
@@ -1139,7 +1146,7 @@ export const RequestKakaoLogin = async (
     );
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("KakaoLogin Error", errorData);
       return null;
     }
@@ -1172,7 +1179,7 @@ export const RequestKakaoCallback = async (
     const location = res.headers.get("location");
 
     if (!location) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("KakaoCallback Error", errorData);
       return null;
     }
@@ -1199,7 +1206,7 @@ export const RequestRefreshToken = async (
     });
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("RefreshToken Error", errorData);
       return null;
     }
@@ -1223,7 +1230,7 @@ export const RequestLogout = async (refreshToken: string): Promise<boolean> => {
     });
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("Logout Error", errorData);
       return false;
     }
@@ -1246,7 +1253,7 @@ export const RequestMe = async (
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("Me Error", errorData);
       return null;
     }
@@ -1270,7 +1277,7 @@ export const RequestWithdraw = async (token: string): Promise<boolean> => {
     throwIfUnauthorized(res);
 
     if (!res.ok) {
-      const errorData: ApiError = await res.json();
+      const errorData = await readError(res);
       console.error("Withdraw Error", errorData);
       return false;
     }

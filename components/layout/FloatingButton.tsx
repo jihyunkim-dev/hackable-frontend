@@ -16,7 +16,6 @@ const TEAM_BUILDING_HREF = "/teambuilding";
 // 화면 우측 하단에 고정되는 플로팅 버튼
 // - 기본: 구독 바로가기
 // - 팀빌딩 목록 모바일: 모집글 작성(+) 버튼으로 바뀐다.
-// - 대회·지원사업 상세 lg 미만: 페이지가 띄운 참여하기 버튼(ProjectDetailSection)에 자리를 내준다.
 // usePathname이 프리렌더 시점에 확정되지 않으므로 Suspense로 감싸고, 그동안은 구독 버튼을 보여준다.
 export default function FloatingButton() {
   return (
@@ -52,8 +51,6 @@ function SubscribeLink({ className }: { className?: string }) {
       className={cn(
         FLOATING_POSITION,
         "floating-gradient size-13 rounded-[20px] md:size-16 md:rounded-3xl",
-        // 상세 페이지 참여하기 버튼(data-floating-override)이 있으면 lg 미만에서 숨긴다.
-        "max-lg:[body:has([data-floating-override])_&]:hidden",
         className,
       )}
     >

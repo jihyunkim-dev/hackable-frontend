@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FLOATING_POSITION } from "@/components/layout/floatingPosition";
+import { FLOATING_CENTER_POSITION } from "@/components/layout/floatingPosition";
 import Button from "@/components/ui/Button";
 import TextLogoThumbnail from "@/components/ui/TextLogoThumbnail";
 import { projectDetailContent } from "@/configs/contents/projectDetail";
@@ -116,17 +116,15 @@ export default function ProjectDetailSection({
         </div>
       </aside>
 
-      {/* lg 미만: 요약 카드가 없어 참여하기를 우측 하단 원형 플로팅 버튼으로 띄운다. (구독 버튼 자리) */}
+      {/* lg 미만: 요약 카드가 없어 참여하기를 하단 가운데 가로형 플로팅 버튼으로 띄운다. (우측 구독 버튼은 그대로) */}
       {detail.applyUrl && (
         <a
           href={detail.applyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          // 같은 자리의 구독 버튼을 숨기는 표시 (components/layout/FloatingButton)
-          data-floating-override=""
           className={cn(
-            FLOATING_POSITION,
-            "size-16 rounded-full bg-primary-600 text-label-m font-bold text-white hover:bg-primary-700 lg:hidden",
+            FLOATING_CENTER_POSITION,
+            "h-13 rounded-full bg-primary-600 px-12 text-label-l font-bold whitespace-nowrap text-white hover:bg-primary-700 md:h-16 md:px-16 lg:hidden",
           )}
         >
           {applyLabel}

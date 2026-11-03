@@ -23,13 +23,12 @@ function pickRandom<T>(items: T[], count: number): T[] {
 }
 
 // 탭별로 모집 중인 최신 항목 중 무작위 몇 개를 고른다.
-// 고른 결과는 1시간 캐시한다. (방문할 때마다 바뀌지는 않고, 캐시가 갱신될 때 새로 섞인다)
+// 고른 결과는 1시간 캐시한다. 받지 못한 탭이 있으면 1분 뒤 다시 받는다. (방문할 때마다 바뀌지는 않고, 캐시가 갱신될 때 새로 섞인다)
 // 프로젝트·지원사업 캐시 이름표도 붙여, 새 공고가 들어와 그 캐시를 지우면 메인도 같이 바뀐다.
 export async function getMainProjects(): Promise<
   Record<OpportunityTabValue, ProjectItem[]>
 > {
   "use cache";
-  cacheLife("hours");
   cacheTag("projects", "grants");
 
   const [hackathons, contests, grants] = await Promise.all([
@@ -43,6 +42,9 @@ export async function getMainProjects(): Promise<
     }),
     RequestGrantList({ limit: POOL_SIZE }),
   ]);
+  // 하나라도 못 받았으면(서버 장애) 짧게만 캐시해, 서버가 돌아오면 곧 다시 받는다.
+  if (hackathons && contests && grants) cacheLife("hours");
+  else cacheLife("minutes");
 
   const now = Date.now();
   const pickedGrants = pickRandom(grants?.items ?? [], MAIN_PROJECT_COUNT);

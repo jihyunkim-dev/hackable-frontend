@@ -6,3 +6,10 @@ export const suit = localFont({
   weight: "100 900",
   display: "swap",
 });
+
+// 404 페이지의 큰 숫자 전용. 숫자(0~9)만 잘라 담았다. (SUITE ExtraBold, OFL)
+export const suiteDigits = localFont({
+  src: "../public/fonts/SUITE-ExtraBold-digits.woff2",
+  weight: "800",
+  display: "swap",
+});

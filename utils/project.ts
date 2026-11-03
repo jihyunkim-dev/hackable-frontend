@@ -127,17 +127,23 @@ export function toProjectDetail(
 }
 
 // 상세 데이터를 1시간 캐시한다. (generateMetadata와 화면이 같은 결과를 쓴다)
+// 받지 못했으면 1분 뒤 다시 받는다.
 export async function getProjectDetail(
   slug: string,
 ): Promise<ProjectDetail | null> {
   "use cache";
-  cacheLife("hours");
   cacheTag(CACHE_TAG);
 
   const id = parseSlugId(slug);
-  if (!id) return null;
+  if (!id) {
+    cacheLife("hours");
+    return null;
+  }
 
   const data = await RequestProjectDetail(id);
+  // 못 받았으면(없는 글이거나 서버 장애) 짧게만 캐시해, 서버가 돌아오면 곧 다시 받는다.
+  if (data) cacheLife("hours");
+  else cacheLife("minutes");
   return data ? toProjectDetail(data, Date.now()) : null;
 }
 
@@ -174,6 +180,7 @@ const fromSearchDocument = (
 ): ProjectCardSource => ({ ...document, project_id: Number(document.id) });
 
 // 페이지별 목록을 1시간 캐시한다. (미리 렌더링되는 1페이지 화면도 이 결과를 쓴다)
+// 받지 못했으면 1분 뒤 다시 받는다.
 // category가 all이면 세분류를 보내지 않아 기본 목록 전부를 받는다.
 // 검색어(q)가 있으면 검색 API를 쓴다. 검색은 관련도 순이라 정렬(sort)은 반영되지 않는다.
 export async function getProjectPage(
@@ -183,7 +190,6 @@ export async function getProjectPage(
   q = "",
 ) {
   "use cache";
-  cacheLife("hours");
   cacheTag(CACHE_TAG);
 
   const categories =
@@ -196,6 +202,8 @@ export async function getProjectPage(
       page,
       per_page: PAGE_SIZE.project,
     });
+    if (result) cacheLife("hours");
+    else cacheLife("minutes");
     const now = Date.now();
     return {
       items: (result?.hits ?? []).map((hit) =>
@@ -211,6 +219,9 @@ export async function getProjectPage(
     category: categories,
     sort,
   });
+  // 못 받았으면(서버 장애) 빈 목록을 짧게만 캐시해, 서버가 돌아오면 곧 다시 받는다.
+  if (data) cacheLife("hours");
+  else cacheLife("minutes");
   const now = Date.now();
 
   return {

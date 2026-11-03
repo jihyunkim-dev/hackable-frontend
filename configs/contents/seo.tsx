@@ -77,6 +77,7 @@ export const seoContent = {
     description: "",
   },
   teamBuildingEdit: { title: "팀빌딩 모집글 수정 | 해커블", description: "" },
+  notFound: { title: "페이지를 찾을 수 없어요 | 해커블", description: "" },
 };
 
 // 상세 데이터를 못 찾았을 때 제목에 쓰는 이름
