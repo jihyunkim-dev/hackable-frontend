@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { suit } from "./font";
 import { cn } from "@/lib/utils";
+import { seoContent } from "@/configs/contents/seo";
+import { siteUrl } from "@/configs/urls";
+import { pageMetadata } from "@/utils/metadata";
 import Header from "@/components/layout/header/Header";
 import Footer from "@/components/layout/footer/Footer";
 import FloatingButton from "@/components/layout/FloatingButton";
@@ -9,9 +12,11 @@ import QueryProvider from "@/components/layout/QueryProvider";
 import { GlobalAlertModal } from "@/components/section/AlertModal";
 import { GlobalSignInModal } from "@/components/section/SignInModal";
 
+// 사이트 기본값. 페이지마다 utils/metadata의 pageMetadata로 덮어쓴다.
+// metadataBase: canonical·og:url 같은 상대 주소를 운영 주소 기준 절대 주소로 바꾼다.
 export const metadata: Metadata = {
-  title: "hackable",
-  description: "",
+  metadataBase: new URL(siteUrl),
+  ...pageMetadata(seoContent.home),
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

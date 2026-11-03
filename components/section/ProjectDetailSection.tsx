@@ -15,6 +15,8 @@ export interface ProjectDetail {
   bodyHtml: string; // 서버에서 sanitize한 HTML
   applyUrl: string | null; // 없으면 참여하기 버튼을 숨긴다.
   href: string; // 정식 상세 경로
+  // 검색·공유용 설명 (utils/metadata의 설명 틀로 만든다)
+  metaDescription?: string;
 }
 
 // 수집한 본문 HTML에 기본 문단·목록·링크·이미지 스타일을 입힌다.

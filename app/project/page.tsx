@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
+import { seoContent } from "@/configs/contents/seo";
+import { pageMetadata } from "@/utils/metadata";
 import { Suspense } from "react";
 import ProjectServerContainer from "@/container/project/ProjectServerContainer";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "프로젝트 | hackable",
-  },
-  description: "",
-  alternates: {
-    canonical: "/project",
-  },
-};
+export const metadata: Metadata = pageMetadata({ ...seoContent.project });
 
 export default function Project({ searchParams }: PageProps<"/project">) {
   return (

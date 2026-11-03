@@ -22,6 +22,16 @@ const nextConfig: NextConfig = {
     })),
   },
   partialPrefetching: true,
+  // /newsletter에는 화면이 없어 구독 안내로 보낸다. (정보구조 문서: 302)
+  async redirects() {
+    return [
+      {
+        source: "/newsletter",
+        destination: "/newsletter/subscribe",
+        statusCode: 302,
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

@@ -73,9 +73,10 @@ export function HeroCarousel({ slides }: { slides: MainCarouselSlide[] }) {
                   <p className="text-label-m font-bold text-primary-500">
                     {slide.category}
                   </p>
-                  <h2 className="text-heading-s font-bold text-gray-800">
+                  {/* 캐러셀 문구는 제목 태그가 아니라 일반 텍스트 (H태그 문서 규칙 4) */}
+                  <p className="text-heading-s font-bold text-gray-800">
                     {slide.title}
-                  </h2>
+                  </p>
                 </div>
                 <p className="p-2 text-body-m text-gray-800 md:hidden">
                   <MultiLine lines={slide.description.mobile} />

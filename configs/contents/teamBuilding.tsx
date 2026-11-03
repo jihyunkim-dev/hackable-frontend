@@ -11,6 +11,9 @@ export const teamBuildingContent = {
     { value: "study", label: "스터디", href: "/teambuilding?type=study" },
   ],
   searchPlaceholder: "어떤 팀원을 찾고 있나요?",
+  // 카드 목록 위 H2 (H태그 문서 v1). 검색 중이면 검색 결과 제목
+  listTitle: "모집 중인 팀",
+  searchListTitle: (q: string) => `"${q}" 검색 결과`,
   create: { label: "모집글 작성", href: "/teambuilding/create" },
 
   // 지원사업과 같은 필터 구성 (기술스택은 맞출 데이터가 없어 뺐다)

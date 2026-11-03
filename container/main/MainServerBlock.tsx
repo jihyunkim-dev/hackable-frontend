@@ -140,9 +140,10 @@ function ClosingSection() {
   return (
     <section className="flex flex-col items-center gap-4 bg-linear-to-b from-white to-primary-50 px-2.5 py-20 text-center">
       <div className="flex flex-col gap-2 p-3 md:gap-6">
-        <h2 className="text-heading-m font-extrabold text-gray-800">
+        {/* 홍보 문구는 제목 태그가 아니라 일반 텍스트 (H태그 문서 규칙 4) */}
+        <p className="text-heading-m font-extrabold text-gray-800">
           <MultiLine lines={closing.title} />
-        </h2>
+        </p>
         <p className="text-label-l text-primary-500">{closing.description}</p>
       </div>
 

@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
+import { seoContent } from "@/configs/contents/seo";
+import { pageMetadata } from "@/utils/metadata";
 import { Suspense } from "react";
 import ClipServerContainer from "@/container/clip/ClipServerContainer";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "클립 | hackable",
-  },
-  description: "",
-  alternates: {
-    canonical: "/clip",
-  },
-};
+export const metadata: Metadata = pageMetadata({ ...seoContent.clip });
 
 export default function Clip({ searchParams }: PageProps<"/clip">) {
   return (

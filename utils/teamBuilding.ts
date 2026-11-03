@@ -75,7 +75,7 @@ const SEARCH_CHUNK = 250;
 
 // 정렬·카테고리·필터에 맞는 글을 전부 받는다. (필터는 백엔드가 건다)
 // TODO: 백엔드 목록 API에 total_count가 생기면 페이지 단위 요청으로 되돌린다.
-async function fetchAllTeamBuildings(
+export async function fetchAllTeamBuildings(
   sort: ListSort,
   category?: TeamBuildingCategory,
   filters?: TeamBuildingFilters,

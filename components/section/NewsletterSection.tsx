@@ -12,9 +12,10 @@ export default function NewsletterSection() {
       <div className="flex flex-col md:flex-1">
         <div className="flex flex-col gap-3 p-2.5">
           <p className="text-label-l text-primary-600">{eyebrow}</p>
-          <h2 className="text-heading-m font-extrabold text-gray-800">
+          {/* 구독 유도 문구는 제목 태그가 아니라 일반 텍스트 (H태그 문서 규칙 4) */}
+          <p className="text-heading-m font-extrabold text-gray-800">
             <MultiLine lines={title} />
-          </h2>
+          </p>
         </div>
 
         <div className="order-last flex items-start justify-between gap-2 md:order-none md:justify-start">

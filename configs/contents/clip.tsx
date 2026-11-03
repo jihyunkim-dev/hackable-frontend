@@ -9,6 +9,9 @@ export const clipContent = {
     ],
     all: "아직 등록된 클립이 없어요.",
   },
+  // 카드 목록 위 H2 (H태그 문서 v1). 카테고리를 고르면 "{카테고리} 클립", 검색 중이면 검색 결과 제목
+  listTitle: (category: string) => `${category} 클립`,
+  searchListTitle: (q: string) => `"${q}" 검색 결과`,
   hero: {
     title: "클립",
     description: "많은 독자들의 관심을 이끌은 클립들을 모았어요",

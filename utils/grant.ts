@@ -1,5 +1,6 @@
 // API 지원사업 응답을 화면용 데이터로 바꾼다. (카드·상세 화면은 프로젝트와 같은 컴포넌트를 쓴다)
 import { cacheLife, cacheTag } from "next/cache";
+import { grantMetaDescription } from "@/utils/metadata";
 import type { ProjectItem } from "@/components/section/ProjectCard";
 import type { ProjectDetail } from "@/components/section/ProjectDetailSection";
 import { projectContent } from "@/configs/contents/project";
@@ -108,6 +109,7 @@ export function toGrantDetail(
     bodyHtml: sanitizeBody(grant.description ?? ""),
     applyUrl: grant.external_url,
     href: getGrantHref(grant),
+    metaDescription: grantMetaDescription(grant),
   };
 }
 

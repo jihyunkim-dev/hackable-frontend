@@ -1,5 +1,6 @@
 // API 프로젝트 응답을 화면용 데이터로 바꾼다.
 import { cacheLife, cacheTag } from "next/cache";
+import { projectMetaDescription } from "@/utils/metadata";
 import sanitizeHtml from "sanitize-html";
 import type { ProjectItem } from "@/components/section/ProjectCard";
 import type { ProjectDetail } from "@/components/section/ProjectDetailSection";
@@ -95,6 +96,8 @@ export const sanitizeBody = (html: string) =>
     },
     allowedSchemes: ["http", "https", "mailto", "tel"],
     transformTags: {
+      // 페이지 H1은 공고 제목 하나뿐이다. 본문에 h1이 있으면 h2로 내린다. (H태그 문서 규칙 1)
+      h1: "h2",
       a: sanitizeHtml.simpleTransform("a", {
         target: "_blank",
         rel: "noopener noreferrer",
@@ -119,6 +122,7 @@ export function toProjectDetail(
     bodyHtml: sanitizeBody(project.description ?? ""),
     applyUrl: project.external_url,
     href: getProjectHref(project),
+    metaDescription: projectMetaDescription(project),
   };
 }
 

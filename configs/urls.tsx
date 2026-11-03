@@ -143,3 +143,6 @@ export const dummyImageUrl = {
   profile: "/images/dummy/profile.jpg",
   clipThumbnail: "/images/dummy/clip-thumbnail.png",
 };
+
+// 서비스 주소. robots.txt·사이트맵의 절대 주소에 쓴다.
+export const siteUrl = "https://hackable.co.kr";

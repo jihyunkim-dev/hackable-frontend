@@ -1,5 +1,6 @@
 import CategoryNav from "@/components/section/CategoryNav";
 import FilterBar from "@/components/section/FilterBar";
+import HubTitle from "@/components/section/HubTitle";
 import ProjectCard, {
   type ProjectItem,
 } from "@/components/section/ProjectCard";
@@ -27,7 +28,8 @@ interface ProjectListSectionProps {
 // 다시 쓰려면 undefined 대신 projectContent.filterGroups를 넣는다.
 const FILTER_GROUPS: FilterGroup[] | undefined = undefined;
 
-// 해커톤·공모전·창업경진대회 목록 공통 영역 (카테고리 → 필터 → 카드 목록 → 페이지네이션)
+// 해커톤·공모전·창업경진대회 목록 공통 영역 (제목 → 카테고리 → 필터 → 카드 목록 → 페이지네이션)
+// H1은 선택된 탭 이름(지원사업은 "지원사업"), 카드(H3) 바로 위에 목록 제목 H2를 둔다.
 export default function ProjectListSection({
   category,
   items,
@@ -36,20 +38,17 @@ export default function ProjectListSection({
   sort,
   q = "",
 }: ProjectListSectionProps) {
-  const current =
-    category === "support"
-      ? projectContent.startupSupport
-      : (projectContent.categories.find((item) => item.value === category) ??
-        projectContent.categories[0]);
+  const tab =
+    projectContent.categories.find((item) => item.value === category) ??
+    projectContent.categories[0];
+  const current = category === "support" ? projectContent.startupSupport : tab;
+  const title =
+    category === "support" ? projectContent.startupSupport.title : tab.label;
+  const listTitle = q ? projectContent.searchListTitle(q) : current.listTitle;
 
   const header =
     category === "support" ? (
-      <div className="flex flex-col gap-2 px-3 sm:gap-3">
-        <h1 className="text-heading-m font-extrabold text-gray-800">
-          {projectContent.startupSupport.title}
-        </h1>
-        <p className="text-body-l text-gray-600">{current.description}</p>
-      </div>
+      <p className="px-3 text-body-l text-gray-600">{current.description}</p>
     ) : (
       <CategoryNav
         label="프로젝트 카테고리"
@@ -63,6 +62,7 @@ export default function ProjectListSection({
   return (
     <section className="py-3">
       <div className="mx-auto flex w-full flex-col gap-2.5 px-3 sm:max-w-[700px] sm:px-0 md:max-w-[920px] lg:max-w-[960px] xl:max-w-[1280px]">
+        <HubTitle label={title} className="px-3" />
         {FILTER_GROUPS ? (
           <>
             {header}
@@ -93,6 +93,9 @@ export default function ProjectListSection({
           </p>
         )}
 
+        <h2 className="px-3 pt-2 text-heading-xs font-bold text-gray-800">
+          {listTitle}
+        </h2>
         <ul className="grid grid-cols-2 justify-items-center gap-y-2 md:grid-cols-3 sm:gap-y-5 xl:grid-cols-4">
           {items.map((item) => (
             <li key={item.id}>

@@ -119,6 +119,10 @@ function ClipListSection({
   ClipServerBlockProps,
   "clips" | "pagination" | "activeCategoryHref" | "q" | "query"
 >) {
+  const activeCategory =
+    clipContent.categories.find((item) => item.href === activeCategoryHref) ??
+    clipContent.categories[0];
+
   return (
     <section>
       <div className={cn(CONTENT_WIDTH, "px-3 py-2 lg:px-0")}>
@@ -141,6 +145,16 @@ function ClipListSection({
         />
       </div>
 
+      <h2
+        className={cn(
+          CONTENT_WIDTH,
+          "px-5 pt-5 text-heading-xs font-bold text-gray-800 lg:px-2 lg:pt-7",
+        )}
+      >
+        {q
+          ? clipContent.searchListTitle(q)
+          : clipContent.listTitle(activeCategory.label)}
+      </h2>
       {clips.length === 0 && (
         <p className="px-3 py-20 text-center text-body-l text-gray-500">
           {q ? (
