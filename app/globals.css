@@ -38,8 +38,18 @@ body {
 /* 플로팅 버튼 배경 (Figma: Floating Button – 보라 베이스 + 위 핑크 + 아래 블루 번짐) */
 @utility floating-gradient {
   background:
-    radial-gradient(180% 105% at 70% -10%, #e0558f 0%, rgb(224 85 143 / 0.75) 40%, transparent 78%),
-    radial-gradient(150% 95% at 72% 108%, #b7c3ff 0%, rgb(150 165 245 / 0.85) 40%, transparent 75%),
+    radial-gradient(
+      180% 105% at 70% -10%,
+      #e0558f 0%,
+      rgb(224 85 143 / 0.75) 40%,
+      transparent 78%
+    ),
+    radial-gradient(
+      150% 95% at 72% 108%,
+      #b7c3ff 0%,
+      rgb(150 165 245 / 0.85) 40%,
+      transparent 75%
+    ),
     linear-gradient(200deg, #a14dbf, #72309f);
 }
 
@@ -48,5 +58,49 @@ body {
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* 목록 페이지 H1 탭 이름 전환 (components/section/HubTitle)
+   이전 이름은 살짝 위로 사라지고, 새 이름은 아래에서 올라오며 나타난다. */
+::view-transition-group(.hub-title) {
+  animation-duration: 300ms;
+}
+/* 글자 길이가 달라도 늘어나지 않게 원래 크기 그대로 왼쪽에 둔다. */
+::view-transition-old(.hub-title),
+::view-transition-new(.hub-title) {
+  width: auto;
+  height: 100%;
+}
+::view-transition-old(.hub-title) {
+  animation: 150ms ease-out both hub-title-out;
+}
+::view-transition-new(.hub-title) {
+  animation: 250ms ease-out 100ms both hub-title-in;
+}
+@keyframes hub-title-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes hub-title-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+/* 페이지 전체는 전환 효과 없이 바로 바뀐다. (제목만 움직인다) */
+::view-transition-old(root) {
+  display: none;
+}
+::view-transition-new(root) {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
