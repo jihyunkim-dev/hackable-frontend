@@ -22,6 +22,7 @@ import {
 import {
   IMAGE_UPLOAD_MAX_BYTES,
   IMAGE_UPLOAD_TYPES,
+  ImageUploadError,
   uploadImage,
 } from "@/utils/imageUpload";
 
@@ -97,11 +98,12 @@ export default function TeamBuildingForm({
     event.target.value = "";
     if (!file) return;
     if (!IMAGE_UPLOAD_TYPES.includes(file.type)) {
-      showAlert(content.image.invalidType);
+      showAlert(content.image.errors.invalidType);
       return;
     }
+    // 원본이 너무 크면 줄여도 2MB를 넘기 쉬워 고를 때 막는다. (그 이하는 올릴 때 줄인다)
     if (file.size > IMAGE_UPLOAD_MAX_BYTES) {
-      showAlert(content.image.tooLarge);
+      showAlert(content.image.errors.tooLarge);
       return;
     }
     setImageFile(file);
@@ -134,8 +136,10 @@ export default function TeamBuildingForm({
       setIsUploading(true);
       try {
         imageUrl = await uploadImage(imageFile);
-      } catch {
-        showAlert(content.image.uploadError);
+      } catch (error) {
+        // 실패 이유별 안내. 글은 저장하지 않고 이미지를 바꿀 수 있게 둔다.
+        const code = error instanceof ImageUploadError ? error.code : "failed";
+        showAlert(content.image.errors[code]);
         return;
       } finally {
         setIsUploading(false);
