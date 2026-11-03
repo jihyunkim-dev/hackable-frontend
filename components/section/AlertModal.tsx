@@ -3,14 +3,14 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import Button from "@/components/ui/Button";
 import MultiLine from "@/components/ui/MultiLine";
-import { closeAlert, useAlertMessage } from "@/hooks/useAlertModal";
+import { closeAlert, type AlertMessage } from "@/hooks/useAlertModal";
+import { restoreFocus } from "@/lib/returnFocus";
 
 const CONFIRM_LABEL = "확인";
 
-// 레이아웃에 하나 두는 공용 안내 모달. showAlert()로 연다. (hooks/useAlertModal)
+// 공용 안내 모달. 레이아웃의 GlobalAlertModal이 띄운다. (components/layout/GlobalModals)
 // 다른 모달(삭제·탈퇴 확인 등) 위에서도 보이도록 한 단계 위(z-[70])에 띄운다.
-export function GlobalAlertModal() {
-  const alert = useAlertMessage();
+export default function AlertModal({ alert }: { alert: AlertMessage | null }) {
   const lines = alert
     ? Array.isArray(alert.message)
       ? alert.message
@@ -27,6 +27,7 @@ export function GlobalAlertModal() {
         <Dialog.Content
           // 제목 없이 문구만 있으면 설명(Description)이 없으므로 연결하지 않는다.
           {...(!alert?.title && { "aria-describedby": undefined })}
+          onCloseAutoFocus={restoreFocus(alert?.opener ?? null)}
           className="fixed top-1/2 left-1/2 z-[70] flex w-[300px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-xl bg-white px-6 pt-8 pb-6 text-center outline-none sm:w-[400px]"
         >
           <div className="flex flex-col gap-2">

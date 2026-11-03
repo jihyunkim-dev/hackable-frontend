@@ -9,8 +9,10 @@ import Header from "@/components/layout/header/Header";
 import Footer from "@/components/layout/footer/Footer";
 import FloatingButton from "@/components/layout/FloatingButton";
 import QueryProvider from "@/components/layout/QueryProvider";
-import { GlobalAlertModal } from "@/components/section/AlertModal";
-import { GlobalSignInModal } from "@/components/section/SignInModal";
+import {
+  GlobalAlertModal,
+  GlobalSignInModal,
+} from "@/components/layout/GlobalModals";
 
 // 사이트 기본값. 페이지마다 utils/metadata의 pageMetadata로 덮어쓴다.
 // metadataBase: canonical·og:url 같은 상대 주소를 운영 주소 기준 절대 주소로 바꾼다.

@@ -9,16 +9,9 @@ import { policyContent } from "@/configs/contents/policies";
 import { signInContent } from "@/configs/contents/signIn";
 import { commonIconUrl, signInLogoUrl } from "@/configs/urls";
 import { startSocialLogin } from "@/hooks/useAuth";
-import { setLoginModalOpen, useLoginModalOpen } from "@/hooks/useLoginModal";
 
 // 카카오 로그인 버튼 배경은 카카오 브랜드 가이드 색상을 그대로 쓴다.
 const KAKAO_YELLOW = "bg-[#FEE500]";
-
-// 레이아웃에 하나 두는 공용 로그인 모달. openLoginModal()로 연다. (hooks/useLoginModal)
-export function GlobalSignInModal() {
-  const open = useLoginModalOpen();
-  return <SignInModal open={open} onOpenChange={setLoginModalOpen} />;
-}
 
 // 로그인 모달 (URL 없이 열림)
 // trigger를 넘기면 그 버튼으로 열고, open/onOpenChange를 넘기면 밖에서 연다.
@@ -28,17 +21,23 @@ export default function SignInModal({
   trigger,
   open,
   onOpenChange,
+  onCloseAutoFocus,
 }: {
   trigger?: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  // 트리거 없이 열 때, 닫은 뒤 포커스를 돌려줄 곳 (lib/returnFocus)
+  onCloseAutoFocus?: (event: Event) => void;
 }) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       {trigger && <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>}
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/50" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-[60] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-gray-50 outline-none sm:w-[467px]">
+        <Dialog.Content
+          onCloseAutoFocus={onCloseAutoFocus}
+          className="fixed top-1/2 left-1/2 z-[60] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-gray-50 outline-none sm:w-[467px]"
+        >
           <div className="flex justify-end p-1">
             <Dialog.Close aria-label={signInContent.close}>
               <Image

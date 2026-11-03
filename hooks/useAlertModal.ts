@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { afterPageSettled } from "@/lib/afterPageSettled";
+import { rememberFocus } from "@/lib/returnFocus";
 
 // 사이트 공용 안내 모달 (window.alert 대신). 모달은 레이아웃에 하나만 두고(GlobalAlertModal),
 // 안내가 필요한 곳에서 showAlert("문구")로 연다. 훅이 아니라 이벤트 핸들러·onError 어디서든 부를 수 있다.
@@ -9,6 +10,8 @@ export interface AlertMessage {
   // 한 줄이면 문자열, 여러 줄이면 줄 단위 배열
   message: string | string[];
   title?: string;
+  // 닫을 때 포커스를 돌려줄 요소 (안내를 띄운 버튼)
+  opener?: HTMLElement | null;
 }
 
 let current: AlertMessage | null = null;
@@ -18,11 +21,12 @@ const emit = () => listeners.forEach((listener) => listener());
 
 export function showAlert(
   message: AlertMessage["message"],
-  options?: Omit<AlertMessage, "message">,
+  options?: Omit<AlertMessage, "message" | "opener">,
 ) {
+  const opener = rememberFocus();
   // 페이지 첫 로드 중에 불리면 로드가 끝난 뒤 연다. (lib/afterPageSettled)
   afterPageSettled(() => {
-    current = { message, ...options };
+    current = { message, ...options, opener };
     emit();
   });
 }

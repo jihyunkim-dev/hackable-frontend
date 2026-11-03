@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { ReactNode, useEffect } from "react";
-import SignInModal from "@/components/section/SignInModal";
 import Button from "@/components/ui/Button";
 import ProfileAvatar from "@/components/ui/ProfileAvatar";
 import { userIconUrl } from "@/configs/urls";
@@ -12,6 +11,7 @@ import { useAccount } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { getProfileImage } from "@/utils/profile";
 import { showAlert } from "@/hooks/useAlertModal";
+import { openLoginModal } from "@/hooks/useLoginModal";
 
 interface NavLinkProps {
   href: string;
@@ -72,14 +72,16 @@ export function AccountButton({
     );
   }
 
+  // 레이아웃의 공용 로그인 모달을 연다. (모달 코드는 처음 열 때 받는다)
   return (
-    <SignInModal
-      trigger={
-        <Button variant="secondary" size="sm" className="px-6">
-          {loginLabel}
-        </Button>
-      }
-    />
+    <Button
+      variant="secondary"
+      size="sm"
+      className="px-6"
+      onClick={openLoginModal}
+    >
+      {loginLabel}
+    </Button>
   );
 }
 
@@ -114,17 +116,14 @@ export function MobileAccountButton({
   }
 
   return (
-    <SignInModal
-      trigger={
-        <button
-          type="button"
-          aria-label={loginLabel}
-          className="flex size-9 items-center justify-center rounded-full bg-gray-50"
-        >
-          <Image src={userIconUrl} alt="" width={16} height={16} />
-        </button>
-      }
-    />
+    <button
+      type="button"
+      aria-label={loginLabel}
+      onClick={openLoginModal}
+      className="flex size-9 items-center justify-center rounded-full bg-gray-50"
+    >
+      <Image src={userIconUrl} alt="" width={16} height={16} />
+    </button>
   );
 }
 
