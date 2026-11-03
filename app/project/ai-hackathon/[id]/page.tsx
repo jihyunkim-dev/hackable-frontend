@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { detailFallbackName } from "@/configs/contents/seo";
 import { detailTitle, pageMetadata } from "@/utils/metadata";
-import { Suspense } from "react";
 import HackathonDetailServerContainer from "@/container/project/ai-hackathon/detail/HackathonDetailServerContainer";
-import { getProjectDetail } from "@/utils/project";
+import { getProjectDetail, getProjectStaticParams } from "@/utils/project";
+
+export const generateStaticParams = () => getProjectStaticParams("hackathon");
 
 export async function generateMetadata({
   params,
@@ -21,9 +22,5 @@ export async function generateMetadata({
 export default function HackathonDetail({
   params,
 }: PageProps<"/project/ai-hackathon/[id]">) {
-  return (
-    <Suspense>
-      <HackathonDetailServerContainer params={params} />
-    </Suspense>
-  );
+  return <HackathonDetailServerContainer params={params} />;
 }

@@ -8,6 +8,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { projectContent } from "@/configs/contents/project";
 import { seoContent } from "@/configs/contents/seo";
 import { siteUrl } from "@/configs/urls";
+import { getClipHref } from "@/utils/clip";
 import { getProjectHref, parseKstDate } from "@/utils/project";
 import {
   RequestClipList,
@@ -130,7 +131,7 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
       ),
     ),
     ...clips.map((clip, index) =>
-      entry(`/clip/${clip.id}`, clipUpdatedAt[index]),
+      entry(getClipHref(clip), clipUpdatedAt[index]),
     ),
   ];
 }

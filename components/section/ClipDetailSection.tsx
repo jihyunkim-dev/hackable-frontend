@@ -29,6 +29,7 @@ export interface ClipDetail {
   createdAt: string;
   views: number;
   bookmarks: number;
+  href: string; // 정식 상세 경로
   blocks: ClipBlock[];
   // 목차. 없으면 heading 블록에서 만든다.
   headings?: { id: string; text: string }[];

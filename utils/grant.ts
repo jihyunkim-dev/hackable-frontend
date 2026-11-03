@@ -21,6 +21,11 @@ import {
   type GrantDetailResponse,
   type GrantListItemResponse,
 } from "@/utils/requestToSrv";
+import {
+  lastSegment,
+  PRERENDER_COUNT,
+  withPrerenderFallback,
+} from "@/utils/staticParams";
 
 // 서버 캐시 이름표. 새 데이터가 들어오면 revalidateTag("grants")로 이 캐시만 지운다.
 const CACHE_TAG = "grants";
@@ -180,4 +185,17 @@ export async function getGrantDetail(
   if (!data) return null;
   const hostLogo = await findHostLogo(data.hosted);
   return toGrantDetail(data, Date.now(), hostLogo);
+}
+
+// 상세 페이지 generateStaticParams: 최신 지원사업을 미리 만든다. (utils/staticParams)
+export async function getGrantStaticParams() {
+  const data = await RequestGrantList({
+    limit: PRERENDER_COUNT,
+    sort: "latest",
+  });
+  return withPrerenderFallback(
+    (data?.items ?? []).map((grant) => ({
+      id: lastSegment(getGrantHref(grant)),
+    })),
+  );
 }

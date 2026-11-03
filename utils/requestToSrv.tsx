@@ -778,6 +778,8 @@ export interface ClipResponse {
   is_deleted: boolean;
   view_count: number;
   bookmark_count: number;
+  // 상세 주소에 쓰는 영문 slug (1-seo-tteut-...). 없으면 숫자 id를 쓴다.
+  seo_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -797,6 +799,7 @@ export interface ClipSearchDocument {
   tags: string[];
   thumbnail_img: string | null;
   duration: number | null;
+  seo_url: string | null;
   created_at: string;
 }
 

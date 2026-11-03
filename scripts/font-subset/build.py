@@ -15,8 +15,8 @@ SUIT는 OFL의 예약 폰트 이름(Reserved Font Name)이 "SUIT"라, 수정본(
   app/fonts/hackable-sans/hs-*.woff2   묶음 폰트
   app/fonts/hackableSans.ts            next/font/local 선언 (자동 생성, 직접 고치지 않는다)
 
-hangul-order.txt를 다시 만들 때는 사이트 글(대회·지원사업 제목, 클립·팀빌딩 글, 화면 문구)에서
-한글 음절을 많이 나온 순서로 적는다.
+hangul-order.txt를 다시 만들 때는 사이트 글(대회·지원사업의 제목과 상세 본문, 클립·팀빌딩 글, 화면 문구)에서
+한글 음절을 많이 나온 순서로 적는다. 상세 본문을 빼면 본문에만 나오는 글자가 뒤 묶음으로 밀려 상세 페이지가 묶음을 많이 받는다.
 """
 
 import io
@@ -39,9 +39,9 @@ VARIABLE = "--font-hackable-sans"
 CSS_FAMILY = "hackableSans"
 
 # 앞쪽(자주 쓰는 글자) 묶음 크기. 대부분 페이지는 이 묶음들 안에서 끝난다.
-HEAD_SIZES = [100, 150, 250, 350]
+HEAD_SIZES = [100, 150, 250, 350, 250]
 # 뒤쪽(드문 글자) 묶음 크기. 드문 글자 하나 때문에 받는 양이 크지 않게 잘게 나눈다.
-TAIL_SIZE = 250
+TAIL_SIZE = 200
 # 미리 받는 묶음: 영문·기호와 앞쪽(자주 쓰는 글자) 한글 묶음. 대부분 페이지는 이 안에서 끝나므로
 # 처음부터 받아 첫 글자 표시(FCP)가 늦지 않게 한다. 뒤쪽 묶음은 그 글자가 보일 때 받는다.
 PRELOAD_COUNT = 1 + len(HEAD_SIZES)

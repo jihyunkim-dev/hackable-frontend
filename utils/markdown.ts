@@ -11,6 +11,7 @@ import sanitizeHtml from "sanitize-html";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import { isAllowedImageUrl } from "@/configs/imageHosts";
+import type { ImageSize } from "@/utils/imageSize";
 
 export interface MarkdownHeading {
   id: string;
@@ -20,6 +21,25 @@ export interface MarkdownHeading {
 // 원고의 이미지는 상대 경로(images/파일명)로 온다. 파일은 R2의 clips/images/에 같은 이름으로 올린다.
 const CLIP_IMAGE_BASE = "https://cdn.hackable.co.kr/clips/images/";
 const RELATIVE_IMAGE_PATH = /^(?:\.\/)?images\/([^/?#]+)$/;
+
+// 원고의 이미지 주소를 실제 주소로 바꾼다. 쓸 수 없는 주소(허용하지 않은 호스트)면 null
+function resolveImageSrc(src: unknown): string | null {
+  if (typeof src !== "string") return null;
+  const relative = RELATIVE_IMAGE_PATH.exec(src);
+  const resolved = relative ? CLIP_IMAGE_BASE + relative[1] : src;
+  return isAllowedImageUrl(resolved) ? resolved : null;
+}
+
+// 본문에 쓰인 이미지 주소 (크기를 미리 읽어 renderMarkdown에 넘길 때 쓴다)
+export function collectMarkdownImages(markdown: string): string[] {
+  const tree = unified().use(remarkParse).use(remarkGfm).parse(markdown);
+  const srcs: string[] = [];
+  visit(tree, "image", (node) => {
+    const src = resolveImageSrc(node.url);
+    if (src) srcs.push(src);
+  });
+  return srcs;
+}
 
 // 목차에 넣을 제목 단계 (## 만)
 const TOC_DEPTH = 2;
@@ -38,26 +58,28 @@ function remarkHeadingIds(headings: MarkdownHeading[]) {
 }
 
 // 이미지: 쓸 수 있는 주소(허용한 https 호스트)만 남기고 지연 로딩한다.
+// 크기를 알면 width/height를 넣어, 이미지가 뜨기 전에도 비율대로 자리를 잡는다. (레이아웃 이동 방지)
 // 링크: 외부 주소는 새 탭으로 연다.
-function rehypeMedia() {
-  return (tree: HastRoot) => {
+function rehypeMedia(imageSizes: Map<string, ImageSize>) {
+  return () => (tree: HastRoot) => {
     visit(tree, "element", (node: Element, index, parent) => {
       if (node.tagName === "img") {
-        const relative =
-          typeof node.properties.src === "string"
-            ? RELATIVE_IMAGE_PATH.exec(node.properties.src)
-            : null;
-        if (relative) node.properties.src = CLIP_IMAGE_BASE + relative[1];
-        const src = node.properties.src;
-        if (typeof src !== "string" || !isAllowedImageUrl(src)) {
+        const src = resolveImageSrc(node.properties.src);
+        if (!src) {
           if (parent && typeof index === "number") {
             parent.children.splice(index, 1);
             return index;
           }
           return;
         }
+        node.properties.src = src;
         node.properties.loading = "lazy";
         node.properties.decoding = "async";
+        const size = imageSizes.get(src);
+        if (size) {
+          node.properties.width = size.width;
+          node.properties.height = size.height;
+        }
       }
 
       if (node.tagName === "a") {
@@ -76,7 +98,7 @@ const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
   allowedTags: [...sanitizeHtml.defaults.allowedTags, "img", "del"],
   allowedAttributes: {
     a: ["href", "target", "rel"],
-    img: ["src", "alt", "loading", "decoding"],
+    img: ["src", "alt", "loading", "decoding", "width", "height"],
     h1: ["id"],
     h2: ["id"],
     h3: ["id"],
@@ -90,7 +112,11 @@ const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
 };
 
 // 마크다운 안의 HTML 태그는 렌더링하지 않고(remark-rehype 기본값), 결과도 한 번 더 sanitize한다.
-export function renderMarkdown(markdown: string) {
+// imageSizes: 이미지 주소별 크기 (collectMarkdownImages → utils/imageSize의 fetchImageSizes)
+export function renderMarkdown(
+  markdown: string,
+  imageSizes: Map<string, ImageSize> = new Map(),
+) {
   const headings: MarkdownHeading[] = [];
   const html = unified()
     .use(remarkParse)
@@ -98,7 +124,7 @@ export function renderMarkdown(markdown: string) {
     .use(remarkGfm, { singleTilde: false })
     .use(remarkHeadingIds(headings))
     .use(remarkRehype)
-    .use(rehypeMedia)
+    .use(rehypeMedia(imageSizes))
     .use(rehypeStringify)
     .processSync(markdown)
     .toString();

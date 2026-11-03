@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Suspense } from "react";
 import { FLOATING_CENTER_POSITION } from "@/components/layout/floatingPosition";
 import Button from "@/components/ui/Button";
 import TextLogoThumbnail from "@/components/ui/TextLogoThumbnail";
@@ -75,10 +76,13 @@ export default function ProjectDetailSection({
           <p className="text-label-l text-gray-800 lg:hidden">
             {periodLabel}: {detail.period}
           </p>
-          <div
-            className={BODY_STYLE}
-            dangerouslySetInnerHTML={{ __html: detail.bodyHtml }}
-          />
+          {/* 본문은 따로 감싸 HTML 뒤쪽에 보낸다. (아래 DetailBodyFallback 참고) */}
+          <Suspense fallback={<DetailBodyFallback />}>
+            <div
+              className={BODY_STYLE}
+              dangerouslySetInnerHTML={{ __html: detail.bodyHtml }}
+            />
+          </Suspense>
         </div>
       </article>
 
@@ -132,6 +136,13 @@ export default function ProjectDetailSection({
       )}
     </section>
   );
+}
+
+// React는 이미 만든 화면이라도 HTML 앞부분이 일정 크기(12.8KB)를 넘으면 큰 영역을 뒤로 빼서 보낸다.
+// 수집한 본문이 커서 썸네일·제목까지 함께 밀려나 첫 화면(LCP)이 늦어지므로, 본문만 따로 감싸 위쪽이 먼저 오게 한다.
+// 본문이 오기 전에는 화면 높이만큼 자리를 잡아, 아래 푸터가 먼저 보였다가 밀려나지(레이아웃 이동) 않게 한다.
+function DetailBodyFallback() {
+  return <div aria-hidden className="min-h-dvh" />;
 }
 
 // 상세 이미지: 썸네일 → 기관명 텍스트 로고 → "이미지 준비중"

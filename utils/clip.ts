@@ -9,7 +9,12 @@ import { clipContent } from "@/configs/contents/clip";
 import { isAllowedImageUrl } from "@/configs/imageHosts";
 import { placeholderImageUrl } from "@/configs/urls";
 import { getPagination, PAGE_SIZE, toSkip } from "@/utils/pagination";
-import { renderMarkdown, toPlainSummary } from "@/utils/markdown";
+import { fetchImageSizes, type ImageSize } from "@/utils/imageSize";
+import {
+  collectMarkdownImages,
+  renderMarkdown,
+  toPlainSummary,
+} from "@/utils/markdown";
 import { formatDate, parseSlugId } from "@/utils/project";
 import {
   RequestClipCarousel,
@@ -19,6 +24,11 @@ import {
   type ClipResponse,
   type ClipSearchDocument,
 } from "@/utils/requestToSrv";
+import {
+  lastSegment,
+  PRERENDER_COUNT,
+  withPrerenderFallback,
+} from "@/utils/staticParams";
 
 // 서버 캐시 이름표. 새 데이터가 들어오면 revalidateTag("clips")로 이 캐시만 지운다.
 const CACHE_TAG = "clips";
@@ -35,6 +45,7 @@ type ClipCardSource = Pick<
   | "category"
   | "thumbnail_img"
   | "duration"
+  | "seo_url"
   | "created_at"
 >;
 
@@ -54,7 +65,10 @@ const toCategoryLabel = (clip: Pick<ClipResponse, "category">) =>
     (category) => category.value !== "all" && category.value === clip.category,
   )?.label ?? "";
 
-const toHref = (clip: Pick<ClipResponse, "id">) => `/clip/${clip.id}`;
+// 상세 경로: /clip/6-eosaideu-ai-beuraujeo-... (seo_url이 없는 글은 숫자 id)
+export const getClipHref = (clip: Pick<ClipResponse, "id" | "seo_url">) =>
+  `/clip/${clip.seo_url ?? clip.id}`;
+const toHref = getClipHref;
 
 export function toClipItem(clip: ClipCardSource): ClipItem {
   return {
@@ -98,8 +112,13 @@ const toRecommendClip = (clip: ClipResponse): RecommendClipItem => ({
 });
 
 // 본문(description)은 마크다운 문자열이다. HTML로 변환하고 ## 제목으로 목차를 만든다.
-function toClipDetail(clip: ClipResponse): ClipDetail {
-  const body = clip.description ? renderMarkdown(clip.description) : null;
+function toClipDetail(
+  clip: ClipResponse,
+  imageSizes: Map<string, ImageSize>,
+): ClipDetail {
+  const body = clip.description
+    ? renderMarkdown(clip.description, imageSizes)
+    : null;
 
   return {
     id: String(clip.id),
@@ -109,6 +128,7 @@ function toClipDetail(clip: ClipResponse): ClipDetail {
     createdAt: formatDate(clip.created_at),
     views: clip.view_count,
     bookmarks: clip.bookmark_count,
+    href: toHref(clip),
     blocks: body ? [{ type: "html", html: body.html }] : [],
     headings: body?.headings ?? [],
   };
@@ -212,11 +232,24 @@ export async function getClipDetail(slug: string) {
   ]);
   if (!clip) return null;
 
+  // 본문 이미지 크기를 미리 읽어 자리를 잡는다. (상세 캐시와 함께 저장된다)
+  const imageSizes = await fetchImageSizes(
+    clip.description ? collectMarkdownImages(clip.description) : [],
+  );
+
   return {
-    detail: toClipDetail(clip),
+    detail: toClipDetail(clip, imageSizes),
     recommends: (latest ?? [])
       .filter((item) => item.id !== clip.id)
       .slice(0, RECOMMEND_COUNT)
       .map(toRecommendClip),
   };
+}
+
+// 상세 페이지 generateStaticParams: 최신 클립을 미리 만든다. (utils/staticParams)
+export async function getClipStaticParams() {
+  const clips = await RequestClipList({ limit: PRERENDER_COUNT });
+  return withPrerenderFallback(
+    (clips ?? []).map((clip) => ({ id: lastSegment(toHref(clip)) })),
+  );
 }

@@ -263,6 +263,7 @@ export const createDummyClipDetail = (id: string): ClipDetail => ({
   createdAt: "2026.01.28",
   views: 159,
   bookmarks: 24,
+  href: `/clip/${id}`,
   blocks: [
     {
       type: "paragraph",

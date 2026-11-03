@@ -24,6 +24,7 @@ import {
   type ListSort,
   type TeambuildingResponse,
 } from "@/utils/requestToSrv";
+import { PRERENDER_COUNT, withPrerenderFallback } from "@/utils/staticParams";
 import {
   toTeambuildingFilterParams,
   type TeamBuildingFilters,
@@ -206,4 +207,15 @@ export async function getTeamBuildingDetail(
 
   const data = await RequestTeambuildingDetail(id);
   return data ? toTeamBuildingDetail(data) : null;
+}
+
+// 상세 페이지 generateStaticParams: 최신 팀빌딩 글을 미리 만든다. (utils/staticParams)
+export async function getTeamBuildingStaticParams() {
+  const posts = await RequestTeambuildingList({
+    limit: PRERENDER_COUNT,
+    sort: "latest",
+  });
+  return withPrerenderFallback(
+    (posts ?? []).map((post) => ({ id: String(post.teambuilding_id) })),
+  );
 }

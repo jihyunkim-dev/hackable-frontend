@@ -14,6 +14,11 @@ import { isAllowedImageUrl } from "@/configs/imageHosts";
 import { placeholderImageUrl } from "@/configs/urls";
 import { getPagination, PAGE_SIZE, toSkip } from "@/utils/pagination";
 import {
+  lastSegment,
+  PRERENDER_COUNT,
+  withPrerenderFallback,
+} from "@/utils/staticParams";
+import {
   RequestProjectDetail,
   RequestProjectList,
   RequestSearchProjects,
@@ -166,6 +171,22 @@ export function toProjectItem(
     prize: project.prize ?? "미정",
     href: getProjectHref(project),
   };
+}
+
+// 상세 페이지 generateStaticParams: 카테고리 최신 글을 미리 만든다. (utils/staticParams)
+export async function getProjectStaticParams(
+  category: Exclude<ProjectCategory, "all">,
+) {
+  const data = await RequestProjectList({
+    limit: PRERENDER_COUNT,
+    category: projectApiCategories[category],
+    sort: "latest",
+  });
+  return withPrerenderFallback(
+    (data?.items ?? []).map((project) => ({
+      id: lastSegment(getProjectHref(project)),
+    })),
+  );
 }
 
 // 메타 설명용: HTML 태그를 빼고 앞부분만 자른다.
