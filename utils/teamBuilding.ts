@@ -155,9 +155,16 @@ export async function getTeamBuildingPage(
   };
 }
 
-// 2026-05-15T10:07:55 → 2026.05.15 10:07
-const formatDateTime = (value: string) =>
-  `${formatDate(value)} ${value.slice(11, 16)}`;
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+// 팀빌딩 작성 시각은 시간대 표기 없이 UTC로 온다. 한국 시간으로 바꿔 보여 준다.
+// 2026-05-15T01:07:55 (UTC) → 2026.05.15 10:07
+const formatDateTime = (value: string) => {
+  const hasZone = /(Z|[+-]\d{2}:?\d{2})$/.test(value);
+  const utc = new Date(hasZone ? value : `${value}Z`).getTime();
+  const kst = new Date(utc + KST_OFFSET_MS).toISOString();
+  return `${formatDate(kst)} ${kst.slice(11, 16)}`;
+};
 
 export function toTeamBuildingDetail(
   post: TeambuildingResponse,

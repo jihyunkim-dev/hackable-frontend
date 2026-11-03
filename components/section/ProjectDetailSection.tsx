@@ -1,6 +1,8 @@
 import Image from "next/image";
+import { FLOATING_POSITION } from "@/components/layout/floatingPosition";
 import Button from "@/components/ui/Button";
 import { projectDetailContent } from "@/configs/contents/projectDetail";
+import { cn } from "@/lib/utils";
 
 export interface ProjectDetail {
   id: string;
@@ -113,6 +115,23 @@ export default function ProjectDetailSection({
           )}
         </div>
       </aside>
+
+      {/* lg 미만: 요약 카드가 없어 참여하기를 우측 하단 원형 플로팅 버튼으로 띄운다. (구독 버튼 자리) */}
+      {detail.applyUrl && (
+        <a
+          href={detail.applyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          // 같은 자리의 구독 버튼을 숨기는 표시 (components/layout/FloatingButton)
+          data-floating-override=""
+          className={cn(
+            FLOATING_POSITION,
+            "size-16 rounded-full bg-primary-600 text-label-m font-bold text-white hover:bg-primary-700 lg:hidden",
+          )}
+        >
+          {applyLabel}
+        </a>
+      )}
     </section>
   );
 }

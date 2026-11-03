@@ -66,9 +66,16 @@ export const teamBuildingContent = {
       label: "이미지 첨부",
       description: "이미지 첨부는 하나의 이미지만 가능합니다.",
       remove: "이미지 삭제",
-      invalidType: "JPG, PNG, WEBP, GIF 이미지만 첨부할 수 있어요.",
-      tooLarge: "10MB 이하 이미지만 첨부할 수 있어요. (GIF는 3MB 이하)",
-      uploadError: "이미지를 올리지 못했어요. 잠시 후 다시 시도해주세요.",
+      // 업로드 실패 안내 모달 문구 (utils/imageUpload의 ImageUploadErrorCode별)
+      errors: {
+        tooLarge: ["이미지 첨부 용량은", "2MB까지 가능해요."],
+        invalidType: ["JPG, PNG, WEBP, GIF 이미지만", "첨부할 수 있어요."],
+        unauthorized: [
+          "로그인이 만료되었어요.",
+          "다시 로그인한 뒤 올려주세요.",
+        ],
+        failed: ["이미지를 올리지 못했어요.", "잠시 후 다시 시도해주세요."],
+      },
     },
     statusLabel: "모집 상태",
     positionLabel: "모집 포지션",

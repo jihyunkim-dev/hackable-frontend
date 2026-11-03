@@ -11,8 +11,8 @@ export const IMAGE_UPLOAD_TYPES = [
 // 고를 수 있는 원본 최대 10MB. 올리기 전에 브라우저에서 줄인다.
 export const IMAGE_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
 
-// 줄인 뒤 서버가 받는 최대 크기. (GIF는 줄이지 않으므로 이 크기를 넘으면 올릴 수 없다)
-export const IMAGE_UPLOAD_MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
+// 줄인 뒤 서버가 받는 최대 크기 2MB. (GIF는 줄이지 않으므로 이 크기를 넘으면 올릴 수 없다)
+export const IMAGE_UPLOAD_MAX_UPLOAD_BYTES = 2 * 1024 * 1024;
 
 // 긴 변 최대 길이(px). 상세 화면 폭 800px의 2배 화면까지 선명하다.
 const MAX_DIMENSION = 1600;
@@ -47,16 +47,45 @@ async function compressImage(file: File): Promise<Blob> {
   return blob && blob.size < file.size ? blob : file;
 }
 
+// 업로드 실패 이유. 화면은 이유별로 다른 안내를 띄운다. (configs/contents/teamBuilding의 image 문구)
+// tooLarge: 용량 초과 / invalidType: 형식 / unauthorized: 로그인 만료 / failed: 그 밖의 실패(서버·네트워크)
+export type ImageUploadErrorCode =
+  "tooLarge" | "invalidType" | "unauthorized" | "failed";
+
+export class ImageUploadError extends Error {
+  constructor(readonly code: ImageUploadErrorCode) {
+    super(code);
+    this.name = "ImageUploadError";
+  }
+}
+
+// 서버 응답 코드 → 실패 이유 (app/api/uploads/image)
+const errorCodeByStatus: Record<number, ImageUploadErrorCode> = {
+  401: "unauthorized",
+  413: "tooLarge",
+  415: "invalidType",
+};
+
 // 이미지를 줄여서 올리고 공개 주소를 돌려준다. (app/api/uploads/image)
+// 실패하면 ImageUploadError를 던진다.
 export async function uploadImage(file: File): Promise<string> {
-  const image = await compressImage(file);
+  const image = await compressImage(file).catch(() => {
+    // 브라우저가 열지 못하는 이미지 (손상된 파일 등)
+    throw new ImageUploadError("invalidType");
+  });
   if (image.size > IMAGE_UPLOAD_MAX_UPLOAD_BYTES) {
-    throw new Error("이미지가 너무 커요.");
+    throw new ImageUploadError("tooLarge");
   }
   const body = new FormData();
   body.append("file", image, file.name);
-  const res = await fetch("/api/uploads/image", { method: "POST", body });
-  if (!res.ok) throw new Error("이미지를 올리지 못했어요.");
+  const res = await fetch("/api/uploads/image", { method: "POST", body }).catch(
+    () => {
+      throw new ImageUploadError("failed");
+    },
+  );
+  if (!res.ok) {
+    throw new ImageUploadError(errorCodeByStatus[res.status] ?? "failed");
+  }
   const data: { url: string } = await res.json();
   return data.url;
 }
