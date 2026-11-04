@@ -15,7 +15,7 @@ export const navItems: NavItem[] = [
 
 export const headerActions = {
   home: { label: "Hackable 홈", href: "/" },
-  subscribe: { label: "구독 안내", href: "/newsletter/subscribe" },
+  subscribe: { label: "무료구독", href: "/newsletter/subscribe" },
   login: { label: "로그인" },
   myPage: { label: "마이페이지", href: "/mypage" },
 };

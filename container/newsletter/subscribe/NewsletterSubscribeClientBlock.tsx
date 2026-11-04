@@ -3,7 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useId, useState } from "react";
+import { FormEvent, Fragment, useId, useState } from "react";
 import Button from "@/components/ui/Button";
 import MultiLine from "@/components/ui/MultiLine";
 import { newsletterSubscribeContent } from "@/configs/contents/newsletter";
@@ -72,8 +72,14 @@ export function NewsletterSubscribeForm() {
           height={33}
           className="h-[22px] w-auto lg:h-[33px]"
         />
-        <p className="p-2.5 text-body-m font-medium text-gray-600">
-          <MultiLine lines={content.description} />
+        {/* 소개 문구: text-body-l보다 2px 크게 (18~20px, 줄 간격도 2px) */}
+        <p className="p-2.5 text-[clamp(1.125rem,1.0786rem+0.1905vw,1.25rem)]/[clamp(1.875rem,1.8286rem+0.1905vw,2rem)] font-medium text-gray-600 [&_strong]:font-bold [&_strong]:text-primary-600">
+          {content.description.map((line, index) => (
+            <Fragment key={index}>
+              {index > 0 && <br />}
+              {line}
+            </Fragment>
+          ))}
         </p>
       </div>
 

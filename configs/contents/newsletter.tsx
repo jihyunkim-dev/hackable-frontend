@@ -12,9 +12,13 @@ export const newsletterSectionContent = {
 };
 
 export const newsletterSubscribeContent = {
+  // <strong>은 강조 글자 (굵게·보라색)
   description: [
-    "스펙이 아닌, 기회를 쌓는 사람들을 위해.",
-    "공모전부터 해커톤, 사이드 모집까지, 해커블이 매주 모아드려요.",
+    <>
+      기회를 쌓는 사람들을 위해 <strong>무료</strong>로
+    </>,
+    "해커블이 공모전부터 해커톤, 사이드 모집까지.",
+    "매주 정성스럽게 모아드려요.",
   ],
   emailLabel: "이메일",
   emailPlaceholder: "이메일을 입력해주세요.",
