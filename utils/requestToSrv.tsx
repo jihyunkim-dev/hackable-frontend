@@ -257,7 +257,8 @@ export interface GrantListResponse {
 export interface GrantListQuery extends PagingQuery {
   category?: GrantCategoryValue | null;
   region?: string | null;
-  status?: RecruitStatus | null;
+  // 생략하면 마감 전 항목만. all은 마감 포함 전체
+  status?: RecruitStatus | "all" | null;
   sort?: ListSort;
 }
 
