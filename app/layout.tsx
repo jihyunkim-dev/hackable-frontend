@@ -20,9 +20,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   ...pageMetadata(seoContent.home),
   // 검색엔진 사이트 소유 확인 (네이버 서치어드바이저). 페이지 메타데이터가 덮어쓰지 않아 모든 페이지에 붙는다.
+  // 계정마다 코드가 달라 여러 개를 넣는다. (배열이면 meta 태그가 하나씩 생긴다)
   verification: {
     other: {
-      "naver-site-verification": "b30f85645946a215a36d521ac52fc0fbfc87384f",
+      "naver-site-verification": [
+        "b30f85645946a215a36d521ac52fc0fbfc87384f",
+        "7c71c12ad7a38914a497b8379d14c7706af57699",
+        "cfa8d1f695908a7629ac5abadfa41dbad2e5a596",
+      ],
     },
   },
 };
