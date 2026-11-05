@@ -8,6 +8,7 @@ import {
   RequestRefreshToken,
   type TokenResponse,
 } from "@/utils/requestToSrv";
+import { LOGIN_EVENT_COOKIE, type LoginMethod } from "@/lib/analytics";
 
 export const AUTH_COOKIE = {
   access: "hk_access_token",
@@ -131,9 +132,11 @@ export async function withAuth<T>(
 // 성공: access_token·refresh_token·login_success=true → 쿠키에 저장하고 원래 페이지로 이동
 // 실패: login_success=false·error=<코드>·message=<안내 문구> → 원래 페이지에서 안내 문구를 보여준다.
 // (components/layout/header/HeaderClient)
+// method: GA login 이벤트용으로 로그인 방식을 1분짜리 쿠키에 남긴다. (lib/analytics LOGIN_EVENT_COOKIE)
 export async function finishSocialLogin(
   params: URLSearchParams | null,
   origin: string,
+  method: LoginMethod,
 ): Promise<never> {
   const returnTo = await takeReturnTo();
   const accessToken = params?.get("access_token");
@@ -144,6 +147,11 @@ export async function finishSocialLogin(
       access_token: accessToken,
       refresh_token: refreshToken,
       token_type: "bearer",
+    });
+    (await cookies()).set(LOGIN_EVENT_COOKIE, method, {
+      ...baseCookie,
+      httpOnly: false,
+      maxAge: 60,
     });
     redirect(returnTo);
   }

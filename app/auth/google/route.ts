@@ -7,5 +7,6 @@ export async function GET(request: NextRequest) {
   return finishSocialLogin(
     request.nextUrl.searchParams,
     request.nextUrl.origin,
+    "google",
   );
 }

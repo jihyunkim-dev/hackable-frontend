@@ -2,6 +2,7 @@ import { getImageProps } from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
+import { gaAttrs } from "@/lib/analytics";
 
 interface BannerImage {
   src: string;
@@ -63,6 +64,9 @@ export default function PromoBanner({
     className,
   );
 
+  // 배너 클릭 (GA select_promotion). 배너 이름은 alt 문구를 쓴다.
+  const promotion = gaAttrs("select_promotion", { promotion_name: alt });
+
   const picture = (
     <picture>
       {lg && <source media="(min-width: 75rem)" srcSet={lg} />}
@@ -88,6 +92,7 @@ export default function PromoBanner({
         href={href}
         target="_blank"
         rel="noopener noreferrer"
+        {...promotion}
         style={ratio}
         className={boxClassName}
       >
@@ -97,7 +102,7 @@ export default function PromoBanner({
   }
 
   return (
-    <Link href={href} style={ratio} className={boxClassName}>
+    <Link href={href} {...promotion} style={ratio} className={boxClassName}>
       {picture}
     </Link>
   );

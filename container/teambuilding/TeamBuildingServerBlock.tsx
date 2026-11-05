@@ -96,7 +96,10 @@ function TeamBuildingListSection({
             className="hidden gap-1.5 md:inline-flex"
           >
             {/* 로그인하지 않았으면 이동하지 않고 로그인 모달을 띄운다. */}
-            <LoginRequiredLink href={teamBuildingContent.create.href}>
+            <LoginRequiredLink
+              href={teamBuildingContent.create.href}
+              loginTrigger="teambuilding_create"
+            >
               <Image
                 src={commonIconUrl.plus}
                 alt=""

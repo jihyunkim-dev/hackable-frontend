@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { commonIconUrl } from "@/configs/urls";
+import { getPageContent, track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 interface ShareButtonProps {
@@ -31,15 +32,18 @@ export default function ShareButton({
 
   const handleShare = async () => {
     const url = window.location.href;
+    const content = getPageContent(window.location.pathname);
     if (navigator.share) {
       try {
         await navigator.share({ title, url });
+        track("share", { ...content, method: "native" });
       } catch {
         // 사용자가 공유를 취소한 경우
       }
       return;
     }
     await navigator.clipboard.writeText(url);
+    track("share", { ...content, method: "copy" });
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

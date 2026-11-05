@@ -11,5 +11,5 @@ export async function GET(request: NextRequest) {
   const code = query.get("code");
   const params = code ? await RequestKakaoCallback(code) : query;
 
-  return finishSocialLogin(params, request.nextUrl.origin);
+  return finishSocialLogin(params, request.nextUrl.origin, "kakao");
 }

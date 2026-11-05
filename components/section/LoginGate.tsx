@@ -29,7 +29,7 @@ export default function LoginGate({
   const isGuest = isHydrated && !isPending && !user;
 
   useEffect(() => {
-    if (isGuest) openLoginModal();
+    if (isGuest) openLoginModal("login_gate");
   }, [isGuest]);
 
   if (!isHydrated || isPending) return <div className="min-h-[60vh]" />;
@@ -44,7 +44,7 @@ export default function LoginGate({
         </p>
         <Button
           variant="secondary"
-          onClick={openLoginModal}
+          onClick={() => openLoginModal("login_gate")}
           className="mt-3 px-10"
         >
           {signInContent.required.button}

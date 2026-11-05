@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import LoginRequiredLink from "@/components/ui/LoginRequiredLink";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
 import { commonIconUrl } from "@/configs/urls";
+import { gaAttrs } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { FLOATING_POSITION } from "./floatingPosition";
 
@@ -48,6 +49,7 @@ function SubscribeLink({ className }: { className?: string }) {
     <Link
       href={SUBSCRIBE_HREF}
       aria-label="뉴스레터 구독하기"
+      {...gaAttrs("subscribe_cta_click", { location: "floating" })}
       className={cn(
         FLOATING_POSITION,
         "floating-gradient size-13 rounded-[20px] md:size-16 md:rounded-3xl",
@@ -69,6 +71,7 @@ function SubscribeLink({ className }: { className?: string }) {
 function CreateTeamBuildingLink() {
   return (
     <LoginRequiredLink
+      loginTrigger="teambuilding_create"
       href={teamBuildingContent.create.href}
       aria-label={teamBuildingContent.create.label}
       className={cn(

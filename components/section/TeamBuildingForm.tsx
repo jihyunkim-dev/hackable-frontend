@@ -11,6 +11,7 @@ import { commonIconUrl } from "@/configs/urls";
 import { useMe } from "@/hooks/useAuth";
 import { openLoginModal } from "@/hooks/useLoginModal";
 import { useSaveTeamBuilding } from "@/hooks/useMypage";
+import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { showAlert } from "@/hooks/useAlertModal";
 import {
@@ -120,7 +121,7 @@ export default function TeamBuildingForm({
     if (isSaving) return;
     // 페이지는 LoginGate로 막지만, 작성 중 로그인이 끝난 경우를 대비한다.
     if (!user) {
-      openLoginModal();
+      openLoginModal("teambuilding_create");
       return;
     }
     if (!title.trim()) {
@@ -161,7 +162,15 @@ export default function TeamBuildingForm({
         imageUrl,
       },
       {
-        onSuccess: (id) => router.push(`/teambuilding/${id}`),
+        onSuccess: (id) => {
+          if (mode === "create") {
+            track("teambuilding_create", {
+              item_category: category,
+              position: position.join(","),
+            });
+          }
+          router.push(`/teambuilding/${id}`);
+        },
         onError: () => showAlert(content.saveError),
       },
     );

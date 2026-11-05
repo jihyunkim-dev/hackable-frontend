@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { afterPageSettled } from "@/lib/afterPageSettled";
+import { track, type LoginTrigger } from "@/lib/analytics";
 import { rememberFocus } from "@/lib/returnFocus";
 
 // 사이트 공용 로그인 모달 열림 상태. 모달은 레이아웃에 하나만 두고(GlobalSignInModal),
@@ -18,8 +19,12 @@ export function setLoginModalOpen(open: boolean) {
 }
 
 // 페이지 첫 로드 중에 불리면 로드가 끝난 뒤 연다. (lib/afterPageSettled)
-export const openLoginModal = () =>
-  afterPageSettled(() => setLoginModalOpen(true));
+// trigger: 모달을 띄운 곳 (GA login_modal_open)
+export const openLoginModal = (trigger: LoginTrigger) =>
+  afterPageSettled(() => {
+    if (!isOpen) track("login_modal_open", { trigger });
+    setLoginModalOpen(true);
+  });
 
 const subscribe = (listener: () => void) => {
   listeners.add(listener);

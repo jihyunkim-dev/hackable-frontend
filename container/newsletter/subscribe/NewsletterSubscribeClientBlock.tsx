@@ -7,6 +7,7 @@ import { FormEvent, Fragment, useId, useState } from "react";
 import Button from "@/components/ui/Button";
 import MultiLine from "@/components/ui/MultiLine";
 import { newsletterSubscribeContent } from "@/configs/contents/newsletter";
+import { track } from "@/lib/analytics";
 import { commonIconUrl, logoPrimaryUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
 import { RequestNewsletterSubscribe } from "@/utils/requestToSrv";
@@ -35,8 +36,10 @@ export function NewsletterSubscribeForm() {
     const result = await RequestNewsletterSubscribe({ email: trimmedEmail });
     setIsSubmitting(false);
 
-    if (result) setSubmittedEmail(trimmedEmail);
-    else setHasError(true);
+    if (result) {
+      setSubmittedEmail(trimmedEmail);
+      track("generate_lead", { location: "subscribe_page" });
+    } else setHasError(true);
   };
 
   if (submittedEmail) {

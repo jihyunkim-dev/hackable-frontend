@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ReactNode, Suspense } from "react";
 import Button from "@/components/ui/Button";
 import { logoUrl } from "@/configs/urls";
+import { gaAttrs } from "@/lib/analytics";
 import {
   AccountButton,
   LoginErrorNotice,
@@ -71,7 +72,10 @@ function DesktopActions() {
   return (
     <div className="hidden items-center gap-2 md:flex">
       <Button asChild size="sm">
-        <Link href={headerActions.subscribe.href}>
+        <Link
+          href={headerActions.subscribe.href}
+          {...gaAttrs("subscribe_cta_click", { location: "header" })}
+        >
           {headerActions.subscribe.label}
         </Link>
       </Button>
@@ -90,6 +94,7 @@ function MobileActions() {
     <div className="flex items-center gap-4 md:hidden">
       <Link
         href={headerActions.subscribe.href}
+        {...gaAttrs("subscribe_cta_click", { location: "header" })}
         className="text-label-m text-primary-500"
       >
         {headerActions.subscribe.label}

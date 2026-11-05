@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import TextLogoThumbnail from "@/components/ui/TextLogoThumbnail";
 import { projectDetailContent } from "@/configs/contents/projectDetail";
 import { placeholderImageUrl } from "@/configs/urls";
+import { gaAttrs } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 export interface ProjectDetail {
@@ -112,6 +113,7 @@ export default function ProjectDetailSection({
                 href={detail.applyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                {...gaAttrs("apply_click", { location: "sidebar" })}
               >
                 {applyLabel}
               </a>
@@ -126,6 +128,7 @@ export default function ProjectDetailSection({
           href={detail.applyUrl}
           target="_blank"
           rel="noopener noreferrer"
+          {...gaAttrs("apply_click", { location: "floating" })}
           className={cn(
             FLOATING_CENTER_POSITION,
             "h-13 rounded-full bg-primary-600 px-12 text-label-l font-bold whitespace-nowrap text-white hover:bg-primary-700 md:h-16 md:px-16 lg:hidden",

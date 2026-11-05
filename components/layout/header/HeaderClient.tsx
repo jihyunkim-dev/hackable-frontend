@@ -78,7 +78,7 @@ export function AccountButton({
       variant="secondary"
       size="sm"
       className="px-6"
-      onClick={openLoginModal}
+      onClick={() => openLoginModal("header")}
     >
       {loginLabel}
     </Button>
@@ -119,7 +119,7 @@ export function MobileAccountButton({
     <button
       type="button"
       aria-label={loginLabel}
-      onClick={openLoginModal}
+      onClick={() => openLoginModal("header")}
       className="flex size-9 items-center justify-center rounded-full bg-gray-50"
     >
       <Image src={userIconUrl} alt="" width={16} height={16} />

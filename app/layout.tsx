@@ -9,6 +9,7 @@ import Header from "@/components/layout/header/Header";
 import Footer from "@/components/layout/footer/Footer";
 import FloatingButton from "@/components/layout/FloatingButton";
 import QueryProvider from "@/components/layout/QueryProvider";
+import Analytics from "@/components/layout/Analytics";
 import {
   GlobalAlertModal,
   GlobalSignInModal,
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <GlobalSignInModal />
           <GlobalAlertModal />
         </QueryProvider>
+        <Analytics />
       </body>
     </html>
   );

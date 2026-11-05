@@ -9,6 +9,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import type { MypageActivity } from "@/utils/mypage";
 import type { BookmarkResponse } from "@/utils/requestToSrv";
 import { showAlert } from "@/hooks/useAlertModal";
+import { track } from "@/lib/analytics";
 
 export type BookmarkType = "project" | "grant" | "teambuilding" | "clip";
 
@@ -125,6 +126,10 @@ export function useBookmark(type: BookmarkType, id: string, count?: number) {
       return { previous };
     },
     onSuccess: (result) => {
+      track(result.is_bookmarked ? "bookmark_add" : "bookmark_remove", {
+        content_type: type,
+        item_id: id,
+      });
       setOverride(key, {
         bookmarked: result.is_bookmarked,
         count: result.bookmark_count,
@@ -144,7 +149,7 @@ export function useBookmark(type: BookmarkType, id: string, count?: number) {
 
   const toggle = () => {
     if (!user) {
-      openLoginModal();
+      openLoginModal("bookmark");
       return;
     }
     if (!mutation.isPending) mutation.mutate(!bookmarked);

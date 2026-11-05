@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import { newsletterUnsubscribeContent } from "@/configs/contents/newsletter";
+import { track } from "@/lib/analytics";
 
 type Status = "idle" | "submitting" | "done" | "invalid" | "error";
 
@@ -21,8 +22,10 @@ export function NewsletterUnsubscribeForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
       });
-      if (res.ok) setStatus("done");
-      else
+      if (res.ok) {
+        setStatus("done");
+        track("newsletter_unsubscribe", {});
+      } else
         setStatus(
           res.status === 404 || res.status === 400 ? "invalid" : "error",
         );

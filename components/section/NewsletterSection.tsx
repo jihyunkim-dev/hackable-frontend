@@ -1,6 +1,7 @@
 import Link from "next/link";
 import MultiLine from "@/components/ui/MultiLine";
 import { newsletterSectionContent } from "@/configs/contents/newsletter";
+import { gaAttrs } from "@/lib/analytics";
 
 // 상세 페이지 하단의 뉴스레터 소개. md 이상에서는 좌(소개) / 우(목록) 2단
 export default function NewsletterSection() {
@@ -25,6 +26,7 @@ export default function NewsletterSection() {
           </div>
           <Link
             href={link.href}
+            {...gaAttrs("subscribe_cta_click", { location: "main_section" })}
             className="shrink-0 p-2 text-label-l text-gray-800 underline underline-offset-2"
           >
             {link.label}
