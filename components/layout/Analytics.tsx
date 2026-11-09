@@ -16,7 +16,9 @@ import {
 } from "@/lib/analytics";
 
 // GA4 gtag.js를 받고, data-ga-event가 붙은 링크·버튼의 클릭을 보낸다. (lib/analytics)
-// 스크립트는 hydration 뒤에 받아 첫 화면 표시(LCP·FCP)를 늦추지 않는다.
+// 스크립트(약 180KB)는 페이지 로드가 끝나고 브라우저가 한가할 때 받는다. (lazyOnload)
+// 일찍 받으면 첫 화면 이미지·폰트와 대역폭을 나눠 써 LCP가 늦어진다.
+// 그 전에 보낸 페이지뷰·이벤트는 dataLayer에 쌓였다가 스크립트가 받아지면 순서대로 보낸다.
 export default function Analytics() {
   useEffect(() => {
     initAnalytics();
@@ -44,7 +46,7 @@ export default function Analytics() {
   return (
     <Script
       src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-      strategy="afterInteractive"
+      strategy="lazyOnload"
     />
   );
 }

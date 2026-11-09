@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import DefaultLayout from "@/components/layout/DefaultLayout";
 import ClipCard, { type ClipItem } from "@/components/section/ClipCard";
 import ProjectCard, {
@@ -36,6 +37,11 @@ export default function MainServerBlock({
     </DefaultLayout>
   );
 }
+
+// 첫 화면 아래 섹션은 화면 가까이 올 때까지 배치·그리기를 미룬다. (content-visibility: auto)
+// 그 안 글자에만 쓰이는 폰트 묶음(팀빌딩 제목 등)도 그때 받아, 첫 화면 표시(FCP·LCP)를 늦추지 않는다.
+// contain-intrinsic-size: 그리기 전 자리 높이 (한 번 그려지면 실제 높이를 기억한다. auto)
+const BELOW_FOLD = "[content-visibility:auto]";
 
 /* ===== Hero ===== */
 
@@ -127,7 +133,9 @@ function TeamBuildingSection({ items }: { items: TeamBuildingItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <section className="py-3">
+    <section
+      className={cn(BELOW_FOLD, "py-3 [contain-intrinsic-size:auto_640px]")}
+    >
       <SectionIntro eyebrow={teamBuilding.eyebrow} title={teamBuilding.title} />
 
       <div className="mx-auto w-full max-w-[1296px]">
@@ -162,7 +170,12 @@ function ClipSection({ clips }: { clips: ClipItem[] }) {
   const { clip } = mainContent;
 
   return (
-    <section className="flex flex-col gap-2 py-7 md:gap-8">
+    <section
+      className={cn(
+        BELOW_FOLD,
+        "flex flex-col gap-2 py-7 [contain-intrinsic-size:auto_1200px] md:gap-8",
+      )}
+    >
       <SectionIntro eyebrow={clip.eyebrow} title={clip.title} />
 
       <ul className="mx-auto flex w-full flex-col gap-3 px-3 sm:max-w-[680px] sm:gap-8 sm:px-0 md:max-w-[840px] lg:max-w-[1020px]">
@@ -182,7 +195,12 @@ function ClosingSection() {
   const { closing } = mainContent;
 
   return (
-    <section className="flex flex-col items-center gap-4 bg-linear-to-b from-white to-primary-50 px-2.5 py-20 text-center">
+    <section
+      className={cn(
+        BELOW_FOLD,
+        "flex flex-col items-center gap-4 bg-linear-to-b from-white to-primary-50 px-2.5 py-20 text-center [contain-intrinsic-size:auto_400px]",
+      )}
+    >
       <div className="flex flex-col gap-2 p-3 md:gap-6">
         {/* 홍보 문구는 제목 태그가 아니라 일반 텍스트 (H태그 문서 규칙 4) */}
         <p className="text-heading-m font-extrabold text-gray-800">
