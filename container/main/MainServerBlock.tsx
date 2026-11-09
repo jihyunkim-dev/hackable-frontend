@@ -5,6 +5,9 @@ import ProjectCard, {
   type ProjectItem,
 } from "@/components/section/ProjectCard";
 import SectionIntro from "@/components/section/SectionIntro";
+import TeamBuildingCard, {
+  type TeamBuildingItem,
+} from "@/components/section/TeamBuildingCard";
 import Button from "@/components/ui/Button";
 import MultiLine from "@/components/ui/MultiLine";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
@@ -13,11 +16,13 @@ import { HeroCarousel } from "./MainClientBlock";
 
 interface MainServerBlockProps {
   projects: Record<OpportunityTabValue, ProjectItem[]>;
+  teamBuildings: TeamBuildingItem[];
   clips: ClipItem[];
 }
 
 export default function MainServerBlock({
   projects,
+  teamBuildings,
   clips,
 }: MainServerBlockProps) {
   return (
@@ -25,6 +30,7 @@ export default function MainServerBlock({
       <HeroSection />
       <CarouselSection />
       <OpportunitySection projects={projects} />
+      <TeamBuildingSection items={teamBuildings} />
       <ClipSection clips={clips} />
       <ClosingSection />
     </DefaultLayout>
@@ -108,6 +114,44 @@ function OpportunitySection({
           </TabsContent>
         ))}
       </Tabs>
+    </section>
+  );
+}
+
+/* ===== TeamBuilding ===== */
+
+// 모집 중인 팀빌딩 글 몇 개. 기회 섹션과 같은 모양(가로 스크롤 카드 + 더 보기 버튼)
+// 모집 중인 글이 없으면 섹션을 뺀다.
+function TeamBuildingSection({ items }: { items: TeamBuildingItem[] }) {
+  const { teamBuilding } = mainContent;
+  if (items.length === 0) return null;
+
+  return (
+    <section className="py-3">
+      <SectionIntro eyebrow={teamBuilding.eyebrow} title={teamBuilding.title} />
+
+      <div className="mx-auto w-full max-w-[1296px]">
+        <ul className="scrollbar-hidden flex snap-x snap-mandatory scroll-px-5 gap-5 overflow-x-auto px-5 py-4 sm:gap-6 md:scroll-px-8 md:px-8 md:py-8 lg:py-12">
+          {items.map((item) => (
+            <li
+              key={item.id}
+              className="w-[260px] shrink-0 snap-start sm:w-[282px]"
+            >
+              <TeamBuildingCard item={item} />
+            </li>
+          ))}
+        </ul>
+
+        <div className="px-5 pb-6 md:px-8">
+          <Button
+            asChild
+            variant="outline"
+            className="w-full md:h-14 lg:h-[72px]"
+          >
+            <Link href={teamBuilding.moreHref}>{teamBuilding.moreLabel}</Link>
+          </Button>
+        </div>
+      </div>
     </section>
   );
 }

@@ -1,7 +1,8 @@
 // [더미 데이터] 사용 시 아래 import 주석 해제
+// import type { TeamBuildingItem } from "@/components/section/TeamBuildingCard";
 // import { dummyClips, dummyProjects } from "@/configs/contents/dummyData";
 import { getMainClips } from "@/utils/clip";
-import { getMainProjects } from "@/utils/main";
+import { getMainProjects, getMainTeamBuildings } from "@/utils/main";
 import MainClientContainer from "./MainClientContainer";
 import MainServerBlock from "./MainServerBlock";
 
@@ -10,18 +11,24 @@ const MAIN_CLIP_COUNT = 4;
 
 export default async function MainServerContainer() {
   // [실제 데이터] 더미 데이터 사용 시 아래 블록 주석 처리
-  const [projects, clips] = await Promise.all([
+  const [projects, teamBuildings, clips] = await Promise.all([
     getMainProjects(),
+    getMainTeamBuildings(),
     getMainClips(MAIN_CLIP_COUNT),
   ]);
 
   // [더미 데이터] 사용 시 아래 주석 해제
   // const projects = dummyProjects;
+  // const teamBuildings: TeamBuildingItem[] = [];
   // const clips = dummyClips;
 
   return (
     <MainClientContainer>
-      <MainServerBlock projects={projects} clips={clips} />
+      <MainServerBlock
+        projects={projects}
+        teamBuildings={teamBuildings}
+        clips={clips}
+      />
     </MainClientContainer>
   );
 }

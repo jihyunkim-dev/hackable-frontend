@@ -1,11 +1,21 @@
-// 메인 화면 데이터. (해커톤·공모전·지원사업 탭)
+// 메인 화면 데이터. (해커톤·공모전·지원사업 탭, 팀빌딩)
 import { cacheLife, cacheTag } from "next/cache";
 import type { ProjectItem } from "@/components/section/ProjectCard";
+import type { TeamBuildingItem } from "@/components/section/TeamBuildingCard";
 import type { OpportunityTabValue } from "@/configs/contents/main";
 import { projectApiCategories } from "@/configs/contents/project";
 import { findHostLogos, toGrantItem } from "@/utils/grant";
 import { toProjectItem } from "@/utils/project";
-import { RequestGrantList, RequestProjectList } from "@/utils/requestToSrv";
+import {
+  RequestGrantList,
+  RequestProjectList,
+  RequestTeambuildingList,
+} from "@/utils/requestToSrv";
+import {
+  isTeamBuildingOpen,
+  TEAMBUILDING_CACHE_TAG,
+  toTeamBuildingItem,
+} from "@/utils/teamBuilding";
 
 // 탭마다 보여 줄 카드 수
 const MAIN_PROJECT_COUNT = 4;
@@ -61,4 +71,26 @@ export async function getMainProjects(): Promise<
       toGrantItem(grant, now, hostLogoOf(grant.hosted)),
     ),
   };
+}
+
+// 모집 중인 최신 팀빌딩 글 중 무작위 몇 개를 고른다. (마감일이 지난 글은 뺀다)
+// 사용자가 바로 쓰는 글이라 몇 분만 캐시한다. 캐시가 갱신될 때 새로 섞인다.
+// 글을 쓰거나 고치면 팀빌딩 캐시 이름표로 메인도 같이 바뀐다.
+export async function getMainTeamBuildings(): Promise<TeamBuildingItem[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(TEAMBUILDING_CACHE_TAG);
+
+  const posts = await RequestTeambuildingList({
+    limit: POOL_SIZE,
+    sort: "latest",
+  });
+  const now = Date.now();
+  const openPosts = (posts ?? []).filter((post) =>
+    isTeamBuildingOpen(post, now),
+  );
+
+  return pickRandom(openPosts, MAIN_PROJECT_COUNT).map((post) =>
+    toTeamBuildingItem(post, now),
+  );
 }

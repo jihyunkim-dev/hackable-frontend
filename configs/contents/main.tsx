@@ -138,6 +138,13 @@ export const mainContent = {
     }[],
   },
 
+  teamBuilding: {
+    eyebrow: "팀빌딩",
+    title: ["대회는 찾았는데 팀이 없다면"],
+    moreLabel: "팀원 모집글 더 보기",
+    moreHref: "/teambuilding",
+  },
+
   clip: {
     eyebrow: "해커블 클립",
     title: ["성장에 필요한 실전 인사이트를", "해커블에서 만나보세요"],
