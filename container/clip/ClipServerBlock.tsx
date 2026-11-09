@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import DefaultLayout from "@/components/layout/DefaultLayout";
 import HeaderSpacer from "@/components/layout/HeaderSpacer";
 import ClipCard, { type ClipItem } from "@/components/section/ClipCard";
@@ -12,57 +13,66 @@ import WeeklyClipList, {
 import CategoryPills from "@/components/ui/CategoryPills";
 import MultiLine from "@/components/ui/MultiLine";
 import Pagination from "@/components/ui/Pagination";
+import { SearchBarSkeleton } from "@/components/ui/SearchBar";
+import { PAGE_SIZE } from "@/utils/pagination";
 import { bannerContent } from "@/configs/contents/banners";
 import { clipContent } from "@/configs/contents/clip";
 import { subscribeClipBannerUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
 
-interface ClipServerBlockProps {
-  featured: FeaturedClip[];
-  weekly: { title: string; items: WeeklyClipItem[] };
+// 주소(?category·page·q)에 따라 바뀌는 목록
+export interface ClipList {
   clips: ClipItem[];
   pagination: { currentPage: number; totalPages: number };
   activeCategoryHref: string;
-  // 페이지 이동 시 유지할 검색 조건
   // 지금 검색 중인 검색어
   q: string;
+  // 페이지 이동 시 유지할 검색 조건
   query: Record<string, string | undefined>;
+}
+
+interface ClipServerBlockProps {
+  featured: FeaturedClip[];
+  weekly: { title: string; items: WeeklyClipItem[] };
+  // 요청 때 주소를 읽어 가져오는 목록
+  list: Promise<ClipList>;
 }
 
 export default function ClipServerBlock({
   featured,
   weekly,
-  clips,
-  pagination,
-  activeCategoryHref,
-  q,
-  query,
+  list,
 }: ClipServerBlockProps) {
   return (
     <DefaultLayout>
       <HeaderSpacer />
-      <SearchSection q={q} />
+      <SearchSection query={list.then(({ q }) => q)} />
       <HighlightSection featured={featured} weekly={weekly} />
-      <ClipListSection
-        clips={clips}
-        pagination={pagination}
-        activeCategoryHref={activeCategoryHref}
-        q={q}
-        query={query}
-      />
+      <ClipListSection list={list} />
     </DefaultLayout>
   );
 }
 
 // 헤더 뒤로 지나가면 화면 아래 플로팅 검색창으로 바뀐다.
-function SearchSection({ q }: { q: string }) {
+// 검색어는 요청 때 정해져, 미리 렌더링되는 화면에는 같은 크기의 빈 자리만 둔다.
+function SearchSection({ query }: { query: Promise<string> }) {
   return (
     <section className="p-2 py-5 lg:py-3.5">
-      <FloatingSearchBar
-        action="/clip"
-        placeholder={clipContent.searchPlaceholder}
-        query={q}
-      />
+      <Suspense
+        fallback={
+          <div className="flex justify-center">
+            <SearchBarSkeleton />
+          </div>
+        }
+      >
+        {query.then((q) => (
+          <FloatingSearchBar
+            action="/clip"
+            placeholder={clipContent.searchPlaceholder}
+            query={q}
+          />
+        ))}
+      </Suspense>
     </section>
   );
 }
@@ -109,20 +119,9 @@ function HighlightSection({
   );
 }
 
-function ClipListSection({
-  clips,
-  pagination,
-  activeCategoryHref,
-  q,
-  query,
-}: Pick<
-  ClipServerBlockProps,
-  "clips" | "pagination" | "activeCategoryHref" | "q" | "query"
->) {
-  const activeCategory =
-    clipContent.categories.find((item) => item.href === activeCategoryHref) ??
-    clipContent.categories[0];
-
+// 제목·설명은 미리 렌더링하고, 카테고리 선택·목록·페이지네이션만 요청 때 채운다.
+// 기다리는 동안은 같은 크기의 빈 자리만 둬서 HTML에 H1·목록이 한 번씩만 들어간다.
+function ClipListSection({ list }: { list: Promise<ClipList> }) {
   return (
     <section>
       <div className={cn(CONTENT_WIDTH, "px-3 py-2 lg:px-0")}>
@@ -137,49 +136,84 @@ function ClipListSection({
       </div>
 
       <div className="border-b border-gray-200">
-        <CategoryPills
-          label="클립 카테고리"
-          items={clipContent.categories}
-          activeHref={activeCategoryHref}
-          className={CONTENT_WIDTH}
-        />
+        {/* 카테고리 줄 높이: p-2.5(20) + py-1(8) + text-label-l 줄 높이(24) */}
+        <Suspense fallback={<div aria-hidden className="h-[52px]" />}>
+          {list.then(({ activeCategoryHref }) => (
+            <CategoryPills
+              label="클립 카테고리"
+              items={clipContent.categories}
+              activeHref={activeCategoryHref}
+              className={CONTENT_WIDTH}
+            />
+          ))}
+        </Suspense>
       </div>
 
-      <h2
-        className={cn(
-          CONTENT_WIDTH,
-          "px-5 pt-5 text-heading-xs font-bold text-gray-800 lg:px-2 lg:pt-7",
-        )}
-      >
-        {q
-          ? clipContent.searchListTitle(q)
-          : clipContent.listTitle(activeCategory.label)}
-      </h2>
-      {clips.length === 0 && (
-        <p className="px-3 py-20 text-center text-body-l text-gray-500">
-          {q ? (
-            clipContent.empty.search(q)
-          ) : query.category ? (
-            <MultiLine lines={clipContent.empty.category} />
-          ) : (
-            clipContent.empty.all
-          )}
-        </p>
-      )}
-      <ul
-        className={cn(
-          CONTENT_WIDTH,
-          "flex flex-col gap-2 px-3 py-3 sm:gap-7 lg:px-0 lg:py-7",
-        )}
-      >
-        {clips.map((item) => (
-          <li key={item.id}>
-            <ClipCard item={item} />
+      <Suspense fallback={<ClipListSkeleton />}>
+        {list.then(({ clips, activeCategoryHref, q, query }) => {
+          const activeCategory =
+            clipContent.categories.find(
+              (item) => item.href === activeCategoryHref,
+            ) ?? clipContent.categories[0];
+
+          return (
+            <>
+              <h2 className={cn(CONTENT_WIDTH, LIST_TITLE_CLASS)}>
+                {q
+                  ? clipContent.searchListTitle(q)
+                  : clipContent.listTitle(activeCategory.label)}
+              </h2>
+              {clips.length === 0 && (
+                <p className="px-3 py-20 text-center text-body-l text-gray-500">
+                  {q ? (
+                    clipContent.empty.search(q)
+                  ) : query.category ? (
+                    <MultiLine lines={clipContent.empty.category} />
+                  ) : (
+                    clipContent.empty.all
+                  )}
+                </p>
+              )}
+              <ul className={cn(CONTENT_WIDTH, LIST_CLASS)}>
+                {clips.map((item) => (
+                  <li key={item.id}>
+                    <ClipCard item={item} />
+                  </li>
+                ))}
+              </ul>
+            </>
+          );
+        })}
+      </Suspense>
+
+      <Suspense>
+        {list.then(({ pagination, query }) => (
+          <Pagination {...pagination} basePath="/clip" query={query} />
+        ))}
+      </Suspense>
+    </section>
+  );
+}
+
+const LIST_TITLE_CLASS =
+  "px-5 pt-5 text-heading-xs font-bold text-gray-800 lg:px-2 lg:pt-7";
+const LIST_CLASS = "flex flex-col gap-2 px-3 py-3 sm:gap-7 lg:px-0 lg:py-7";
+
+// 목록을 기다리는 동안 목록 제목·카드 자리를 같은 크기로 비워 둔다. (글자·링크 없음)
+function ClipListSkeleton() {
+  return (
+    <div aria-hidden className="animate-pulse">
+      <div className={cn(CONTENT_WIDTH, LIST_TITLE_CLASS)}>
+        <div className="h-7 w-48 rounded-md bg-gray-100" />
+      </div>
+      <ul className={cn(CONTENT_WIDTH, LIST_CLASS)}>
+        {Array.from({ length: PAGE_SIZE.clip }, (_, index) => (
+          <li key={index} className="flex gap-2 rounded-xl p-2 sm:gap-5 sm:p-5">
+            <div className="flex-1 rounded-lg bg-gray-100" />
+            <div className="size-28 shrink-0 rounded-lg bg-gray-100 sm:h-60 sm:w-70 sm:rounded-[20px]" />
           </li>
         ))}
       </ul>
-
-      <Pagination {...pagination} basePath="/clip" query={query} />
-    </section>
+    </div>
   );
 }

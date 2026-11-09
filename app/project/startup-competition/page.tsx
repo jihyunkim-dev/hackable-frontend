@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { seoContent } from "@/configs/contents/seo";
 import { pageMetadata } from "@/utils/metadata";
-import { Suspense } from "react";
 import StartupCompetitionServerContainer from "@/container/project/startup-competition/StartupCompetitionServerContainer";
 
 export const metadata: Metadata = pageMetadata({
@@ -11,10 +10,7 @@ export const metadata: Metadata = pageMetadata({
 export default function StartupCompetition({
   searchParams,
 }: PageProps<"/project/startup-competition">) {
-  return (
-    // 검색 파라미터(page 등)는 요청 시점에 정해지므로, 미리 렌더링되는 화면은 1페이지로 보여준다.
-    <Suspense fallback={<StartupCompetitionServerContainer />}>
-      <StartupCompetitionServerContainer searchParams={searchParams} />
-    </Suspense>
-  );
+  // 주소에 따라 바뀌는 부분만 요청 때 채운다. (ServerBlock 안의 Suspense)
+  // 페이지 전체를 1페이지 화면으로 대체해 두면 HTML에 H1·목록이 두 번 들어간다.
+  return <StartupCompetitionServerContainer searchParams={searchParams} />;
 }

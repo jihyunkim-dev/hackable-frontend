@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 export const HUB_TAB_TRANSITION = "hub-tab";
 
 // 탭 이동일 때만 제목을 움직인다.
-// 처음 여는 탭은 1페이지 화면(Suspense fallback)이 먼저 보이고 실제 화면으로 한 번 더 바뀌는데,
-// 이 두 번째 전환에는 종류가 없어 제목이 다시 움직이지 않는다.
+// 팀빌딩처럼 제목이 주소(?type)에 따라 정해지면 빈 자리(Suspense fallback)가 먼저 보이고 제목으로 바뀌는데,
+// 이 전환에는 종류가 없어 제목이 움직이지 않는다.
 const HUB_TITLE_CLASS = {
   [HUB_TAB_TRANSITION]: "hub-title",
   default: "none",

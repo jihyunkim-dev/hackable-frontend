@@ -12,6 +12,7 @@ import {
   type TeamBuildingCategory,
 } from "@/utils/teamBuildingForm";
 import {
+  daysUntil,
   formatDate,
   formatDDay,
   parseKstDate,
@@ -26,6 +27,7 @@ import {
 } from "@/utils/requestToSrv";
 import { PRERENDER_COUNT, withPrerenderFallback } from "@/utils/staticParams";
 import {
+  matchesStatusFilter,
   toTeambuildingFilterParams,
   type TeamBuildingFilters,
 } from "@/utils/teamBuildingFilter";
@@ -36,6 +38,17 @@ export const TEAMBUILDING_CACHE_TAG = "teambuildings";
 // TODO: 모집 상태 값 확정 필요 (현재 "recruiting" 또는 null만 옴). 마감 값이 아니면 모집중으로 본다.
 export const TEAMBUILDING_STATUS = TEAMBUILDING_STATUS_VALUE;
 const CLOSED_STATUS = TEAMBUILDING_STATUS.closed;
+
+// 실제 모집 상태. 작성자가 마감으로 바꿨거나, 마감일이 지났으면 마감이다.
+// (마감일이 지나도 백엔드에 저장된 상태는 "recruiting" 그대로라 날짜도 본다. 마감일 당일까지는 모집중)
+export function isTeamBuildingOpen(
+  post: Pick<TeambuildingResponse, "status" | "end_date">,
+  now: number,
+) {
+  if (post.status === CLOSED_STATUS) return false;
+  const days = daysUntil(post.end_date, now);
+  return days === null || days >= 0;
+}
 
 // 카드에 필요한 필드만. (목록 응답과 검색 결과 문서를 같이 받는다)
 type TeamBuildingCardSource = Pick<
@@ -62,7 +75,7 @@ export function toTeamBuildingItem(
 ): TeamBuildingItem {
   return {
     id: String(post.teambuilding_id),
-    isOpen: post.status !== CLOSED_STATUS,
+    isOpen: isTeamBuildingOpen(post, now),
     category: toCategoryLabel(post.category),
     title: post.title,
     dDay: formatDDay(post.end_date, now),
@@ -140,15 +153,21 @@ export async function getTeamBuildingPage(
     q ? searchTeamBuildingIds(q) : null,
   ]);
 
+  const now = Date.now();
+
   let posts = all;
+  // 모집 상태는 마감일까지 보고 여기서 거른다. (utils/teamBuildingFilter matchesStatusFilter)
+  if (filters?.status.length) {
+    posts = posts.filter((post) =>
+      matchesStatusFilter(isTeamBuildingOpen(post, now), filters.status),
+    );
+  }
   if (searchIds) {
-    const byId = new Map(all.map((post) => [post.teambuilding_id, post]));
+    const byId = new Map(posts.map((post) => [post.teambuilding_id, post]));
     posts = searchIds
       .map((id) => byId.get(id))
       .filter((post): post is TeambuildingResponse => Boolean(post));
   }
-
-  const now = Date.now();
 
   const pagination = getPagination(posts.length, page, pageSize);
   const start = toSkip(pagination.currentPage, pageSize);
@@ -172,10 +191,11 @@ const formatDateTime = (value: string) => {
 
 export function toTeamBuildingDetail(
   post: TeambuildingResponse,
+  now: number,
 ): TeamBuildingDetail {
   return {
     id: String(post.teambuilding_id),
-    isOpen: post.status !== CLOSED_STATUS,
+    isOpen: isTeamBuildingOpen(post, now),
     title: post.title,
     // TODO: API에 작성자 이름이 없다. (author_id만 옴) 지금은 내가 쓴 글만 내 이름을 보여준다.
     author: "",
@@ -206,7 +226,7 @@ export async function getTeamBuildingDetail(
   if (!id) return null;
 
   const data = await RequestTeambuildingDetail(id);
-  return data ? toTeamBuildingDetail(data) : null;
+  return data ? toTeamBuildingDetail(data, Date.now()) : null;
 }
 
 // 상세 페이지 generateStaticParams: 최신 팀빌딩 글을 미리 만든다. (utils/staticParams)

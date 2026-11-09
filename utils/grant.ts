@@ -87,7 +87,8 @@ export function toGrantItem(
     dDay: formatDDay(grant.end_date, now),
     hostName: grant.hosted?.trim() || undefined,
     prizeLabel: "지원규모",
-    prize: grant.prize ?? "미정",
+    // 지원규모를 모르면 "미정"을 띄우지 않고 줄을 숨긴다. (ProjectCard)
+    prize: grant.prize?.trim() || undefined,
     href: getGrantHref(grant),
     bookmarkType: "grant",
   };

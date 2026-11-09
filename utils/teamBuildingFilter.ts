@@ -2,16 +2,14 @@
 // URL: ?position=기획,디자이너&period=단기(1~3달)&mode=온라인&status=모집중
 // (파라미터 이름은 필터 그룹 id, 값은 필터 모달의 항목 이름을 쉼표로 잇는다)
 // 백엔드도 그룹 안에서는 하나라도 맞으면, 그룹끼리는 모두 맞아야 남긴다.
+// 모집 상태만은 백엔드에 넘기지 않고 받은 뒤 거른다. (마감일이 지나도 저장된 상태가 그대로라서. matchesStatusFilter)
 import { defaultFilterGroups } from "@/configs/contents/filter";
 import { daysUntil } from "@/utils/project";
 import type {
   TeambuildingListQuery,
   TeambuildingRequest,
 } from "@/utils/requestToSrv";
-import {
-  TEAMBUILDING_STATUS_VALUE,
-  pickOptions,
-} from "@/utils/teamBuildingForm";
+import { pickOptions } from "@/utils/teamBuildingForm";
 
 export type TeamBuildingFilterId = "position" | "period" | "mode" | "status";
 export type TeamBuildingFilters = Record<TeamBuildingFilterId, string[]>;
@@ -32,11 +30,12 @@ const [OPEN_STATUS, CLOSED_STATUS] = optionsOf("status");
 // 단기(1~3달)와 중장기(3~6달)를 가르는 남은 날 수
 const SHORT_PERIOD_MAX_DAYS = 90;
 
-// 모집 상태 항목 이름 → 백엔드 값. (백엔드는 "모집중"이 아니라 저장된 값으로 거른다)
-const STATUS_VALUE_BY_LABEL: Record<string, string> = {
-  [OPEN_STATUS]: TEAMBUILDING_STATUS_VALUE.open,
-  [CLOSED_STATUS]: TEAMBUILDING_STATUS_VALUE.closed,
-};
+// 모집 상태 필터(모집중·모집마감)에 맞는 글인지. 고른 게 없거나 둘 다 골랐으면 모두 남긴다.
+// isOpen은 마감일까지 본 실제 모집 상태 (utils/teamBuilding isTeamBuildingOpen)
+export function matchesStatusFilter(isOpen: boolean, statuses: string[]) {
+  if (statuses.length === 0) return true;
+  return statuses.includes(isOpen ? OPEN_STATUS : CLOSED_STATUS);
+}
 
 // URL 값에서 필터 모달에 있는 항목만 꺼낸다. (모르는 값은 버린다)
 export function parseTeamBuildingFilters(
@@ -65,12 +64,11 @@ export const hasTeamBuildingFilters = (filters: TeamBuildingFilters) =>
 // 목록 API에 넘길 필터 조건. 고르지 않은 그룹은 보내지 않는다.
 export function toTeambuildingFilterParams(
   filters: TeamBuildingFilters,
-): Pick<TeambuildingListQuery, "position" | "duration" | "mode" | "status"> {
+): Pick<TeambuildingListQuery, "position" | "duration" | "mode"> {
   return {
     position: filters.position,
     duration: filters.period,
     mode: filters.mode,
-    status: filters.status.map((label) => STATUS_VALUE_BY_LABEL[label]),
   };
 }
 

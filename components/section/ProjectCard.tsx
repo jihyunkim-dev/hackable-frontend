@@ -13,7 +13,8 @@ export interface ProjectItem {
   hostName?: string;
   dDay: string;
   prizeLabel: string;
-  prize: string;
+  // 없으면 규모 줄을 숨긴다. (지원사업은 규모가 없으면 비워 둔다. 대회는 "미정"으로 채운다)
+  prize?: string;
   href: string;
   // 북마크 API 종류. 지원사업 카드만 "grant" (기본 "project")
   bookmarkType?: "project" | "grant";
@@ -85,14 +86,16 @@ export default function ProjectCard({
         <p className="text-label-m text-gray-600 sm:text-label-l">
           {item.dDay}
         </p>
-        <p className="flex items-center gap-1">
-          <span className="text-label-m text-gray-600 sm:text-label-l">
-            {item.prizeLabel}
-          </span>
-          <span className="bg-linear-[97deg] from-rose-500 from-32% to-primary-500 to-97% bg-clip-text text-heading-xs font-extrabold text-transparent sm:text-heading-s sm:font-extrabold">
-            {item.prize}
-          </span>
-        </p>
+        {item.prize && (
+          <p className="flex items-center gap-1">
+            <span className="text-label-m text-gray-600 sm:text-label-l">
+              {item.prizeLabel}
+            </span>
+            <span className="bg-linear-[97deg] from-rose-500 from-32% to-primary-500 to-97% bg-clip-text text-heading-xs font-extrabold text-transparent sm:text-heading-s sm:font-extrabold">
+              {item.prize}
+            </span>
+          </p>
+        )}
       </div>
     </div>
   );

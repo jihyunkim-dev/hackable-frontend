@@ -1,25 +1,20 @@
 import DefaultLayout from "@/components/layout/DefaultLayout";
 import HeaderSpacer from "@/components/layout/HeaderSpacer";
-import type { ProjectItem } from "@/components/section/ProjectCard";
-import ProjectListSection from "@/components/section/ProjectListSection";
+import ProjectListSection, {
+  type ProjectList,
+} from "@/components/section/ProjectListSection";
 import PromoBanner from "@/components/section/PromoBanner";
 import SearchSection from "@/components/section/SearchSection";
 import { bannerContent } from "@/configs/contents/banners";
 import { projectContent } from "@/configs/contents/project";
-import type { ListSort } from "@/utils/requestToSrv";
 
 interface StartupSupportServerBlockProps {
-  items: ProjectItem[];
-  pagination: { currentPage: number; totalPages: number };
-  sort: ListSort;
-  q: string;
+  // 요청 때 주소를 읽어 가져오는 목록
+  list: Promise<ProjectList>;
 }
 
 export default function StartupSupportServerBlock({
-  items,
-  pagination,
-  sort,
-  q,
+  list,
 }: StartupSupportServerBlockProps) {
   return (
     <DefaultLayout>
@@ -28,16 +23,9 @@ export default function StartupSupportServerBlock({
       <SearchSection
         action={projectContent.startupSupport.href}
         placeholder={projectContent.startupSupport.searchPlaceholder}
-
-        query={q}
+        query={list.then(({ q }) => q)}
       />
-      <ProjectListSection
-        category="support"
-        items={items}
-        sort={sort}
-        q={q}
-        {...pagination}
-      />
+      <ProjectListSection category="support" list={list} />
     </DefaultLayout>
   );
 }
