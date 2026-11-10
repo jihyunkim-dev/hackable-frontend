@@ -9,6 +9,7 @@ import { seoContent } from "@/configs/contents/seo";
 import { siteUrl } from "@/configs/urls";
 import { getClipHref } from "@/utils/clip";
 import { getGrantHref } from "@/utils/grant";
+import { getNewsletterArchive } from "@/utils/newsletterArchive";
 import { getProjectHref, parseKstDate } from "@/utils/project";
 import {
   RequestClipList,
@@ -96,15 +97,17 @@ async function fetchClips() {
 export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
   "use cache";
   cacheLife("hours");
-  cacheTag("projects", "grants", "clips", TEAMBUILDING_CACHE_TAG);
+  cacheTag("projects", "grants", "clips", "newsletter", TEAMBUILDING_CACHE_TAG);
 
   const now = Date.now();
-  const [projects, grants, clips, teamBuildings] = await Promise.all([
-    fetchProjects(now),
-    fetchGrants(now),
-    fetchClips(),
-    fetchAllTeamBuildings("latest"),
-  ]);
+  const [projects, grants, clips, teamBuildings, newsletters] =
+    await Promise.all([
+      fetchProjects(now),
+      fetchGrants(now),
+      fetchClips(),
+      fetchAllTeamBuildings("latest"),
+      getNewsletterArchive(),
+    ]);
 
   const projectEntries = projects.map((project) => ({
     href: getProjectHref(project),
@@ -127,6 +130,10 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
   const teamBuildingUpdatedAt = teamBuildings.map((post) =>
     toKstDate(post.updated_at),
   );
+  // 지난 뉴스레터는 발송 후 바뀌지 않아 발송일을 수정일로 쓴다.
+  const newsletterPublishedAt = newsletters.map((item) =>
+    toKstDate(`${item.publishedAt}T08:00:00`),
+  );
 
   return [
     entry(
@@ -142,7 +149,8 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     entry(seoContent.startupSupport.path, latest(grantUpdatedAt)),
     entry(seoContent.teamBuilding.path, latest(teamBuildingUpdatedAt)),
     entry(seoContent.clip.path, latest(clipUpdatedAt)),
-    entry(seoContent.subscribe.path),
+    // 구독 페이지 아래에 지난 뉴스레터 목록이 있어 최신 호 발송일이 바뀐 날이다.
+    entry(seoContent.subscribe.path, latest(newsletterPublishedAt)),
     entry(seoContent.terms.path),
     entry(seoContent.privacy.path),
     ...projectEntries.map((item) => entry(item.href, item.updatedAt)),
@@ -157,6 +165,9 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     ),
     ...clips.map((clip, index) =>
       entry(getClipHref(clip), clipUpdatedAt[index]),
+    ),
+    ...newsletters.map((item, index) =>
+      entry(item.href, newsletterPublishedAt[index]),
     ),
   ];
 }

@@ -31,7 +31,9 @@ export interface AnalyticsEvents {
   bookmark_remove: { content_type: ContentType; item_id: string };
   share: PageContent & { method: "native" | "copy" };
   select_promotion: { promotion_name: string };
-  subscribe_cta_click: { location: "header" | "floating" | "main_section" };
+  subscribe_cta_click: {
+    location: "header" | "floating" | "main_section" | "newsletter_issue";
+  };
   login_modal_open: { trigger: LoginTrigger };
   newsletter_unsubscribe: Record<string, never>;
 }

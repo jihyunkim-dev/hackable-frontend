@@ -106,7 +106,7 @@ export function NewsletterSubscribeForm() {
             aria-invalid={hasError || undefined}
             aria-describedby={hasError ? `${fieldId}-error` : undefined}
             placeholder={content.emailPlaceholder}
-            className="h-10 w-full rounded-sm border border-gray-200 bg-white px-3 text-body-m font-medium text-gray-800 outline-none placeholder:text-gray-500 focus:border-primary-300"
+            className="h-10 w-full rounded-sm border border-gray-300 bg-white px-3 text-body-m font-medium text-gray-800 outline-none placeholder:text-gray-500 focus:border-primary-300"
           />
           {/* 체크 박스는 동의 체크, 문구는 동의 내용 모달을 연다. */}
           <div className="flex items-center gap-2 py-2.5">

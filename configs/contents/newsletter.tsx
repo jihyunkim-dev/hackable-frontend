@@ -63,3 +63,35 @@ export const newsletterUnsubscribeContent = {
   invalid: "유효하지 않은 링크예요.",
   error: "수신 거부에 실패했어요. 잠시 후 다시 시도해주세요.",
 };
+
+// 지난 뉴스레터: 구독 페이지 아래 목록과 호수별 상세 (/newsletter/archive/{호수})
+// 상세 문구는 발송 메일과 같다.
+export const newsletterArchiveContent = {
+  eyebrow: "해커블 뉴스레터",
+  title: "지난 뉴스레터 미리 보기",
+  listLabel: "지난 뉴스레터 목록",
+  empty: "아직 발행된 뉴스레터가 없어요.",
+  issue: {
+    weekly: (number: string, date: string) => `WEEKLY #${number} · ${date}`,
+    headline: (thisWeek: number) => ["이번 주에만", `${thisWeek}개가 닫혀요`],
+    summary: (total: number) =>
+      `해커톤·AI 대회·창업 지원사업 ${total}개를 마감 순으로 모았어요.`,
+    partLabel: (index: number) => `PART ${index + 1}`,
+    listedSuffix: (count: number) => ` · 마감 가까운 순 ${count}개`,
+    pickLabel: {
+      prize: "★ PICK · 이 파트 최고 상금",
+      deadline: "★ PICK · 이 파트에서 가장 먼저 마감",
+    },
+    prizeLabel: "상금",
+    prizeUnit: "만원",
+    deadlineLabel: "마감까지",
+    deadlineSuffix: "마감",
+    pickLink: "공고 보러가기",
+    more: "해커블에서 전체 보기 →",
+    notice:
+      "마감일과 내용은 각 공고 원문 기준이며 변경될 수 있어요. 지원 전에 원문을 꼭 확인해 주세요.",
+    schedule: "해커블 · 매주 화요일 오전 8시",
+    subscribe: { label: "무료로 구독하기", href: "/newsletter/subscribe" },
+    backToList: "지난 뉴스레터 목록",
+  },
+};

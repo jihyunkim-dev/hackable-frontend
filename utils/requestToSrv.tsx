@@ -1058,6 +1058,88 @@ export const RequestNewsletterSubscribe = async (
   }
 };
 
+// ----- 지난 뉴스레터 (아카이브) -----
+// D-day는 발송일(published_at) 기준으로 센다. (백엔드 문서)
+
+// 목록: GET /newsletter/archive
+export interface NewsletterArchiveItem {
+  issue: string; // 호수. 연도+주차 (2026w46)
+  title: string;
+  published_at: string; // 발송일 (2026-11-10)
+}
+
+// 공고 한 건 (파트의 pick·items)
+export interface NewsletterIssueEntry {
+  title: string;
+  host: string;
+  end: string; // 마감 시각 (2026-11-20T23:59:00, 한국 시간)
+  prize: number | null; // 상금 (만원 단위). 지원사업은 없다.
+  tag: string | null; // 지원사업 분류 (공간·사업화)
+  url: string;
+}
+
+// 파트: 해커톤·경진대회 / AI 공모전 / 예비창업 지원사업
+export interface NewsletterIssuePart {
+  key: string;
+  title: string;
+  about: string; // 설명 한 줄
+  more: string; // "전체 보기" 주소
+  count: number; // 이 파트 전체 공고 수
+  pick: NewsletterIssueEntry;
+  items: NewsletterIssueEntry[];
+}
+
+// 상세: GET /newsletter/archive/{issue}
+export interface NewsletterIssueResponse extends NewsletterArchiveItem {
+  data: {
+    total: number; // 이번 호에 모은 공고 수
+    this_week: number; // 이번 주에 마감되는 공고 수
+    parts: NewsletterIssuePart[];
+  };
+}
+
+export const RequestNewsletterArchive = async (): Promise<
+  NewsletterArchiveItem[] | null
+> => {
+  try {
+    const res = await fetch(`${url}/newsletter/archive`);
+
+    if (!res.ok) {
+      const errorData = await readError(res);
+      console.error("NewsletterArchive Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("NewsletterArchive Fetch Error", error);
+    return null;
+  }
+};
+
+export const RequestNewsletterIssue = async (
+  issue: string,
+): Promise<NewsletterIssueResponse | null> => {
+  try {
+    const res = await fetch(
+      `${url}/newsletter/archive/${encodeURIComponent(issue)}`,
+    );
+
+    // 없는 호수는 에러가 아니라 "없음"이다. (상세 화면은 404 화면을 보여 준다)
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      const errorData = await readError(res);
+      console.error("NewsletterIssue Error", errorData);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("NewsletterIssue Fetch Error", error);
+    return null;
+  }
+};
+
 // 수신 거부 결과. invalid는 없거나 만료된 토큰(404)
 export type UnsubscribeResult = "ok" | "invalid";
 
