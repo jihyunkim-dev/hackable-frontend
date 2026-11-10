@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { hackableSans } from "./font";
 import { cn } from "@/lib/utils";
@@ -20,8 +21,9 @@ import {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   ...pageMetadata(seoContent.home),
-  // 검색엔진 사이트 소유 확인 (네이버 서치어드바이저). 페이지 메타데이터가 덮어쓰지 않아 모든 페이지에 붙는다.
-  // 계정마다 코드가 달라 여러 개를 넣는다. (배열이면 meta 태그가 하나씩 생긴다)
+  // 검색엔진 사이트 소유 확인 (네이버 서치어드바이저).
+  // 페이지 메타데이터가 덮어쓰지 않아 모든 페이지에 붙는다.
+  // 계정마다 코드가 달라 여러 개를 넣는다.
   verification: {
     other: {
       "naver-site-verification": [
@@ -53,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <GlobalAlertModal />
         </QueryProvider>
         <Analytics />
+        <VercelAnalytics />
       </body>
     </html>
   );
