@@ -15,7 +15,7 @@ export default function ContestDetailServerBlock({
   return (
     <DefaultLayout>
       <HeaderSpacer />
-      <ProjectDetailSection detail={detail} />
+      <ProjectDetailSection detail={detail} viewType="project" />
       <PromoBanner {...bannerContent.contest} className="mt-6 lg:mt-12" />
       <NewsletterSection />
     </DefaultLayout>

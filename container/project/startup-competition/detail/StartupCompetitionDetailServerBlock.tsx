@@ -15,7 +15,7 @@ export default function StartupCompetitionDetailServerBlock({
   return (
     <DefaultLayout>
       <HeaderSpacer />
-      <ProjectDetailSection detail={detail} />
+      <ProjectDetailSection detail={detail} viewType="project" />
       <PromoBanner {...bannerContent.grants} className="mt-6 lg:mt-12" />
       <NewsletterSection />
     </DefaultLayout>

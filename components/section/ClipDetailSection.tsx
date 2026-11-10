@@ -3,6 +3,7 @@ import ClipToc from "@/components/section/ClipToc";
 import BookmarkToggle from "@/components/ui/BookmarkToggle";
 import ShareButton from "@/components/ui/ShareButton";
 import { clipContent } from "@/configs/contents/clip";
+import ViewCount from "@/components/ui/ViewCount";
 import { commonIconUrl } from "@/configs/urls";
 import { MARKDOWN_STYLE } from "@/lib/markdownStyle";
 import { cn } from "@/lib/utils";
@@ -134,7 +135,7 @@ export default function ClipDetailSection({ detail }: { detail: ClipDetail }) {
               height={19}
               className="size-4 lg:size-[19px]"
             />
-            {detail.views}
+            <ViewCount type="clip" id={detail.id} initial={detail.views} />
           </span>
         </p>
 

@@ -943,6 +943,55 @@ export const RequestClipBookmark = async (
   }
 };
 
+// ===== Views (조회수) =====
+
+// 조회수를 세는 상세 경로. 백엔드는 상세 GET을 받을 때마다 조회수를 1 올린다.
+export const VIEW_PATHS = {
+  project: "project",
+  grant: "startup-support",
+  teambuilding: "teambuildings",
+  clip: "clips",
+} as const;
+
+export type ViewTarget = keyof typeof VIEW_PATHS;
+
+// 방문자 정보. 우리 서버를 거쳐 부르므로 실제 방문자 IP·브라우저를 넘긴다.
+export interface ViewVisitor {
+  ip?: string | null;
+  userAgent?: string | null;
+}
+
+// 방문 한 번을 센다. 상세 GET을 캐시 없이 불러 반영 후 조회수를 돌려준다. (app/api/views)
+// 상세 화면 데이터는 캐시해 두고 쓰므로, 방문마다 이 요청만 따로 보낸다.
+export const RequestCountView = async (
+  target: ViewTarget,
+  id: number,
+  visitor: ViewVisitor = {},
+): Promise<number | null> => {
+  try {
+    const headers: Record<string, string> = {};
+    if (visitor.ip) headers["X-Forwarded-For"] = visitor.ip;
+    if (visitor.userAgent) headers["User-Agent"] = visitor.userAgent;
+
+    const res = await fetch(`${url}/${VIEW_PATHS[target]}/${id}`, {
+      cache: "no-store",
+      headers,
+    });
+
+    if (!res.ok) {
+      const errorData = await readError(res);
+      console.error("CountView Error", errorData);
+      return null;
+    }
+
+    const data: { view_count?: number } = await res.json();
+    return typeof data.view_count === "number" ? data.view_count : null;
+  } catch (error) {
+    console.error("CountView Fetch Error", error);
+    return null;
+  }
+};
+
 // ===== Newsletter (뉴스레터) =====
 
 export interface NewsletterResponse {

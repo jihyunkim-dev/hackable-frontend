@@ -7,6 +7,7 @@ import BookmarkToggle from "@/components/ui/BookmarkToggle";
 import ShareButton from "@/components/ui/ShareButton";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { teamBuildingContent } from "@/configs/contents/teamBuilding";
+import ViewCount from "@/components/ui/ViewCount";
 import { commonIconUrl } from "@/configs/urls";
 import { cn } from "@/lib/utils";
 
@@ -77,7 +78,11 @@ export default function TeamBuildingDetailSection({
                     height={19}
                     className="size-3 lg:size-[19px]"
                   />
-                  {detail.views}
+                  <ViewCount
+                    type="teambuilding"
+                    id={detail.id}
+                    initial={detail.views}
+                  />
                 </span>
               </p>
               <AuthorOnly authorId={detail.authorId}>

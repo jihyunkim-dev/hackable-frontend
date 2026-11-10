@@ -15,7 +15,7 @@ export default function HackathonDetailServerBlock({
   return (
     <DefaultLayout>
       <HeaderSpacer />
-      <ProjectDetailSection detail={detail} />
+      <ProjectDetailSection detail={detail} viewType="project" />
       <PromoBanner {...bannerContent.hackathon} className="mt-6 lg:mt-12" />
       <NewsletterSection />
     </DefaultLayout>

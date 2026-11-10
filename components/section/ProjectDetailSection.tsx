@@ -1,8 +1,9 @@
 import Image from "next/image";
-import { Suspense } from "react";
+import { type ReactNode, Suspense } from "react";
 import { FLOATING_CENTER_POSITION } from "@/components/layout/floatingPosition";
 import Button from "@/components/ui/Button";
 import TextLogoThumbnail from "@/components/ui/TextLogoThumbnail";
+import ViewCount from "@/components/ui/ViewCount";
 import { projectDetailContent } from "@/configs/contents/projectDetail";
 import { placeholderImageUrl } from "@/configs/urls";
 import { gaAttrs } from "@/lib/analytics";
@@ -35,8 +36,11 @@ const BODY_STYLE =
 // lg 미만: 포스터 → 요약 → 본문 / lg 이상: 본문 + 오른쪽 고정 요약 카드
 export default function ProjectDetailSection({
   detail,
+  viewType,
 }: {
   detail: ProjectDetail;
+  // 조회수를 세는 종류 (대회: project, 지원사업: grant)
+  viewType: "project" | "grant";
 }) {
   const { periodLabel, viewsLabel, dDayLabel, applyLabel } =
     projectDetailContent;
@@ -101,7 +105,16 @@ export default function ProjectDetailSection({
             {detail.title}
           </p>
           <dl className="grid grid-cols-2 gap-2 p-2">
-            <Stat label={viewsLabel} value={detail.views.toLocaleString()} />
+            <Stat
+              label={viewsLabel}
+              value={
+                <ViewCount
+                  type={viewType}
+                  id={detail.id}
+                  initial={detail.views}
+                />
+              }
+            />
             <Stat label={dDayLabel} value={detail.dDay} />
           </dl>
           {detail.applyUrl && (
@@ -176,7 +189,7 @@ function DetailThumbnail({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex flex-col gap-1 rounded-sm bg-primary-50 p-3">
       <dt className="text-label-m text-center text-gray-700">{label}</dt>
