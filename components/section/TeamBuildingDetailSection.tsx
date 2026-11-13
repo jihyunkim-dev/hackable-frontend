@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import AuthorName from "@/components/ui/AuthorName";
 import TeamBuildingDeleteButton from "@/components/section/TeamBuildingDeleteButton";
 import AuthorOnly from "@/components/ui/AuthorOnly";
 import BookmarkToggle from "@/components/ui/BookmarkToggle";
@@ -15,7 +14,6 @@ export interface TeamBuildingDetail {
   id: string;
   isOpen: boolean;
   title: string;
-  author: string;
   // 작성자 이름이 없을 때 내가 쓴 글인지 확인하는 데 쓴다.
   authorId?: number;
   createdAt: string;
@@ -64,12 +62,7 @@ export default function TeamBuildingDetailSection({
             {/* 메타 줄 오른쪽 끝: 내가 쓴 글이면 수정·삭제 (읽는 사람용 북마크·공유와 떼어 둔다) */}
             <div className="flex items-end justify-between gap-3">
               <p className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
-                <AuthorName
-                  author={detail.author}
-                  authorId={detail.authorId}
-                  className="text-body-l text-gray-800 lg:py-2.5"
-                />
-                <span className="flex w-full items-center gap-1 text-body-m text-gray-500 lg:w-auto lg:gap-2.5 lg:px-2.5">
+                <span className="flex items-center gap-1 text-body-m text-gray-500 lg:gap-2.5 lg:py-2.5">
                   <time>{detail.createdAt}</time>
                   <Image
                     src={commonIconUrl.eye}

@@ -170,7 +170,6 @@ export const createDummyTeamBuildingList = (length = 8): TeamBuildingItem[] =>
     category: "해커톤",
     title: "서울 거주하시는 프론트 한 분, 백엔드 두 분 팀원 구합니다🙌🏻",
     dDay: "D-21",
-    author: `작성자${index + 1}`,
     views: 146,
     bookmarks: 6,
     href: `/teambuilding/team-${index + 1}`,
@@ -183,7 +182,6 @@ export const createDummyTeamBuildingDetail = (
   isOpen: true,
   title:
     "[사이드프로젝트 / 프로덕트 디자이너 1명] 운동 기록 서비스 OnRep 팀원 모집",
-  author: "작성자1",
   createdAt: "2026.10.08 14:38",
   views: 128,
   bookmarks: 36,
@@ -317,7 +315,6 @@ export const dummyMypage = {
     title: "서울 거주하시는 프론트 한 분, 백엔드 두 분 팀원 구합니다🙌🏻",
     isOpen: index === 0,
     dDay: "D-21",
-    author: "작성자1",
     views: 146,
     bookmarks: 6,
     href: `/teambuilding/my-team-${index + 1}`,

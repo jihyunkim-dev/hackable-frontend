@@ -273,9 +273,6 @@ function MyTeamBuildingCard({ post }: { post: TeamBuildingItem }) {
         <span className="text-label-m text-gray-500">{remainingSuffix}</span>
       </p>
       <div className="mt-auto flex items-center gap-1 pt-2 md:pt-4">
-        <span className="hidden py-1 text-label-l text-gray-800 md:inline">
-          {post.author}
-        </span>
         <span className="ml-auto flex items-center gap-1 p-1 text-label-m text-gray-500">
           <Image
             src={commonIconUrl.eyeSmall}

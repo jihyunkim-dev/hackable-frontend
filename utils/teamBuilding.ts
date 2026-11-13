@@ -79,8 +79,6 @@ export function toTeamBuildingItem(
     category: toCategoryLabel(post.category),
     title: post.title,
     dDay: formatDDay(post.end_date, now),
-    // TODO: API에 작성자 이름이 없다. (author_id만 옴)
-    author: "",
     views: post.view_count,
     bookmarks: post.bookmark_count,
     href: `/teambuilding/${post.teambuilding_id}`,
@@ -197,8 +195,6 @@ export function toTeamBuildingDetail(
     id: String(post.teambuilding_id),
     isOpen: isTeamBuildingOpen(post, now),
     title: post.title,
-    // TODO: API에 작성자 이름이 없다. (author_id만 옴) 지금은 내가 쓴 글만 내 이름을 보여준다.
-    author: "",
     authorId: post.author_id,
     createdAt: formatDateTime(post.created_at),
     views: post.view_count,

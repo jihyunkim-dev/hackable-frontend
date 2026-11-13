@@ -12,7 +12,6 @@ export interface TeamBuildingItem {
   category: string;
   title: string;
   dDay: string;
-  author: string;
   views: number;
   bookmarks: number;
   href: string;
@@ -71,9 +70,6 @@ export default function TeamBuildingCard({
         )}
       </p>
       <div className="mt-auto flex items-center gap-1 pt-4">
-        <span className="py-1 text-label-m text-gray-800 sm:text-label-l">
-          {item.author}
-        </span>
         <span className="ml-auto flex items-center gap-1 p-1 text-label-m text-gray-500">
           <Image
             src={commonIconUrl.eyeSmall}
